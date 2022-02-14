@@ -24,10 +24,6 @@ server:
         cookie:
            http-only: false
 spring:
-  servlet:
-    multipart:
-      max-file-size: 300MB
-      max-request-size: 300MB
   main:
     allow-bean-definition-overriding: true
   data-source1:
