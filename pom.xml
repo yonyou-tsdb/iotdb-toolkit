@@ -207,7 +207,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<version>4.13.1</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -245,12 +245,6 @@
 			<version>2.8.0</version>
 		</dependency>
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<scope>provided</scope>
-			<version>8.0.22</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.iotdb</groupId>
 			<artifactId>iotdb-jdbc</artifactId>
 			<version>0.12.2</version>
@@ -284,7 +278,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
-			<version>1.18</version>
+			<version>1.21</version>
 		</dependency>
 	</dependencies>
 	<build>
