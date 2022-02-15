@@ -12,13 +12,13 @@ Nginx
 
 1. In the project root directory execute `mvn clean package` to compile
 2. In the project root directory execute `java -jar target/iotdb-ui-0.12.3-SNAPSHOT` to startup, 8080 port is used by default
-3. Map the contents in `/front/dist` or the frontend project compiled by yourself to a port through nginx. For example, the following configuration maps the application to port 8040:
+3. Map the contents in `/front/dist` or the front-end project compiled by yourself to a port through nginx. For example, the following configuration maps the application to port 8040:
 ```
 server {
 	listen		8040;
 	server_name	localhost;
 	location / {
-		root	XXX/front/dist;
+		root	iotdbui-back/front/dist;
 		index	index.html;
 	}
 	location /api/ {
