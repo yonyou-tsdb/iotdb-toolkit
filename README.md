@@ -2,13 +2,15 @@
 
 IoTDB-UI is a management system that can deeply manage IoTDB. It provides precise management at the desktop software level. I hope it will be helpful for you when using IoTDB.
 
-#### Required:
+#### Required
 
 Java 1.8 or above
+
 Maven 3.3.0 or above
+
 Nginx
 
-#### Deployment steps:
+#### Deployment steps
 
 1. In the project root directory execute `mvn clean package` to compile
 2. In the project root directory execute `java -jar target/iotdb-ui-0.12.3-SNAPSHOT` to startup, 8080 port is used by default

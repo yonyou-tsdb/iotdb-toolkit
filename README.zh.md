@@ -2,13 +2,15 @@
 
 IoTDB-UI是一个可以深度管理IoTDB的管理系统，它提供了桌面软件级别的精确管理， 希望它能对您使用 IoTDB 有所帮助。
 
-#### 需求:
+#### 需求
 
 Java 1.8 or above
+
 Maven 3.3.0 or above
+
 Nginx
 
-#### 部署步骤:
+#### 部署步骤
 
 1. 在项目根目录执行 `mvn clean package` 以编译
 2. 在项目根目录执行 `java -jar target/iotdb-ui-0.12.3-SNAPSHOT` 以启动，默认使用 8080 端口
