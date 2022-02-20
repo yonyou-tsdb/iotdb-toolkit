@@ -21,7 +21,7 @@ package org.apache.iotdb.ui.service;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.Query;
 import org.apache.iotdb.ui.exception.BaseException;
-import org.apache.iotdb.ui.exception.ErrorCode;
+import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.QueryDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ public class TransactionService {
 		c.setAlias(connect.getAlias());
 		int n = connectDao.count(c);
 		if (n != 1) {
-			throw new BaseException(ErrorCode.ALIAS_REPEAT, ErrorCode.ALIAS_REPEAT_MSG);
+			throw new BaseException(FeedbackError.ALIAS_REPEAT, FeedbackError.ALIAS_REPEAT_MSG);
 		}
 		return ret;
 	}
@@ -60,7 +60,7 @@ public class TransactionService {
 		c.setAlias(connect.getAlias());
 		int n = connectDao.count(c);
 		if (n != 1) {
-			throw new BaseException(ErrorCode.ALIAS_REPEAT, ErrorCode.ALIAS_REPEAT_MSG);
+			throw new BaseException(FeedbackError.ALIAS_REPEAT, FeedbackError.ALIAS_REPEAT_MSG);
 		}
 		return ret;
 	}
@@ -73,7 +73,7 @@ public class TransactionService {
 		q.setName(query.getName());
 		int n = queryDao.count(q);
 		if (n != 1) {
-			throw new BaseException(ErrorCode.QUERY_EXIST, ErrorCode.QUERY_EXIST_MSG);
+			throw new BaseException(FeedbackError.QUERY_EXIST, FeedbackError.QUERY_EXIST_MSG);
 		}
 		return ret;
 	}

@@ -31,7 +31,7 @@ import org.apache.iotdb.ui.config.tsdatasource.DynamicSessionPool;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.User;
 import org.apache.iotdb.ui.exception.BaseException;
-import org.apache.iotdb.ui.exception.ErrorCode;
+import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.UserDao;
 import org.apache.iotdb.ui.model.BaseVO;
@@ -103,7 +103,7 @@ public class ConnectionController {
 		c.setId(id);
 		Connect connect = connectDao.selectOne(c);
 		if (connect == null) {
-			return new BaseVO<>(ErrorCode.CHECK_FAIL, ErrorCode.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
 		}
 		Connect connect2 = new Connect();
 		if (password == null) {
@@ -122,21 +122,21 @@ public class ConnectionController {
 		try (Socket socket = new Socket();) {
 			socket.connect(new InetSocketAddress(conn.getHost(), conn.getPort()), 5000);
 		} catch (Exception e) {
-			return new BaseVO<>(ErrorCode.TEST_CONN_FAIL, ErrorCode.TEST_CONN_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.TEST_CONN_FAIL, FeedbackError.TEST_CONN_FAIL_MSG, null);
 		}
 		Session session = null;
 		try {
 			session = new Session(conn.getHost(), conn.getPort(), conn.getUsername(), conn.getPassword());
 			session.open();
 		} catch (Exception e) {
-			return new BaseVO<>(ErrorCode.TEST_CONN_FAIL_PWD, ErrorCode.TEST_CONN_FAIL_PWD_MSG, null);
+			return new BaseVO<>(FeedbackError.TEST_CONN_FAIL_PWD, FeedbackError.TEST_CONN_FAIL_PWD_MSG, null);
 		} finally {
 			try {
 				if (session != null) {
 					session.close();
 				}
 			} catch (Exception e) {
-				return new BaseVO<>(ErrorCode.TEST_CONN_FAIL_PWD, ErrorCode.TEST_CONN_FAIL_PWD_MSG, null);
+				return new BaseVO<>(FeedbackError.TEST_CONN_FAIL_PWD, FeedbackError.TEST_CONN_FAIL_PWD_MSG, null);
 			}
 		}
 		return BaseVO.success("Test Success", null);
@@ -177,7 +177,7 @@ public class ConnectionController {
 			Page<Connect> page = new Page<>(list, cc.getLimiter());
 			return BaseVO.success("Add Connection Success", page);
 		} else {
-			return new BaseVO<>(ErrorCode.INSERT_CONN_FAIL, ErrorCode.INSERT_CONN_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.INSERT_CONN_FAIL, FeedbackError.INSERT_CONN_FAIL_MSG, null);
 		}
 	}
 
@@ -218,14 +218,14 @@ public class ConnectionController {
 	public BaseVO<Object> connectionDelete(@RequestParam("id") Long id) {
 		Connect connect = connectDao.select(id);
 		if (connect == null) {
-			return new BaseVO<>(ErrorCode.NO_CONN, ErrorCode.NO_CONN_MSG, null);
+			return new BaseVO<>(FeedbackError.NO_CONN, FeedbackError.NO_CONN_MSG, null);
 		}
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		if (connect.getUser() != null && user.getId().equals(connect.getUser().getId())) {
 			int i = connectDao.delete(connect);
 			if (i == 0) {
-				return new BaseVO<>(ErrorCode.DELETE_CONN_FAIL, ErrorCode.DELETE_CONN_FAIL_MSG, null);
+				return new BaseVO<>(FeedbackError.DELETE_CONN_FAIL, FeedbackError.DELETE_CONN_FAIL_MSG, null);
 			} else {
 				SessionPool sp = dynamicSessionPool.getSessionPool(connect.getId());
 				dynamicSessionPool.removeSessionPool(connect.getId());
@@ -234,7 +234,7 @@ public class ConnectionController {
 				return BaseVO.success("Delete Connection Success", null);
 			}
 		} else {
-			return new BaseVO<>(ErrorCode.USER_AUTH_FAIL, ErrorCode.USER_AUTH_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.USER_AUTH_FAIL, FeedbackError.USER_AUTH_FAIL_MSG, null);
 		}
 	}
 
@@ -246,7 +246,7 @@ public class ConnectionController {
 			@RequestParam("connectionName") String connectionName) {
 		Connect connect = connectDao.select(id);
 		if (connect == null) {
-			return new BaseVO<>(ErrorCode.NO_CONN, ErrorCode.NO_CONN_MSG, null);
+			return new BaseVO<>(FeedbackError.NO_CONN, FeedbackError.NO_CONN_MSG, null);
 		}
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
@@ -268,10 +268,10 @@ public class ConnectionController {
 
 				return BaseVO.success("Update Connection Success", null);
 			} else {
-				return new BaseVO<>(ErrorCode.INSERT_CONN_FAIL, ErrorCode.INSERT_CONN_FAIL_MSG, null);
+				return new BaseVO<>(FeedbackError.INSERT_CONN_FAIL, FeedbackError.INSERT_CONN_FAIL_MSG, null);
 			}
 		} else {
-			return new BaseVO<>(ErrorCode.USER_AUTH_FAIL, ErrorCode.USER_AUTH_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.USER_AUTH_FAIL, FeedbackError.USER_AUTH_FAIL_MSG, null);
 		}
 	}
 
@@ -285,7 +285,7 @@ public class ConnectionController {
 		c.setId(id);
 		Connect connect = connectDao.selectOne(c);
 		if (connect == null) {
-			return new BaseVO<>(ErrorCode.CHECK_FAIL, ErrorCode.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
 		} else {
 			return BaseVO.success(connect);
 		}

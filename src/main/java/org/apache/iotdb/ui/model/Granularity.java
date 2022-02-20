@@ -18,14 +18,14 @@
  */
 package org.apache.iotdb.ui.model;
 
-import org.apache.iotdb.ui.exception.ErrorCode;
+import org.apache.iotdb.ui.exception.FeedbackError;
 
 public enum Granularity {
 
-	CONNECTION("数据连接", 1, ErrorCode.PRIV_ROOT_FAIL, ErrorCode.PRIV_ROOT_FAIL_MSG),
-	STORAGE_GROUP("存储组", 2, ErrorCode.PRIV_GROUP_FAIL, ErrorCode.PRIV_GROUP_FAIL_MSG),
-	ENTITY("实体", 3, ErrorCode.PRIV_DEVICE_FAIL, ErrorCode.PRIV_DEVICE_FAIL_MSG),
-	PHYSICAL("物理量", 4, ErrorCode.PRIV_TIMESERIES_FAIL, ErrorCode.PRIV_TIMESERIES_FAIL_MSG),
+	CONNECTION("数据连接", 1, FeedbackError.PRIV_ROOT_FAIL, FeedbackError.PRIV_ROOT_FAIL_MSG),
+	STORAGE_GROUP("存储组", 2, FeedbackError.PRIV_GROUP_FAIL, FeedbackError.PRIV_GROUP_FAIL_MSG),
+	ENTITY("实体", 3, FeedbackError.PRIV_DEVICE_FAIL, FeedbackError.PRIV_DEVICE_FAIL_MSG),
+	PHYSICAL("物理量", 4, FeedbackError.PRIV_TIMESERIES_FAIL, FeedbackError.PRIV_TIMESERIES_FAIL_MSG),
 	UNKNOWN("未知", 5, "UNKNOWN", "UNKNOWN");
 
 	private final String value;

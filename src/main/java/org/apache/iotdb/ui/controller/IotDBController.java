@@ -37,7 +37,7 @@ import javax.validation.Valid;
 
 import org.apache.iotdb.session.pool.SessionPool;
 import org.apache.iotdb.ui.config.tsdatasource.DynamicSessionPool;
-import org.apache.iotdb.ui.exception.ErrorCode;
+import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.model.BaseVO;
 import org.apache.iotdb.ui.model.Granularity;
 import org.apache.iotdb.ui.model.UserDto;
@@ -84,8 +84,9 @@ public class IotDBController {
 					.transform(getDetermineSessionPool().executeQueryStatement(sql));
 			return BaseVO.success(list);
 		} catch (Exception e) {
-			return new BaseVO<>(ErrorCode.GET_USER_FAIL,
-					new StringBuilder(ErrorCode.GET_USER_FAIL_MSG).append(":").append(e.getMessage()).toString(), null);
+			return new BaseVO<>(FeedbackError.GET_USER_FAIL,
+					new StringBuilder(FeedbackError.GET_USER_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+					null);
 		}
 	}
 
@@ -126,7 +127,7 @@ public class IotDBController {
 			throws SQLException {
 		String sql = new StringBuilder("list user privileges ").append(user).toString();
 		if (!sql.matches(REG)) {
-			return new BaseVO<>(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG, null);
+			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, FeedbackError.WRONG_DB_PARAM_MSG, null);
 		}
 		try {
 			List<Map<String, Object>> list = queryController
@@ -155,8 +156,9 @@ public class IotDBController {
 			Collections.sort(list1, new CompareByLength("index", "range"));
 			return BaseVO.success(list1);
 		} catch (Exception e) {
-			return new BaseVO<>(ErrorCode.GET_USER_FAIL,
-					new StringBuilder(ErrorCode.GET_USER_FAIL_MSG).append(":").append(e.getMessage()).toString(), null);
+			return new BaseVO<>(FeedbackError.GET_USER_FAIL,
+					new StringBuilder(FeedbackError.GET_USER_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+					null);
 		}
 	}
 
@@ -184,7 +186,7 @@ public class IotDBController {
 			@RequestParam(value = "auth", required = false) String auths, @RequestParam(value = "range") String ranges)
 			throws Exception {
 		if (!(user.matches(REG) && (auths == null || auths.matches(REG)) && ranges.matches(REG))) {
-			return new BaseVO<>(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG, null);
+			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, FeedbackError.WRONG_DB_PARAM_MSG, null);
 		}
 		List<String> sqlList = new ArrayList<>();
 		String[] rangeArray = ranges.split(",");
@@ -243,8 +245,8 @@ public class IotDBController {
 				getDetermineSessionPool().executeNonQueryStatement(s);
 			}
 		} catch (Exception e) {
-			return new BaseVO<>(ErrorCode.PRIV_CHANGE_FAIL,
-					new StringBuilder(ErrorCode.PRIV_CHANGE_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+			return new BaseVO<>(FeedbackError.PRIV_CHANGE_FAIL,
+					new StringBuilder(FeedbackError.PRIV_CHANGE_FAIL_MSG).append(":").append(e.getMessage()).toString(),
 					null);
 		}
 		return BaseVO.success(null);
@@ -325,7 +327,7 @@ public class IotDBController {
 		if (!(user.matches(REG) && authStr.matches(REG) && (sgStr == null || sgStr.matches(REG))
 				&& (entityStr == null || entityStr.matches(REG))
 				&& (physicalStr == null || physicalStr.matches(REG)))) {
-			return new BaseVO<>(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG, null);
+			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, FeedbackError.WRONG_DB_PARAM_MSG, null);
 		}
 		List<String> sqlList = new ArrayList<>();
 		String[] auths = authStr.trim().split(",");
@@ -363,8 +365,9 @@ public class IotDBController {
 				getDetermineSessionPool().executeNonQueryStatement(s);
 			}
 		} catch (Exception e) {
-			return new BaseVO<>(ErrorCode.PRIV_ADD_FAIL,
-					new StringBuilder(ErrorCode.PRIV_ADD_FAIL_MSG).append(":").append(e.getMessage()).toString(), null);
+			return new BaseVO<>(FeedbackError.PRIV_ADD_FAIL,
+					new StringBuilder(FeedbackError.PRIV_ADD_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+					null);
 		}
 		return BaseVO.success(null);
 	}
@@ -376,8 +379,8 @@ public class IotDBController {
 			getDetermineSessionPool().executeNonQueryStatement(new StringBuilder("CREATE USER ")
 					.append(userDto.getUser()).append(" '").append(userDto.getPassword()).append("'").toString());
 		} catch (Exception e) {
-			return new BaseVO<>(ErrorCode.SET_DB_USER_FAIL,
-					new StringBuilder(ErrorCode.SET_DB_USER_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+			return new BaseVO<>(FeedbackError.SET_DB_USER_FAIL,
+					new StringBuilder(FeedbackError.SET_DB_USER_FAIL_MSG).append(":").append(e.getMessage()).toString(),
 					null);
 		}
 		return BaseVO.success(null);
@@ -388,14 +391,14 @@ public class IotDBController {
 	public BaseVO<Object> editUserWithTenant(HttpServletRequest request, @RequestParam("user") String user,
 			@RequestParam(value = "password") String password) throws SQLException {
 		if (!(user.matches(REG) && password.matches(REG))) {
-			return new BaseVO<>(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG, null);
+			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, FeedbackError.WRONG_DB_PARAM_MSG, null);
 		}
 		try {
 			getDetermineSessionPool().executeNonQueryStatement(new StringBuilder("alter user ").append(user)
 					.append(" set password '").append(password).append("'").toString());
 		} catch (Exception e) {
-			return new BaseVO<>(ErrorCode.UPDATE_PWD_FAIL,
-					new StringBuilder(ErrorCode.UPDATE_PWD_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+			return new BaseVO<>(FeedbackError.UPDATE_PWD_FAIL,
+					new StringBuilder(FeedbackError.UPDATE_PWD_FAIL_MSG).append(":").append(e.getMessage()).toString(),
 					null);
 		}
 		return BaseVO.success(null);
@@ -405,13 +408,13 @@ public class IotDBController {
 	public BaseVO<Object> deleteUserWithTenant(HttpServletRequest request, @RequestParam("user") String user)
 			throws SQLException {
 		if (!(user.matches(REG))) {
-			return new BaseVO<>(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG, null);
+			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, FeedbackError.WRONG_DB_PARAM_MSG, null);
 		}
 		try {
 			getDetermineSessionPool().executeNonQueryStatement(new StringBuilder("drop user ").append(user).toString());
 		} catch (Exception e) {
-			return new BaseVO<>(ErrorCode.DELETE_USER_FAIL,
-					new StringBuilder(ErrorCode.DELETE_USER_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+			return new BaseVO<>(FeedbackError.DELETE_USER_FAIL,
+					new StringBuilder(FeedbackError.DELETE_USER_FAIL_MSG).append(":").append(e.getMessage()).toString(),
 					null);
 		}
 		return BaseVO.success(null);
@@ -461,8 +464,8 @@ public class IotDBController {
 			}
 			return BaseVO.success(list);
 		} catch (Exception e) {
-			return new BaseVO<>(ErrorCode.GET_STORAGE_FAIL,
-					new StringBuilder(ErrorCode.GET_STORAGE_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+			return new BaseVO<>(FeedbackError.GET_STORAGE_FAIL,
+					new StringBuilder(FeedbackError.GET_STORAGE_FAIL_MSG).append(":").append(e.getMessage()).toString(),
 					null);
 		}
 	}
@@ -473,8 +476,8 @@ public class IotDBController {
 		try {
 			getDetermineSessionPool().setStorageGroup(name);
 		} catch (Exception e2) {
-			return new BaseVO<>(ErrorCode.SET_GROUP_FAIL,
-					new StringBuilder(ErrorCode.SET_GROUP_FAIL_MSG).append(":").append(e2.getMessage()).toString(),
+			return new BaseVO<>(FeedbackError.SET_GROUP_FAIL,
+					new StringBuilder(FeedbackError.SET_GROUP_FAIL_MSG).append(":").append(e2.getMessage()).toString(),
 					null);
 		}
 		if (ttl != null) {
@@ -482,8 +485,8 @@ public class IotDBController {
 				getDetermineSessionPool().executeNonQueryStatement(
 						new StringBuilder("set ttl to ").append(name).append(" ").append(ttl).toString());
 			} catch (Exception e) {
-				return new BaseVO<>(ErrorCode.SET_TTL_FAIL,
-						new StringBuilder(ErrorCode.SET_TTL_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+				return new BaseVO<>(FeedbackError.SET_TTL_FAIL,
+						new StringBuilder(FeedbackError.SET_TTL_FAIL_MSG).append(":").append(e.getMessage()).toString(),
 						null);
 			}
 		}
@@ -497,9 +500,8 @@ public class IotDBController {
 		try {
 			getDetermineSessionPool().executeNonQueryStatement(sql);
 		} catch (Exception e) {
-			return new BaseVO<>(ErrorCode.DELETE_GROUP_FAIL,
-					new StringBuilder(ErrorCode.DELETE_GROUP_FAIL_MSG).append(":").append(e.getMessage()).toString(),
-					null);
+			return new BaseVO<>(FeedbackError.DELETE_GROUP_FAIL, new StringBuilder(FeedbackError.DELETE_GROUP_FAIL_MSG)
+					.append(":").append(e.getMessage()).toString(), null);
 		}
 		return BaseVO.success(null);
 	}
@@ -516,8 +518,8 @@ public class IotDBController {
 		try {
 			getDetermineSessionPool().executeNonQueryStatement(sql);
 		} catch (Exception e) {
-			return new BaseVO<>(ErrorCode.SET_GROUP_FAIL,
-					new StringBuilder(ErrorCode.SET_GROUP_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+			return new BaseVO<>(FeedbackError.SET_GROUP_FAIL,
+					new StringBuilder(FeedbackError.SET_GROUP_FAIL_MSG).append(":").append(e.getMessage()).toString(),
 					null);
 		}
 		return BaseVO.success(null);
@@ -549,8 +551,9 @@ public class IotDBController {
 			return BaseVO.success(list0);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new BaseVO<>(ErrorCode.GET_TIMESERIES_FAIL,
-					new StringBuilder(ErrorCode.GET_TIMESERIES_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+			return new BaseVO<>(FeedbackError.GET_TIMESERIES_FAIL,
+					new StringBuilder(FeedbackError.GET_TIMESERIES_FAIL_MSG).append(":").append(e.getMessage())
+							.toString(),
 					null);
 		}
 	}
@@ -562,8 +565,8 @@ public class IotDBController {
 		try {
 			getDetermineSessionPool().executeNonQueryStatement(sql);
 		} catch (Exception e) {
-			return new BaseVO<>(ErrorCode.DELETE_TS_FAIL,
-					new StringBuilder(ErrorCode.DELETE_TS_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+			return new BaseVO<>(FeedbackError.DELETE_TS_FAIL,
+					new StringBuilder(FeedbackError.DELETE_TS_FAIL_MSG).append(":").append(e.getMessage()).toString(),
 					null);
 		}
 		return BaseVO.success(null);
@@ -578,8 +581,8 @@ public class IotDBController {
 		try {
 			getDetermineSessionPool().executeNonQueryStatement(sql);
 		} catch (Exception e) {
-			return new BaseVO<>(ErrorCode.INSERT_TS_FAIL,
-					new StringBuilder(ErrorCode.INSERT_TS_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+			return new BaseVO<>(FeedbackError.INSERT_TS_FAIL,
+					new StringBuilder(FeedbackError.INSERT_TS_FAIL_MSG).append(":").append(e.getMessage()).toString(),
 					null);
 		}
 		return BaseVO.success(null);

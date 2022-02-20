@@ -47,7 +47,7 @@ import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.Query;
 import org.apache.iotdb.ui.entity.User;
 import org.apache.iotdb.ui.exception.BaseException;
-import org.apache.iotdb.ui.exception.ErrorCode;
+import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.QueryDao;
 import org.apache.iotdb.ui.model.BaseVO;
@@ -70,6 +70,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alibaba.druid.wall.violation.ErrorCode;
 import com.alibaba.fastjson.JSONObject;
 
 import indi.mybatis.flying.models.Conditionable;
@@ -108,7 +109,7 @@ public class QueryController {
 
 	private boolean checkConnectAuth(Long connectId) throws BaseException {
 		if (connectId == null) {
-			throw new BaseException(ErrorCode.SELECT_CONNECTION_FAIL, ErrorCode.SELECT_CONNECTION_FAIL_MSG);
+			throw new BaseException(FeedbackError.SELECT_CONNECTION_FAIL, FeedbackError.SELECT_CONNECTION_FAIL_MSG);
 		}
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
@@ -252,12 +253,12 @@ public class QueryController {
 					return BaseVO.success(json.toJSONString(), null);
 				}
 			} catch (Exception e) {
-				return new BaseVO<>(ErrorCode.QUERY_FAIL,
-						new StringBuilder(ErrorCode.QUERY_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+				return new BaseVO<>(FeedbackError.QUERY_FAIL,
+						new StringBuilder(FeedbackError.QUERY_FAIL_MSG).append(":").append(e.getMessage()).toString(),
 						null);
 			}
 		} else {
-			return new BaseVO<>(ErrorCode.CHECK_FAIL, ErrorCode.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
 		}
 	}
 
@@ -266,7 +267,7 @@ public class QueryController {
 			@RequestParam(value = "timestamp") Long timestamp, @RequestParam(value = "point") String point,
 			@RequestParam(value = "value") String value) {
 		if (point.indexOf('.') < 0) {
-			return new BaseVO<>(ErrorCode.NO_SUPPORT_SQL, ErrorCode.NO_SUPPORT_SQL_MSG, null);
+			return new BaseVO<>(FeedbackError.NO_SUPPORT_SQL, FeedbackError.NO_SUPPORT_SQL_MSG, null);
 		}
 		String physical = point.substring(point.lastIndexOf('.') + 1, point.length());
 		String entity = point.substring(0, point.lastIndexOf('.'));
@@ -278,7 +279,7 @@ public class QueryController {
 			try {
 				iotDBController.getDetermineSessionPool().executeNonQueryStatement(sql);
 			} catch (Exception e) {
-				return new BaseVO<>(ErrorCode.NO_SUPPORT_SQL, new StringBuilder(ErrorCode.NO_SUPPORT_SQL_MSG)
+				return new BaseVO<>(FeedbackError.NO_SUPPORT_SQL, new StringBuilder(FeedbackError.NO_SUPPORT_SQL_MSG)
 						.append(": \"").append(sql).append("\" :").append(e.getMessage()).toString(), null);
 			}
 		} else {
@@ -307,7 +308,7 @@ public class QueryController {
 			try {
 				iotDBController.getDetermineSessionPool().executeNonQueryStatement(sql);
 			} catch (Exception e) {
-				return new BaseVO<>(ErrorCode.NO_SUPPORT_SQL, new StringBuilder(ErrorCode.NO_SUPPORT_SQL_MSG)
+				return new BaseVO<>(FeedbackError.NO_SUPPORT_SQL, new StringBuilder(FeedbackError.NO_SUPPORT_SQL_MSG)
 						.append(": \"").append(sql).append("\" :").append(e.getMessage()).toString(), null);
 			}
 		}
@@ -319,7 +320,7 @@ public class QueryController {
 			@RequestParam(value = "queryToken") String queryToken) {
 		SessionDataSet ds = ContinuousIoTDBSession.getContinuousDataSet(queryToken);
 		if (ds == null) {
-			return new BaseVO<>(ErrorCode.NO_SESSION_DATASET, ErrorCode.NO_SESSION_DATASET_MSG, null);
+			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, FeedbackError.NO_SESSION_DATASET_MSG, null);
 		}
 		List<Map<String, Object>> list = new LinkedList<>();
 		boolean hasMore = transform(list, ds, 5000);
@@ -350,7 +351,7 @@ public class QueryController {
 			Page<Query> page = new Page<>(list, qc.getLimiter());
 			return BaseVO.success(page);
 		} else {
-			return new BaseVO<>(ErrorCode.CHECK_FAIL, ErrorCode.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
 		}
 	}
 
@@ -378,7 +379,7 @@ public class QueryController {
 			Page<Query> page = new Page<>(list, qc.getLimiter());
 			return BaseVO.success(page);
 		} else {
-			return new BaseVO<>(ErrorCode.CHECK_FAIL, ErrorCode.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
 		}
 	}
 
@@ -405,7 +406,7 @@ public class QueryController {
 			}
 			return BaseVO.success(null);
 		} else {
-			return new BaseVO<>(ErrorCode.CHECK_FAIL, ErrorCode.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
 		}
 	}
 
@@ -450,7 +451,7 @@ public class QueryController {
 			}
 			return BaseVO.success(null);
 		} else {
-			return new BaseVO<>(ErrorCode.CHECK_FAIL, ErrorCode.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
 		}
 	}
 
@@ -479,13 +480,14 @@ public class QueryController {
 							connect.getPassword(), file.getResource().getInputStream(), timeZone, compressMode,
 							sessionId);
 				} catch (Exception e) {
-					return new BaseVO<>(ErrorCode.IMPORT_CSV_FAIL,
-							new StringBuilder(ErrorCode.IMPORT_CSV_FAIL_MSG).append(e.getMessage()).toString(), null);
+					return new BaseVO<>(FeedbackError.IMPORT_CSV_FAIL,
+							new StringBuilder(FeedbackError.IMPORT_CSV_FAIL_MSG).append(e.getMessage()).toString(),
+							null);
 				}
 			}
 			return BaseVO.success(null);
 		} else {
-			return new BaseVO<>(ErrorCode.CHECK_FAIL, ErrorCode.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
 		}
 	}
 }
