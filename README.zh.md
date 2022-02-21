@@ -13,8 +13,9 @@ Nginx
 #### 部署步骤
 
 1. 在项目根目录执行 `mvn clean package` 以编译
-2. 在项目根目录执行 `java -jar target/iotdb-ui-0.12.3-SNAPSHOT` 以启动，默认使用 8080 端口
-3. 使用 nginx 映射 `/front/dist` 中的内容，或者映射在iotdb-ui前端项目中手动构建的内容。 例如，下面的配置将前端映射到了 8040 端口，同时将后端转发到 8080 端口:
+2. 确保 sqlite 文件 `iotdbui.db` 存在于项目根目录内。如果您使用其它数据库，需要修改 `src/main/resources/application.yml` 文件
+3. 在项目根目录执行 `java -jar target/iotdb-ui-0.12.3-SNAPSHOT` 以启动，默认使用 8080 端口
+4. 使用 nginx 映射 `/front/dist` 中的内容，或者映射在iotdb-ui前端项目中手动构建的内容。 例如，下面的配置将前端映射到了 8040 端口，同时将后端转发到 8080 端口:
 ```
 server {
 	listen		8040;

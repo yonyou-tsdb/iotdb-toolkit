@@ -13,8 +13,9 @@ Nginx
 #### Deployment steps
 
 1. In the project root directory execute `mvn clean package` to compile
-2. In the project root directory execute `java -jar target/iotdb-ui-0.12.3-SNAPSHOT` to startup, 8080 port is used by default
-3. Map the contents in `/front/dist` or the front-end project compiled by yourself to a port through nginx. For example, the following configuration maps the application to port 8040:
+2. Make sure the sqlite file `iotdbui.db` exists in the project root directory. If you use another database, you need to modify the `src/main/resources/application.yml` file
+3. In the project root directory execute `java -jar target/iotdb-ui-0.12.3-SNAPSHOT` to startup, 8080 port is used by default
+4. Map the contents in `/front/dist` or the front-end project compiled by yourself to a port through nginx. For example, the following configuration maps the application to port 8040:
 ```
 server {
 	listen		8040;
