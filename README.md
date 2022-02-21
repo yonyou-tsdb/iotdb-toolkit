@@ -12,10 +12,20 @@ Nginx
 
 #### Deployment steps
 
-1. In the project root directory execute `mvn clean package` to compile
-2. Make sure the sqlite file `iotdbui.db` exists in the project root directory. If you use another database, you need to modify the `src/main/resources/application.yml` file
-3. In the project root directory execute `java -jar target/iotdb-ui-0.12.3-SNAPSHOT` to startup, 8080 port is used by default
-4. Map the contents in `/front/dist` or the front-end project compiled by yourself to a port through nginx. For example, the following configuration maps the application to port 8040:
+1.In the project root directory execute `mvn clean package` to compile
+
+2.Make sure the sqlite file `iotdbui.db` exists in the project root directory. If you use another database, you need to modify the `src/main/resources/application.yml` file
+
+3.Deploy using docker-compose (require docker and docker-compose):
+
+- In the project root directory execute `docker-compose up`
+
+4.Deploy using traditional way:
+
+- In the project root directory execute `java -jar target/iotdb-ui-0.12.3-SNAPSHOT` to startup, 8080 port is used by default
+
+- Map the contents in `/front/dist` or the front-end project compiled by yourself to a port through nginx. For example, the following configuration maps the application to port 8040:
+
 ```
 server {
 	listen		8040;
@@ -29,5 +39,7 @@ server {
         }
 }
 ```
-4. If you enable the websocket feature on nginx, you can get a better user experience. If you do not enable it, it will not affect the use at all;
-5. Now use your browser to open the port you previously set (for example http://localhost:8040/ ）, start to enjoy iotdb!
+
+- If you enable the websocket feature on nginx, you can get a better user experience. If you do not enable it, it will not affect the use at all;
+
+5.Now use your browser to open the port you previously set (for example http://localhost:8040/ ）, start to enjoy iotdb!
