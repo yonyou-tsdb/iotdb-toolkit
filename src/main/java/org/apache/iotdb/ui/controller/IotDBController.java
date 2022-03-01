@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +36,10 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.iotdb.session.Session;
+import org.apache.iotdb.session.SessionDataSet;
 import org.apache.iotdb.session.pool.SessionPool;
+import org.apache.iotdb.ui.config.ContinuousIoTDBSession;
 import org.apache.iotdb.ui.config.tsdatasource.DynamicSessionPool;
 import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.model.BaseVO;
@@ -51,6 +55,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -63,6 +68,10 @@ public class IotDBController {
 	public static final String REG = "^((?!;).)*$";
 
 	public static final String REG2 = "^((?!').)*$";
+
+	public static final int SHOW_SG_BATCH_SIZE = 20;// 1000
+
+	public static final int SHOW_TIMESERIES_BATCH_SIZE = 20;
 
 	@Autowired
 	private QueryController queryController;
@@ -421,53 +430,62 @@ public class IotDBController {
 	}
 
 	@RequestMapping(value = "/api/iotdb/showStorage", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> showStorageWithTenant(HttpServletRequest request) throws SQLException {
+	public BaseVO<Object> showStorageWithTenant(HttpServletRequest request, @RequestParam(value = "token") String token)
+			throws SQLException {
 		try {
-			List<Map<String, Object>> list = queryController
-					.transform(getDetermineSessionPool().executeQueryStatement("show storage group"));
-			List<Map<String, Object>> list2 = queryController
-					.transform(getDetermineSessionPool().executeQueryStatement("show timeseries"));
-			List<Map<String, Object>> list3 = queryController
-					.transform(getDetermineSessionPool().executeQueryStatement("show all ttl"));
-			Map<String, Set<String>> m2 = new HashMap<>();
-			for (Map<String, Object> e : list2) {
-				if (e == null || e.get("timeseries") == null || e.get("storage group") == null) {
-					continue;
-				}
-				String timeseries = e.get("timeseries").toString();
-				String sg = e.get("storage group").toString();
-				if (!m2.containsKey(sg)) {
-					m2.put(sg, new HashSet<String>());
-				}
-				m2.get(sg).add(timeseries);
-			}
-			Map<String, Long> m3 = new HashMap<>();
-			for (Map<String, Object> e : list3) {
-				if (e == null || e.get("ttl") == null || e.get("storage group") == null) {
-					continue;
-				}
-				Long ttl = Long.valueOf(e.get("ttl").toString());
-				String sg = e.get("storage group").toString();
-				m3.put(sg, ttl);
-			}
 
-			Collections.sort(list, new CompareByLength("storage group"));
+			Session session = queryController.getDetermineTemporarySession();
+			session.open(false, 70_000);
+
+			SessionDataSet ds = session.executeQueryStatement("show all ttl");
+			List<Map<String, Object>> list = new LinkedList<>();
+			boolean hasMore = queryController.transform(list, ds, SHOW_SG_BATCH_SIZE);
+			if (hasMore) {
+				ContinuousIoTDBSession.addContinuousDataSet(token, ds);
+			}
 			for (Map<String, Object> m : list) {
 				if (m != null) {
 					Object sgo = m.get("storage group");
-					Set<String> s = m2.get(sgo);
-					m.put("timeseriesCount", s == null ? 0 : s.size());
-					m.put("ttl", m3.get(sgo));
+					m.put("timeseriesCount", 0);
 					m.put("value", sgo);
 					m.remove("storage group");
 				}
 			}
-			return BaseVO.success(list);
+			JSONObject json = new JSONObject();
+			json.put("token", token);
+			json.put("hasMore", hasMore);
+			return BaseVO.success(json.toJSONString(), list);
 		} catch (Exception e) {
 			return new BaseVO<>(FeedbackError.GET_STORAGE_FAIL,
 					new StringBuilder(FeedbackError.GET_STORAGE_FAIL_MSG).append(":").append(e.getMessage()).toString(),
 					null);
 		}
+	}
+
+	@RequestMapping(value = "/api/iotdb/showStorageAppend", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> showStorageAppendWithTenant(HttpServletRequest request,
+			@RequestParam(value = "token") String token) throws SQLException {
+		SessionDataSet ds = ContinuousIoTDBSession.getContinuousDataSet(token);
+		if (ds == null) {
+			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, FeedbackError.NO_SESSION_DATASET_MSG, null);
+		}
+		List<Map<String, Object>> list = new LinkedList<>();
+		boolean hasMore = queryController.transform(list, ds, SHOW_SG_BATCH_SIZE);
+		for (Map<String, Object> m : list) {
+			if (m != null) {
+				Object sgo = m.get("storage group");
+				m.put("timeseriesCount", 0);
+				m.put("value", sgo);
+				m.remove("storage group");
+			}
+		}
+		JSONObject json = new JSONObject();
+		json.put("token", token);
+		json.put("hasMore", hasMore);
+		if (!hasMore) {
+			ContinuousIoTDBSession.removeContinuousDataSet(token);
+		}
+		return BaseVO.success(json.toJSONString(), list);
 	}
 
 	@RequestMapping(value = "/api/iotdb/addStorageGroup", method = { RequestMethod.GET, RequestMethod.POST })
@@ -526,7 +544,72 @@ public class IotDBController {
 	}
 
 	@RequestMapping(value = "/api/iotdb/showTimeseries", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> showTimeseriesWithTenant(HttpServletRequest request, @RequestParam("path") String path)
+	public BaseVO<Object> showTimeseriesWithTenant(HttpServletRequest request, @RequestParam("path") String path,
+			@RequestParam(value = "token") String token) throws SQLException {
+		String sql0 = new StringBuilder("show timeseries ").append(path).append("*").toString();
+		try {
+			Session session = queryController.getDetermineTemporarySession();
+			session.open(false, 70_000);
+
+			SessionDataSet ds = session.executeQueryStatement(sql0);
+			List<Map<String, Object>> list0 = new LinkedList<>();
+			boolean hasMore = queryController.transform(list0, ds, SHOW_TIMESERIES_BATCH_SIZE);
+			if (hasMore) {
+				ContinuousIoTDBSession.addContinuousDataSet(token, ds);
+			}
+			dealTimeseriesList(list0, 0);
+			JSONObject json = new JSONObject();
+			json.put("token", token);
+			json.put("hasMore", hasMore);
+			return BaseVO.success(json.toJSONString(), list0);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new BaseVO<>(FeedbackError.GET_TIMESERIES_FAIL,
+					new StringBuilder(FeedbackError.GET_TIMESERIES_FAIL_MSG).append(":").append(e.getMessage())
+							.toString(),
+					null);
+		}
+	}
+
+	private void dealTimeseriesList(List<Map<String, Object>> list0, int j) {
+		for (Map<String, Object> e : list0) {
+			e.put("key", j++);
+			String[] array = { e.get("dataType").toString(), e.get("encoding").toString(),
+					e.get("compression").toString() };
+			e.put("auth", array);
+			String sg = e.get("storage group").toString();
+			String timeseries = e.get("timeseries").toString();
+			String range = (timeseries.startsWith(sg) && timeseries.lastIndexOf('.') - sg.length() > 1)
+					? timeseries.substring(sg.length() + 1, timeseries.lastIndexOf('.'))
+					: "";
+			e.put("granularity", range);
+			timeseries = timeseries.substring(timeseries.lastIndexOf('.') + 1, timeseries.length());
+			e.put("range", timeseries);
+		}
+		Collections.sort(list0, new CompareByLength("granularity", "range"));
+	}
+
+	@RequestMapping(value = "/api/iotdb/showTimeseriesAppend", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> showTimeseriesAppendWithTenant(HttpServletRequest request,
+			@RequestParam(value = "token") String token) throws SQLException {
+		SessionDataSet ds = ContinuousIoTDBSession.getContinuousDataSet(token);
+		if (ds == null) {
+			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, FeedbackError.NO_SESSION_DATASET_MSG, null);
+		}
+		List<Map<String, Object>> list = new LinkedList<>();
+		boolean hasMore = queryController.transform(list, ds, SHOW_SG_BATCH_SIZE);
+		dealTimeseriesList(list, 0);
+		JSONObject json = new JSONObject();
+		json.put("token", token);
+		json.put("hasMore", hasMore);
+		if (!hasMore) {
+			ContinuousIoTDBSession.removeContinuousDataSet(token);
+		}
+		return BaseVO.success(json.toJSONString(), list);
+	}
+
+	@RequestMapping(value = "/api/iotdb/showTimeseriesBak", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> showTimeseriesBakWithTenant(HttpServletRequest request, @RequestParam("path") String path)
 			throws SQLException {
 		String sql0 = new StringBuilder("show timeseries ").append(path).toString();
 		try {

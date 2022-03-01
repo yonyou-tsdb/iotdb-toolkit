@@ -70,7 +70,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.alibaba.druid.wall.violation.ErrorCode;
 import com.alibaba.fastjson.JSONObject;
 
 import indi.mybatis.flying.models.Conditionable;
@@ -207,7 +206,6 @@ public class QueryController {
 	@RequestMapping(value = "/api/query/querySql", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> querySqlWithTenant(HttpServletRequest request, @RequestParam(value = "sqls") String sqls,
 			@RequestParam(value = "queryToken") String queryToken) throws SQLException {
-		LOGGER.error("querySql:" + queryToken);
 		Long connectId = DynamicDataSourceAspect.getTenantCode(request);
 		boolean b = false;
 		try {
@@ -222,7 +220,7 @@ public class QueryController {
 					return BaseVO.success("0", Collections.EMPTY_LIST);
 				}
 				if (lowerSql.startsWith("select ") || lowerSql.startsWith("show ") || lowerSql.startsWith("list ")
-						|| lowerSql.startsWith("count ")) {
+						|| lowerSql.startsWith("count ") || lowerSql.startsWith("debug ")) {
 					Session session = getDetermineTemporarySession();
 					session.open(false, 70_000);
 
@@ -327,6 +325,9 @@ public class QueryController {
 		JSONObject json = new JSONObject();
 		json.put("queryToken", queryToken);
 		json.put("hasMore", hasMore);
+		if (!hasMore) {
+			ContinuousIoTDBSession.removeContinuousDataSet(queryToken);
+		}
 		return BaseVO.success(json.toJSONString(), list);
 	}
 

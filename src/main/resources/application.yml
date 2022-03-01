@@ -60,3 +60,5 @@ management:
     web:
       exposure:
         include: '*'
+swagger: 
+   enable: true
