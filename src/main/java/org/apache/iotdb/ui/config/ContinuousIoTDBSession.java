@@ -16,6 +16,10 @@ public class ContinuousIoTDBSession {
 		return ret == null ? null : ret.getSessionDataSet();
 	}
 
+	public static SessionDataSetWrapper getContinuousDataSetWrapper(String key) {
+		return continuousDataSetWrapperMap.get(key);
+	}
+
 	public static SessionDataSet addContinuousDataSet(String key, SessionDataSet sessionDataSet) {
 		SessionDataSetWrapper sdsw = new SessionDataSetWrapper(TimerConfig.cou, sessionDataSet);
 		SessionDataSetWrapper ret = continuousDataSetWrapperMap.put(key, sdsw);

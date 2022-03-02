@@ -41,6 +41,7 @@ import org.apache.iotdb.session.SessionDataSet;
 import org.apache.iotdb.session.pool.SessionPool;
 import org.apache.iotdb.ui.config.ContinuousIoTDBSession;
 import org.apache.iotdb.ui.config.tsdatasource.DynamicSessionPool;
+import org.apache.iotdb.ui.config.tsdatasource.SessionDataSetWrapper;
 import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.model.BaseVO;
 import org.apache.iotdb.ui.model.Granularity;
@@ -72,6 +73,8 @@ public class IotDBController {
 	public static final int SHOW_SG_BATCH_SIZE = 20;// 1000
 
 	public static final int SHOW_TIMESERIES_BATCH_SIZE = 20;
+
+	public static final int SHOW_PRIVILEGES_BATCH_SIZE = 20;
 
 	@Autowired
 	private QueryController queryController;
@@ -132,7 +135,85 @@ public class IotDBController {
 
 	@ApiOperation(value = "/api/iotdb/listPrivileges", notes = "/api/iotdb/listPrivileges")
 	@RequestMapping(value = "/api/iotdb/listPrivileges", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> listPrivilegesWithTenant(HttpServletRequest request, @RequestParam("user") String user)
+	public BaseVO<Object> listPrivilegesWithTenant(HttpServletRequest request, @RequestParam("user") String user,
+			@RequestParam(value = "token") String token) throws SQLException {
+		String sql = new StringBuilder("list user privileges ").append(user).toString();
+		if (!sql.matches(REG)) {
+			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, FeedbackError.WRONG_DB_PARAM_MSG, null);
+		}
+		try {
+
+			Session session = queryController.getDetermineTemporarySession();
+			session.open(false, 70_000);
+
+			SessionDataSet ds = session.executeQueryStatement(sql);
+			List<Map<String, Object>> list = new LinkedList<>();
+			boolean hasMore = queryController.transform(list, ds, SHOW_PRIVILEGES_BATCH_SIZE);
+			if (hasMore) {
+				ContinuousIoTDBSession.addContinuousDataSet(token, ds);
+			}
+			List<Map<String, Object>> list1 = dealPrivilegesList(list, 0);
+			JSONObject json = new JSONObject();
+			json.put("token", token);
+			json.put("hasMore", hasMore);
+			return BaseVO.success(json.toJSONString(), list1);
+		} catch (Exception e) {
+			return new BaseVO<>(FeedbackError.GET_USER_FAIL,
+					new StringBuilder(FeedbackError.GET_USER_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+					null);
+		}
+	}
+
+	private List<Map<String, Object>> dealPrivilegesList(List<Map<String, Object>> list, int i) {
+		List<Map<String, Object>> list1 = new LinkedList<>();
+		for (Map<String, Object> e : list) {
+			Object o = e.get("privilege");
+			if (o == null) {
+				continue;
+			}
+			String s = o.toString();
+			String[] array = s.split(":");
+			// deal granularity
+			int c = CommonUtils.countOccurrences(array[0], ".");
+			Granularity granularity = checkGranularity(c);
+			HashMap<String, Object> m = new HashMap<>();
+			m.put("index", granularity.getIndex());
+			m.put("granularity", granularity.getValue());
+			m.put("depth", c);
+			m.put("range", array[0].trim());
+			m.put("auth", array[1].trim().split(" "));
+			m.put("key", i++);
+			list1.add(m);
+		}
+		Collections.sort(list1, new CompareByLength("index", "range"));
+		return list1;
+	}
+
+	@ApiOperation(value = "/api/iotdb/listPrivilegesAppend", notes = "/api/iotdb/listPrivilegesAppend")
+	@RequestMapping(value = "/api/iotdb/listPrivilegesAppend", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> listPrivilegesAppendWithTenant(HttpServletRequest request,
+			@RequestParam(value = "token") String token) throws SQLException {
+		SessionDataSetWrapper dsw = ContinuousIoTDBSession.getContinuousDataSetWrapper(token);
+		SessionDataSet ds = dsw == null ? null : dsw.getSessionDataSet();
+		int times = dsw == null ? 0 : dsw.increaseTimes();
+		if (ds == null) {
+			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, FeedbackError.NO_SESSION_DATASET_MSG, null);
+		}
+		List<Map<String, Object>> list = new LinkedList<>();
+		boolean hasMore = queryController.transform(list, ds, SHOW_PRIVILEGES_BATCH_SIZE);
+		List<Map<String, Object>> list1 = dealPrivilegesList(list, times * SHOW_PRIVILEGES_BATCH_SIZE);
+		JSONObject json = new JSONObject();
+		json.put("token", token);
+		json.put("hasMore", hasMore);
+		if (!hasMore) {
+			ContinuousIoTDBSession.removeContinuousDataSet(token);
+		}
+		return BaseVO.success(json.toJSONString(), list1);
+	}
+
+	@ApiOperation(value = "/api/iotdb/listPrivilegesBak", notes = "/api/iotdb/listPrivilegesBak")
+	@RequestMapping(value = "/api/iotdb/listPrivilegesBak", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> listPrivilegesBakWithTenant(HttpServletRequest request, @RequestParam("user") String user)
 			throws SQLException {
 		String sql = new StringBuilder("list user privileges ").append(user).toString();
 		if (!sql.matches(REG)) {
@@ -443,12 +524,14 @@ public class IotDBController {
 			if (hasMore) {
 				ContinuousIoTDBSession.addContinuousDataSet(token, ds);
 			}
+			int j = 0;
 			for (Map<String, Object> m : list) {
 				if (m != null) {
 					Object sgo = m.get("storage group");
 					m.put("timeseriesCount", 0);
 					m.put("value", sgo);
 					m.remove("storage group");
+					m.put("key", j++);
 				}
 			}
 			JSONObject json = new JSONObject();
@@ -465,10 +548,13 @@ public class IotDBController {
 	@RequestMapping(value = "/api/iotdb/showStorageAppend", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> showStorageAppendWithTenant(HttpServletRequest request,
 			@RequestParam(value = "token") String token) throws SQLException {
-		SessionDataSet ds = ContinuousIoTDBSession.getContinuousDataSet(token);
+		SessionDataSetWrapper dsw = ContinuousIoTDBSession.getContinuousDataSetWrapper(token);
+		SessionDataSet ds = dsw == null ? null : dsw.getSessionDataSet();
+		int times = dsw == null ? 0 : dsw.increaseTimes();
 		if (ds == null) {
 			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, FeedbackError.NO_SESSION_DATASET_MSG, null);
 		}
+		int j = times * SHOW_SG_BATCH_SIZE;
 		List<Map<String, Object>> list = new LinkedList<>();
 		boolean hasMore = queryController.transform(list, ds, SHOW_SG_BATCH_SIZE);
 		for (Map<String, Object> m : list) {
@@ -477,6 +563,7 @@ public class IotDBController {
 				m.put("timeseriesCount", 0);
 				m.put("value", sgo);
 				m.remove("storage group");
+				m.put("key", j++);
 			}
 		}
 		JSONObject json = new JSONObject();
@@ -592,13 +679,15 @@ public class IotDBController {
 	@RequestMapping(value = "/api/iotdb/showTimeseriesAppend", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> showTimeseriesAppendWithTenant(HttpServletRequest request,
 			@RequestParam(value = "token") String token) throws SQLException {
-		SessionDataSet ds = ContinuousIoTDBSession.getContinuousDataSet(token);
+		SessionDataSetWrapper dsw = ContinuousIoTDBSession.getContinuousDataSetWrapper(token);
+		SessionDataSet ds = dsw == null ? null : dsw.getSessionDataSet();
+		int times = dsw == null ? 0 : dsw.increaseTimes();
 		if (ds == null) {
 			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, FeedbackError.NO_SESSION_DATASET_MSG, null);
 		}
 		List<Map<String, Object>> list = new LinkedList<>();
-		boolean hasMore = queryController.transform(list, ds, SHOW_SG_BATCH_SIZE);
-		dealTimeseriesList(list, 0);
+		boolean hasMore = queryController.transform(list, ds, SHOW_TIMESERIES_BATCH_SIZE);
+		dealTimeseriesList(list, times * SHOW_TIMESERIES_BATCH_SIZE);
 		JSONObject json = new JSONObject();
 		json.put("token", token);
 		json.put("hasMore", hasMore);
@@ -606,39 +695,6 @@ public class IotDBController {
 			ContinuousIoTDBSession.removeContinuousDataSet(token);
 		}
 		return BaseVO.success(json.toJSONString(), list);
-	}
-
-	@RequestMapping(value = "/api/iotdb/showTimeseriesBak", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> showTimeseriesBakWithTenant(HttpServletRequest request, @RequestParam("path") String path)
-			throws SQLException {
-		String sql0 = new StringBuilder("show timeseries ").append(path).toString();
-		try {
-			List<Map<String, Object>> list0 = queryController
-					.transform(getDetermineSessionPool().executeQueryStatement(sql0));
-			int j = 1;
-			for (Map<String, Object> e : list0) {
-				e.put("key", j++);
-				String[] array = { e.get("dataType").toString(), e.get("encoding").toString(),
-						e.get("compression").toString() };
-				e.put("auth", array);
-				String sg = e.get("storage group").toString();
-				String timeseries = e.get("timeseries").toString();
-				String range = (timeseries.startsWith(sg) && timeseries.lastIndexOf('.') - sg.length() > 1)
-						? timeseries.substring(sg.length() + 1, timeseries.lastIndexOf('.'))
-						: "";
-				e.put("granularity", range);
-				timeseries = timeseries.substring(timeseries.lastIndexOf('.') + 1, timeseries.length());
-				e.put("range", timeseries);
-			}
-			Collections.sort(list0, new CompareByLength("granularity", "range"));
-			return BaseVO.success(list0);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new BaseVO<>(FeedbackError.GET_TIMESERIES_FAIL,
-					new StringBuilder(FeedbackError.GET_TIMESERIES_FAIL_MSG).append(":").append(e.getMessage())
-							.toString(),
-					null);
-		}
 	}
 
 	@RequestMapping(value = "/api/iotdb/deleteTimeseries", method = { RequestMethod.GET, RequestMethod.POST })

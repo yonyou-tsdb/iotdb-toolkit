@@ -13,6 +13,8 @@ public class SessionDataSetWrapper {
 
 	private SessionDataSet sessionDataSet;
 
+	private int times;
+
 	public Long getTimestamp() {
 		return timestamp;
 	}
@@ -27,6 +29,14 @@ public class SessionDataSetWrapper {
 
 	public void setSessionDataSet(SessionDataSet sessionDataSet) {
 		this.sessionDataSet = sessionDataSet;
+	}
+
+	public int getTimes() {
+		return times;
+	}
+
+	public int increaseTimes() {
+		return ++times;
 	}
 
 }
