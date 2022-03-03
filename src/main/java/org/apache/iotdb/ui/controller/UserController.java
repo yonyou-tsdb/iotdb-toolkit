@@ -151,14 +151,4 @@ public class UserController {
 	@RequestMapping(value = "/toLogin", method = { RequestMethod.GET, RequestMethod.POST })
 	public void toLogin() {
 	}
-
-	@RequestMapping(value = "/api/heartBeat", method = { RequestMethod.POST })
-	public BaseVO<Object> heartBeat(HttpServletRequest request) {
-		String id = IpUtils.getCookieValue(request, "JSESSIONID");
-		if (id != null) {
-			return BaseVO.success(null);
-		} else {
-			return null;
-		}
-	}
 }

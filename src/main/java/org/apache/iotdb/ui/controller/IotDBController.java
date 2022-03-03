@@ -70,11 +70,11 @@ public class IotDBController {
 
 	public static final String REG2 = "^((?!').)*$";
 
-	public static final int SHOW_SG_BATCH_SIZE = 20;// 1000
+	public static final int SHOW_SG_BATCH_SIZE = 1000;
 
-	public static final int SHOW_TIMESERIES_BATCH_SIZE = 20;
+	public static final int SHOW_TIMESERIES_BATCH_SIZE = 1000;
 
-	public static final int SHOW_PRIVILEGES_BATCH_SIZE = 20;
+	public static final int SHOW_PRIVILEGES_BATCH_SIZE = 1000;
 
 	@Autowired
 	private QueryController queryController;
@@ -211,47 +211,6 @@ public class IotDBController {
 		return BaseVO.success(json.toJSONString(), list1);
 	}
 
-	@ApiOperation(value = "/api/iotdb/listPrivilegesBak", notes = "/api/iotdb/listPrivilegesBak")
-	@RequestMapping(value = "/api/iotdb/listPrivilegesBak", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> listPrivilegesBakWithTenant(HttpServletRequest request, @RequestParam("user") String user)
-			throws SQLException {
-		String sql = new StringBuilder("list user privileges ").append(user).toString();
-		if (!sql.matches(REG)) {
-			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, FeedbackError.WRONG_DB_PARAM_MSG, null);
-		}
-		try {
-			List<Map<String, Object>> list = queryController
-					.transform(getDetermineSessionPool().executeQueryStatement(sql));
-			List<HashMap<String, Object>> list1 = new ArrayList<>();
-			int i = 1;
-			for (Map<String, Object> e : list) {
-				Object o = e.get("privilege");
-				if (o == null) {
-					continue;
-				}
-				String s = o.toString();
-				String[] array = s.split(":");
-				// deal granularity
-				int c = CommonUtils.countOccurrences(array[0], ".");
-				Granularity granularity = checkGranularity(c);
-				HashMap<String, Object> m = new HashMap<>();
-				m.put("index", granularity.getIndex());
-				m.put("granularity", granularity.getValue());
-				m.put("depth", c);
-				m.put("range", array[0].trim());
-				m.put("auth", array[1].trim().split(" "));
-				m.put("key", i++);
-				list1.add(m);
-			}
-			Collections.sort(list1, new CompareByLength("index", "range"));
-			return BaseVO.success(list1);
-		} catch (Exception e) {
-			return new BaseVO<>(FeedbackError.GET_USER_FAIL,
-					new StringBuilder(FeedbackError.GET_USER_FAIL_MSG).append(":").append(e.getMessage()).toString(),
-					null);
-		}
-	}
-
 	private Granularity checkGranularity(int c) {
 		Granularity granularity = null;
 		switch (c) {
@@ -342,124 +301,31 @@ public class IotDBController {
 		return BaseVO.success(null);
 	}
 
-	@SuppressWarnings("unchecked")
-	@ApiOperation(value = "/api/iotdb/showSchema", notes = "/api/iotdb/showSchema")
-	@RequestMapping(value = "/api/iotdb/showSchema", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> showSchemaWithTenant(HttpServletRequest request) throws Exception {
-		JSONArray ret = new JSONArray();
-		TreeSet<String> r1 = new TreeSet<String>();
-		List<Map<String, Object>> list1 = queryController
-				.transform(getDetermineSessionPool().executeQueryStatement("show storage group"));
-		if (list1 != null) {
-			for (Map<String, Object> m : list1) {
-				if (m != null) {
-					Object o = m.get("storage group");
-					if (o != null) {
-						r1.add(o.toString());
-					}
-				}
-			}
-		}
-		List<Map<String, Object>> list2 = queryController
-				.transform(getDetermineSessionPool().executeQueryStatement("show timeseries"));
-
-		TreeMap<String, Object> r2 = new TreeMap<String, Object>();
-		TreeMap<String, Object> r3 = new TreeMap<String, Object>();
-		if (list2 != null) {
-			for (Map<String, Object> m : list2) {
-				Object os = m.get("storage group");
-				Object ot = m.get("timeseries");
-				if (os != null && ot != null) {
-					String sg = os.toString();
-					String ts = ot.toString();
-					if (ts.startsWith(new StringBuilder(sg).append(".").toString())) {
-						Set<String> r11 = null;
-						if (!r2.containsKey(sg)) {
-							r11 = new HashSet<>();
-							r2.put(sg, r11);
-						} else {
-							r11 = (Set<String>) r2.get(sg);
-						}
-						String physical = null;
-						ts = ts.substring(sg.length() + 1, ts.length());
-						if (ts.indexOf('.') > -1) {
-							physical = ts.substring(ts.lastIndexOf('.') + 1, ts.length());
-							ts = ts.substring(0, ts.lastIndexOf('.'));
-						}
-						String entity = ts;
-						r11.add(entity);
-						Set<String> r21 = null;
-						if (!r3.containsKey(entity)) {
-							r21 = new HashSet<>();
-							r3.put(entity, r21);
-						} else {
-							r21 = (Set<String>) r3.get(entity);
-						}
-						if (physical != null) {
-							r21.add(physical);
-						}
-					}
-				}
-			}
-		}
-		ret.add(r1);
-		ret.add(r2);
-		ret.add(r3);
-		return BaseVO.success(ret);
-	}
-
 	@ApiOperation(value = "/api/iotdb/addPrivileges", notes = "/api/iotdb/addPrivileges")
 	@RequestMapping(value = "/api/iotdb/addPrivileges", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> addPrivilegesWithTenant(HttpServletRequest request, @RequestParam("user") String user,
-			@RequestParam(value = "auth") String authStr, @RequestParam(value = "sg", required = false) String sgStr,
-			@RequestParam(value = "entity", required = false) String entityStr,
-			@RequestParam(value = "physical", required = false) String physicalStr) throws SQLException {
-		if (!(user.matches(REG) && authStr.matches(REG) && (sgStr == null || sgStr.matches(REG))
-				&& (entityStr == null || entityStr.matches(REG))
-				&& (physicalStr == null || physicalStr.matches(REG)))) {
-			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, FeedbackError.WRONG_DB_PARAM_MSG, null);
-		}
+			@RequestParam(value = "auth") String authStr,
+			@RequestParam(value = "timeseries", required = false) String timeseries) throws SQLException {
 		List<String> sqlList = new ArrayList<>();
 		String[] auths = authStr.trim().split(",");
-		String[] sgs = sgStr == null ? new String[] {} : sgStr.trim().split(",");
-		String[] entities = entityStr == null ? new String[] {} : entityStr.trim().split(",");
-		String[] physicals = physicalStr == null ? new String[] {} : physicalStr.trim().split(",");
+		StringBuilder range = new StringBuilder("root");
+		if (timeseries != null && !"".equals(timeseries)) {
+			range.append(".").append(timeseries);
+		}
+		JSONArray success = new JSONArray();
 		for (String a : auths) {
-			if (sgs.length == 0) {
-				sqlList.add(new StringBuilder("grant user ").append(user).append(" privileges '").append(a)
-						.append("' on root").toString());
-			} else {
-				for (String s : sgs) {
-					if (entities.length == 0) {
-						sqlList.add(new StringBuilder("grant user ").append(user).append(" privileges '").append(a)
-								.append("' on ").append(s).toString());
-					} else {
-						for (String e : entities) {
-							if (physicals.length == 0) {
-								sqlList.add(new StringBuilder("grant user ").append(user).append(" privileges '")
-										.append(a).append("' on ").append(s).append(".").append(e).toString());
-							} else {
-								for (String p : physicals) {
-									sqlList.add(new StringBuilder("grant user ").append(user).append(" privileges '")
-											.append(a).append("' on ").append(s).append(".").append(e).append(".")
-											.append(p).toString());
-								}
-							}
-						}
-					}
-				}
+			StringBuilder sb = new StringBuilder("grant user ");
+			sqlList.add(sb.append(user).append(" privileges '").append(a).append("' on ").append(range).toString());
+			try {
+				getDetermineSessionPool().executeNonQueryStatement(sb.toString());
+				success.add(a);
+			} catch (Exception e) {
 			}
 		}
-		try {
-			for (String s : sqlList) {
-				getDetermineSessionPool().executeNonQueryStatement(s);
-			}
-		} catch (Exception e) {
-			return new BaseVO<>(FeedbackError.PRIV_ADD_FAIL,
-					new StringBuilder(FeedbackError.PRIV_ADD_FAIL_MSG).append(":").append(e.getMessage()).toString(),
-					null);
-		}
-		return BaseVO.success(null);
+		JSONObject json = new JSONObject();
+		json.put("success", success);
+		json.put("range", range.toString());
+		return BaseVO.success(json.toJSONString(), null);
 	}
 
 	@ApiOperation(value = "/api/iotdb/addUser/{user}", notes = "/api/iotdb/addUser/{user}")

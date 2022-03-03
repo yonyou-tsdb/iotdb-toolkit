@@ -21,11 +21,15 @@ public class TimerConfig {
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(TimerConfig.class);
 
+	private Set<Entry<String, SessionDataSetWrapper>> sessionDataSetWrapperC = ContinuousIoTDBSession.continuousDataSetWrapperMap
+			.entrySet();
+
+	private Collection<WebsocketEndPoint> copyOnWriteArraySet = WebsocketConfiguration.webSocketIdMap.values();
+
 	@Scheduled(cron = "0/1 * * * * *")
 	public void sendmsg() {
 		cou++;
 		if (cou % 60 == 0) {
-			Collection<WebsocketEndPoint> copyOnWriteArraySet = WebsocketConfiguration.webSocketIdMap.values();
 			copyOnWriteArraySet.forEach(c -> {
 				try {
 					Session subjectSession = (Session) c.getWssession().getUserProperties()
@@ -35,12 +39,10 @@ public class TimerConfig {
 					WebsocketConfiguration.webSocketIdMap.remove(c.getWssessionId());
 				}
 			});
-			Set<Entry<String, SessionDataSetWrapper>> sessionDataSetWrapperC = ContinuousIoTDBSession.continuousDataSetWrapperMap
-					.entrySet();
 			sessionDataSetWrapperC.forEach(c -> {
-				LOGGER.warn(c.getKey() + " session :" + (cou - c.getValue().getTimestamp()));
+				LOGGER.debug(c.getKey() + " sessionDataSet :" + (cou - c.getValue().getTimestamp()));
 				if (cou - c.getValue().getTimestamp() > 300) {
-					LOGGER.warn(c.getKey() + " session is remove");
+					LOGGER.debug(c.getKey() + " sessionDataSet is remove");
 					ContinuousIoTDBSession.continuousDataSetWrapperMap.remove(c.getKey());
 				}
 			});
