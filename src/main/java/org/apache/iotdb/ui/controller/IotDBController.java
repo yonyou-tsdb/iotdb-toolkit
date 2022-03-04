@@ -70,11 +70,11 @@ public class IotDBController {
 
 	public static final String REG2 = "^((?!').)*$";
 
-	public static final int SHOW_SG_BATCH_SIZE = 1000;
+	public static final int SHOW_SG_BATCH_SIZE = 5000;
 
-	public static final int SHOW_TIMESERIES_BATCH_SIZE = 1000;
+	public static final int SHOW_TIMESERIES_BATCH_SIZE = 5000;
 
-	public static final int SHOW_PRIVILEGES_BATCH_SIZE = 1000;
+	public static final int SHOW_PRIVILEGES_BATCH_SIZE = 5000;
 
 	@Autowired
 	private QueryController queryController;
