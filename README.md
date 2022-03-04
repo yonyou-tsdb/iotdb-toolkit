@@ -22,7 +22,7 @@ Nginx
 
 4.Deploy using traditional way:
 
-- In the project root directory execute `java -jar target/iotdb-ui-0.12.3-SNAPSHOT` to startup, 8080 port is used by default
+- In the project root directory execute `java -jar target/iotdb-ui-0.12.3.jar` to startup, 8080 port is used by default
 
 - Map the contents in `/front/dist` or the front-end project compiled by yourself to a port through nginx. For example, the following configuration maps the application to port 8040:
 

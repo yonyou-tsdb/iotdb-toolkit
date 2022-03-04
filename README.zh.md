@@ -22,7 +22,7 @@ Nginx
   
 4.使用传统方式部署：
 
-- 在项目根目录执行 `java -jar target/iotdb-ui-0.12.3-SNAPSHOT` 以启动，默认使用 8080 端口
+- 在项目根目录执行 `java -jar target/iotdb-ui-0.12.3.jar` 以启动，默认使用 8080 端口
   
 - 使用 nginx 映射 `/front/dist` 中的内容，或者映射在iotdb-ui前端项目中手动构建的内容。 例如，下面的配置将前端映射到了 8040 端口，同时将后端转发到 8080 端口:
 

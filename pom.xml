@@ -322,7 +322,7 @@
 				</includes>
 			</testResource>
 		</testResources>
-		<finalName>iotdb-ui-0.12.3-SNAPSHOT</finalName>
+		<finalName>iotdb-ui-0.12.3</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
