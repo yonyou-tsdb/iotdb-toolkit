@@ -219,7 +219,7 @@ public class QueryController {
 				if ("".equals(lowerSql)) {
 					return BaseVO.success("0", Collections.EMPTY_LIST);
 				}
-				if (lowerSql.startsWith("select ") || lowerSql.startsWith("show ") || lowerSql.startsWith("list ")
+				if (lowerSql.startsWith("select") || lowerSql.startsWith("show") || lowerSql.startsWith("list ")
 						|| lowerSql.startsWith("count ") || lowerSql.startsWith("debug ")) {
 					Session session = getDetermineTemporarySession();
 					session.open(false, 70_000);
