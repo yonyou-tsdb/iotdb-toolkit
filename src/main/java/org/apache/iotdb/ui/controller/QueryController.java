@@ -215,12 +215,14 @@ public class QueryController {
 		}
 		if (b) {
 			try {
-				String lowerSql = sqls.trim().toLowerCase();
+				sqls = sqls.trim();
+				String lowerSql = sqls.toLowerCase();
 				if ("".equals(lowerSql)) {
 					return BaseVO.success("0", Collections.EMPTY_LIST);
 				}
-				if (lowerSql.startsWith("select") || lowerSql.startsWith("show") || lowerSql.startsWith("list ")
-						|| lowerSql.startsWith("count ") || lowerSql.startsWith("debug ")) {
+				if (lowerSql.startsWith("tracing") || lowerSql.startsWith("select") || lowerSql.startsWith("show")
+						|| lowerSql.startsWith("list") || lowerSql.startsWith("count")
+						|| lowerSql.startsWith("debug")) {
 					Session session = getDetermineTemporarySession();
 					session.open(false, 70_000);
 
