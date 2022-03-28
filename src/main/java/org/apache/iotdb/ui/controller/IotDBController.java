@@ -499,7 +499,7 @@ public class IotDBController {
 	@RequestMapping(value = "/api/iotdb/showTimeseries", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> showTimeseriesWithTenant(HttpServletRequest request, @RequestParam("path") String path,
 			@RequestParam(value = "token") String token) throws SQLException {
-		String sql0 = new StringBuilder("show timeseries ").append(path).append("*").toString();
+		String sql0 = new StringBuilder("show timeseries ").append(path).toString();
 		try {
 			Session session = queryController.getDetermineTemporarySession();
 			session.open(false, 70_000);
