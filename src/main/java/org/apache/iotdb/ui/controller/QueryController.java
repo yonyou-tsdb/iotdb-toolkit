@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -205,7 +206,8 @@ public class QueryController {
 
 	@RequestMapping(value = "/api/query/querySql", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> querySqlWithTenant(HttpServletRequest request, @RequestParam(value = "sqls") String sqls,
-			@RequestParam(value = "queryToken") String queryToken) throws SQLException {
+			@RequestParam(value = "queryToken") String queryToken, @RequestParam(value = "tabKey") String tabKey,
+			@RequestParam(value = "tabToken") String tabToken) throws SQLException {
 		Long connectId = DynamicDataSourceAspect.getTenantCode(request);
 		boolean b = false;
 		try {
@@ -216,6 +218,9 @@ public class QueryController {
 		if (b) {
 			try {
 				sqls = sqls.trim();
+				Pattern p = Pattern.compile("(?ms)('(?:''|[^'])*')|--.*?$|//.*?$|/\\*.*?\\*/|#.*?$|");
+				sqls = p.matcher(sqls).replaceAll("$1");
+
 				String lowerSql = sqls.toLowerCase();
 				if ("".equals(lowerSql)) {
 					return BaseVO.success("0", Collections.EMPTY_LIST);
@@ -240,6 +245,8 @@ public class QueryController {
 
 					JSONObject json = new JSONObject();
 					json.put("costMilliSecond", (after - before));
+					json.put("tabKey", tabKey);
+					json.put("tabToken", tabToken);
 					json.put("queryToken", queryToken);
 					json.put("hasMore", hasMore);
 					return BaseVO.success(json.toJSONString(), list);
@@ -250,6 +257,8 @@ public class QueryController {
 
 					JSONObject json = new JSONObject();
 					json.put("costMilliSecond", (after - before));
+					json.put("tabKey", tabKey);
+					json.put("tabToken", tabToken);
 					return BaseVO.success(json.toJSONString(), null);
 				}
 			} catch (Exception e) {
@@ -304,7 +313,6 @@ public class QueryController {
 			}
 			sb.append(")");
 			sql = sb.toString();
-			LOGGER.error(sql);
 			try {
 				iotDBController.getDetermineSessionPool().executeNonQueryStatement(sql);
 			} catch (Exception e) {
@@ -317,7 +325,8 @@ public class QueryController {
 
 	@RequestMapping(value = "/api/query/querySqlAppend", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> querySqlAppendWithTenant(HttpServletRequest request,
-			@RequestParam(value = "queryToken") String queryToken) {
+			@RequestParam(value = "queryToken") String queryToken, @RequestParam(value = "tabKey") String tabKey,
+			@RequestParam(value = "tabToken") String tabToken) {
 		SessionDataSet ds = ContinuousIoTDBSession.getContinuousDataSet(queryToken);
 		if (ds == null) {
 			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, FeedbackError.NO_SESSION_DATASET_MSG, null);
@@ -325,6 +334,8 @@ public class QueryController {
 		List<Map<String, Object>> list = new LinkedList<>();
 		boolean hasMore = transform(list, ds, 5000);
 		JSONObject json = new JSONObject();
+		json.put("tabKey", tabKey);
+		json.put("tabToken", tabToken);
 		json.put("queryToken", queryToken);
 		json.put("hasMore", hasMore);
 		if (!hasMore) {
