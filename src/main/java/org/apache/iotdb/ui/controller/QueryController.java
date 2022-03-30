@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.iotdb.rpc.IoTDBConnectionException;
+import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.Session;
 import org.apache.iotdb.session.SessionDataSet;
 import org.apache.iotdb.session.pool.SessionDataSetWrapper;
@@ -281,6 +282,7 @@ public class QueryController {
 		String physical = point.substring(point.lastIndexOf('.') + 1, point.length());
 		String entity = point.substring(0, point.lastIndexOf('.'));
 		String sql = null;
+		String ret = null;
 		if ("".equals(value)) {
 			StringBuilder sb = new StringBuilder("delete from ").append(entity).append(".").append(physical)
 					.append(" where time = ").append(timestamp);
@@ -320,7 +322,21 @@ public class QueryController {
 						.append(": \"").append(sql).append("\" :").append(e.getMessage()).toString(), null);
 			}
 		}
-		return BaseVO.success(new StringBuilder("Success ").append(sql).toString(), null);
+		sql = String.format("select %s from %s where time=%d", physical, entity, timestamp);
+		SessionDataSetWrapper sdsw = null;
+		try {
+			sdsw = iotDBController.getDetermineSessionPool().executeQueryStatement(sql);
+			if (sdsw.hasNext()) {
+				ret = sdsw.next().getFields().get(0).getStringValue();
+			}
+		} catch (IoTDBConnectionException | StatementExecutionException e) {
+			LOGGER.error(e.getMessage());
+		} finally {
+			if (sdsw != null) {
+				iotDBController.getDetermineSessionPool().closeResultSet(sdsw);
+			}
+		}
+		return BaseVO.success("success", ret);
 	}
 
 	@RequestMapping(value = "/api/query/querySqlAppend", method = { RequestMethod.GET, RequestMethod.POST })
