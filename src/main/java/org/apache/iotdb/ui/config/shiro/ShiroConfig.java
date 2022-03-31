@@ -50,6 +50,7 @@ public class ShiroConfig {
 		map.put("/v2/**", "anon"); // swagger不拦截
 		map.put("/actuator/**", "anon"); // actuator不拦截
 		map.put("/api/login/account", "anon"); // 登录不拦截
+		map.put("/api/sendRegisterEmail", "anon"); // 发送注册邮件不拦截
 		map.put("/toLogin", "anon"); // 空handler不拦截
 		map.put("/**", "authc");// 拦截所有请求，顺序不能变，拦截所有请求一定在最后一个
 

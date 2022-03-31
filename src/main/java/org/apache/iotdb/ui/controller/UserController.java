@@ -18,14 +18,19 @@
  */
 package org.apache.iotdb.ui.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.iotdb.ui.config.EmailConfig;
 import org.apache.iotdb.ui.config.shiro.UsernamePasswordIdToken;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.User;
 import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.UserDao;
 import org.apache.iotdb.ui.model.BaseVO;
+import org.apache.iotdb.ui.service.ThirdVelocityEmailService;
 import org.apache.iotdb.ui.util.IpUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.session.Session;
@@ -55,6 +60,12 @@ public class UserController {
 
 	@Autowired
 	private ConnectDao connectDao;
+
+	@Autowired
+	private EmailConfig emailConfig;
+
+	@Autowired
+	private ThirdVelocityEmailService thirdVelocityEmailService;
 
 	@ApiOperation(value = "user", notes = "user")
 	@GetMapping(value = "/user")
@@ -150,5 +161,26 @@ public class UserController {
 	// 简单的无返回值的handler，无需写入swagger
 	@RequestMapping(value = "/toLogin", method = { RequestMethod.GET, RequestMethod.POST })
 	public void toLogin() {
+	}
+
+	private void sendEmail(Map<String, Object> model, String title, String vmPath, String[] emails, String from) {
+		thirdVelocityEmailService.sendEmail(model, title, vmPath, emails, new String[] {}, from);
+	}
+
+	@RequestMapping(value = "/api/sendRegisterEmail", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<JSONObject> sendRegisterEmail(HttpServletRequest request,
+			@RequestParam(value = "username", required = false) String username,
+			@RequestParam(value = "password", required = false) String password,
+			@RequestParam(value = "email") String email) {
+		Map<String, Object> model = new HashMap<String, Object>();
+		model.put("systemName", "Account");
+		model.put("serviceName", "Activate account service");
+		String userName = "asd";
+		model.put("userName", userName);
+		String url = "http://www.baidu.com";
+		model.put("activateAccountUrl", url);
+		String[] emails = { email };
+		sendEmail(model, "IoTDB-UI Activate account service", "vm/register.vm", emails, emailConfig.getUsername());
+		return BaseVO.success(null);
 	}
 }
