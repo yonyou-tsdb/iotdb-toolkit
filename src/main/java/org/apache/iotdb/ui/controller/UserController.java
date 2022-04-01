@@ -18,20 +18,27 @@
  */
 package org.apache.iotdb.ui.controller;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.iotdb.ui.config.EmailConfig;
 import org.apache.iotdb.ui.config.shiro.UsernamePasswordIdToken;
+import org.apache.iotdb.ui.config.websocket.TimerConfig;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.User;
+import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.UserDao;
 import org.apache.iotdb.ui.model.BaseVO;
+import org.apache.iotdb.ui.model.CaptchaWrapper;
 import org.apache.iotdb.ui.service.ThirdVelocityEmailService;
 import org.apache.iotdb.ui.util.IpUtils;
+import org.apache.iotdb.ui.util.VerifyCodeUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
@@ -54,6 +61,8 @@ import io.swagger.annotations.ApiOperation;
 public class UserController {
 
 	public static final String USER = "USER";
+
+	public static Map<String, CaptchaWrapper> captchaMap = new ConcurrentHashMap<>();
 
 	@Autowired
 	private UserDao userDao;
@@ -163,6 +172,26 @@ public class UserController {
 	public void toLogin() {
 	}
 
+	@RequestMapping(method = { RequestMethod.GET }, value = "/api/acquireCaptcha")
+	public void sendRegisterEmail(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = "token") String token) {
+		response.setHeader("Pragma", "No-cache");
+		response.setHeader("Cache-Control", "no-cache");
+		response.setDateHeader("Expires", 0);
+		response.setContentType("image/jpeg");
+		// 生成随机字串
+		String verifyCode = VerifyCodeUtils.generateVerifyCode(4);
+		// 将token与verifyCode的组合存入缓存
+		CaptchaWrapper cw = new CaptchaWrapper(verifyCode, TimerConfig.cou);
+		captchaMap.put(token, cw);
+		// 生成图片
+		int w = 100, h = 30;
+		try {
+			VerifyCodeUtils.outputImage(w, h, response.getOutputStream(), verifyCode);
+		} catch (IOException e) {
+		}
+	}
+
 	private void sendEmail(Map<String, Object> model, String title, String vmPath, String[] emails, String from) {
 		thirdVelocityEmailService.sendEmail(model, title, vmPath, emails, new String[] {}, from);
 	}
@@ -181,6 +210,27 @@ public class UserController {
 		model.put("activateAccountUrl", url);
 		String[] emails = { email };
 		sendEmail(model, "IoTDB-UI Activate account service", "vm/register.vm", emails, emailConfig.getUsername());
+		return BaseVO.success(null);
+	}
+
+	@RequestMapping(value = "/api/register", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<JSONObject> register(HttpServletRequest request, @RequestParam(value = "mail") String mail,
+			@RequestParam(value = "username") String username, @RequestParam(value = "password") String password,
+			@RequestParam(value = "captcha") String captcha, @RequestParam(value = "token") String token) {
+
+		// 查询captcha是否合格
+		CaptchaWrapper cw = captchaMap.get(token);
+		String realCaptcha = cw == null ? null : cw.getCaptchaValue();
+		if (!captcha.equalsIgnoreCase(realCaptcha)) {
+			return new BaseVO<JSONObject>(FeedbackError.ACCOUNT_CAPTCHA_ERROR, FeedbackError.ACCOUNT_CAPTCHA_ERROR_MSG,
+					null);
+		} else {
+			captchaMap.remove(token);
+		}
+		// 查询是否在1分钟之内已发送过邮件
+
+		// 发送邮件
+
 		return BaseVO.success(null);
 	}
 }

@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.iotdb.ui.entity.helper.PojoSupport;
 import org.apache.iotdb.ui.face.ConnectFace;
+import org.apache.iotdb.ui.face.EmailLogFace;
 import org.apache.iotdb.ui.face.UserFace;
 
 import com.alibaba.fastjson.JSONObject;
@@ -65,14 +66,24 @@ public class User extends PojoSupport implements UserFace {
 	@FieldMapperAnnotation(dbFieldName = "setting", jdbcType = JdbcType.VARCHAR)
 	private JSONObject setting;
 
+	@JSONField(serialize = false)
 	private Map<Object, ConnectFace> connectMap;
 
 	@JSONField(serialize = false)
+	private Map<Object, EmailLogFace> emailLogMap;
+
 	public Map<Object, ? extends ConnectFace> getConnectMap() {
 		if (connectMap == null) {
 			connectMap = new LinkedHashMap<Object, ConnectFace>();
 		}
 		return connectMap;
+	}
+
+	public Map<Object, ? extends EmailLogFace> getEmailLogMap() {
+		if (emailLogMap == null) {
+			emailLogMap = new LinkedHashMap<Object, EmailLogFace>();
+		}
+		return emailLogMap;
 	}
 
 	public Collection<? extends ConnectFace> getConnect() {
@@ -127,6 +138,62 @@ public class User extends PojoSupport implements UserFace {
 				oldConnect = iter.next();
 				iter.remove();
 				oldConnect.setUser(null);
+			}
+		}
+	}
+
+	public Collection<? extends EmailLogFace> getEmailLog() {
+		return getEmailLogMap().values();
+	}
+
+	private Iterator<? extends EmailLogFace> getIteratorEmailLog() {
+		return getEmailLog().iterator();
+	}
+
+	public void setEmailLog(Collection<? extends EmailLogFace> newEmailLog) {
+		removeAllEmailLog();
+		for (Iterator<? extends EmailLogFace> iter = newEmailLog.iterator(); iter.hasNext();)
+			addEmailLog(iter.next());
+	}
+
+	public void addEmailLog(EmailLogFace newEmailLog) {
+		if (newEmailLog == null)
+			return;
+		if (this.emailLogMap == null)
+			this.emailLogMap = new LinkedHashMap<Object, EmailLogFace>();
+		if (!this.emailLogMap.containsKey(newEmailLog.getId())) {
+			this.emailLogMap.put(newEmailLog.getId(), newEmailLog);
+			newEmailLog.setUser(this);
+		} else {
+			EmailLogFace temp = emailLogMap.get(newEmailLog.getId());
+			if (newEmailLog.equals(temp) && temp != newEmailLog) {
+				removeEmailLog(temp);
+				this.emailLogMap.put(newEmailLog.getId(), newEmailLog);
+				newEmailLog.setUser(this);
+			}
+		}
+	}
+
+	public void removeEmailLog(EmailLogFace oldEmailLog) {
+		if (oldEmailLog == null)
+			return;
+		if (this.emailLogMap != null && this.emailLogMap.containsKey(oldEmailLog.getId())) {
+			EmailLogFace temp = emailLogMap.get(oldEmailLog.getId());
+			if (oldEmailLog.equals(temp) && temp != oldEmailLog) {
+				temp.setUser(null);
+			}
+			this.emailLogMap.remove(oldEmailLog.getId());
+			oldEmailLog.setUser(null);
+		}
+	}
+
+	public void removeAllEmailLog() {
+		if (emailLogMap != null) {
+			EmailLogFace oldEmailLog;
+			for (Iterator<? extends EmailLogFace> iter = getIteratorEmailLog(); iter.hasNext();) {
+				oldEmailLog = iter.next();
+				iter.remove();
+				oldEmailLog.setUser(null);
 			}
 		}
 	}

@@ -89,9 +89,9 @@ public class Connect extends PojoSupport implements ConnectFace {
 	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, delegate = true)
 	private Long userId;
 
+	@JSONField(serialize = false)
 	private Map<Object, QueryFace> queryMap;
 
-	@JSONField(serialize = false)
 	public Map<Object, ? extends QueryFace> getQueryMap() {
 		if (queryMap == null) {
 			queryMap = new LinkedHashMap<Object, QueryFace>();

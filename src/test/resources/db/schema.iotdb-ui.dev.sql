@@ -23,6 +23,8 @@ drop table if exists tb_query;
 
 drop table if exists tb_user;
 
+drop table if exists tb_email_log;
+
 create table tb_connect
 (
    id                   bigint not null comment '主键',
@@ -52,5 +54,20 @@ create table tb_user
    name                 varchar(20) comment '用户名',
    password             varchar(200) comment '密码',
    setting             	varchar(4000) comment '设置',
+   primary key (id)
+);
+
+create table tb_email_log
+(
+   id                   bigint not null comment '主键',
+   email_time           datetime comment '激活请求时间',
+   due_time             datetime comment '链接有效期到期时间',
+   reset_time           datetime comment '激活发生时间',
+   token                varchar(50) comment '此次重置密码的随机数token',
+   available            boolean comment '链接是否可用。若用户使用此链接修改密码成功后便不再可用。',
+   status               char comment '当为i时表示新增用户，当为u时表示更新用户；',
+   temp_account         varchar(320) comment '用户账号，当此条记录为激活账号记录时才有需要',
+   temp_password        varchar(64) comment '用户密码，当此条记录为激活账号记录时才有需要',
+   account_id           bigint comment '外键，对应表user的主键；',
    primary key (id)
 );

@@ -6,6 +6,8 @@ import java.util.Set;
 
 import org.apache.iotdb.ui.config.ContinuousIoTDBSession;
 import org.apache.iotdb.ui.config.tsdatasource.SessionDataSetWrapper;
+import org.apache.iotdb.ui.controller.UserController;
+import org.apache.iotdb.ui.model.CaptchaWrapper;
 import org.apache.shiro.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +23,26 @@ public class TimerConfig {
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(TimerConfig.class);
 
-	private Set<Entry<String, SessionDataSetWrapper>> sessionDataSetWrapperC = ContinuousIoTDBSession.continuousDataSetWrapperMap
-			.entrySet();
+	private Collection<SessionDataSetWrapper> sessionDataSetWrapperC = ContinuousIoTDBSession.continuousDataSetWrapperMap
+			.values();
 
 	private Collection<WebsocketEndPoint> copyOnWriteArraySet = WebsocketConfiguration.webSocketIdMap.values();
+
+	private Collection<CaptchaWrapper> captchaWrapperSet = UserController.captchaMap.values();
+
+	public static boolean sessionDataSetWrapperIsNotValid(Long cou, SessionDataSetWrapper sdsw) {
+		if (cou - sdsw.getTimestamp() > 300) {
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean captchaIsNotValid(Long cou, CaptchaWrapper cw) {
+		if (cou - cw.getTimestamp() > 300) {
+			return true;
+		}
+		return false;
+	}
 
 	@Scheduled(cron = "0/1 * * * * *")
 	public void sendmsg() {
@@ -39,13 +57,8 @@ public class TimerConfig {
 					WebsocketConfiguration.webSocketIdMap.remove(c.getWssessionId());
 				}
 			});
-			sessionDataSetWrapperC.forEach(c -> {
-				LOGGER.debug(c.getKey() + " sessionDataSet :" + (cou - c.getValue().getTimestamp()));
-				if (cou - c.getValue().getTimestamp() > 300) {
-					LOGGER.debug(c.getKey() + " sessionDataSet is remove");
-					ContinuousIoTDBSession.continuousDataSetWrapperMap.remove(c.getKey());
-				}
-			});
+			sessionDataSetWrapperC.removeIf(e -> sessionDataSetWrapperIsNotValid(cou, e));
+			captchaWrapperSet.removeIf(e -> captchaIsNotValid(cou, e));
 		}
 	}
 }

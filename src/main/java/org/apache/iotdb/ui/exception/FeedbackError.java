@@ -115,4 +115,7 @@ public class FeedbackError {
 
 	public static final String QUERY_EXIST = "QUERY-10001";
 	public static final String QUERY_EXIST_MSG = "脚本名已存在";
+
+	public static final String ACCOUNT_CAPTCHA_ERROR = "ACCOUNT-10001";
+	public static final String ACCOUNT_CAPTCHA_ERROR_MSG = "验证码有误";
 }
