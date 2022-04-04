@@ -33,7 +33,7 @@ public class EmailLogStatusHandler extends BaseTypeHandler<EmailLogStatus> imple
 	@Override
 	public void setNonNullParameter(PreparedStatement ps, int i, EmailLogStatus parameter, JdbcType jdbcType)
 			throws SQLException {
-		ps.setString(i, parameter.name());
+		ps.setString(i, parameter.id());
 	}
 
 	@Override

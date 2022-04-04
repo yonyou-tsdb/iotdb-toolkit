@@ -21,12 +21,13 @@
     <delete id="delete">{"action":"delete"}</delete>
     <resultMap id="result" type="EmailLog" autoMapping="true">
         <id property="id" column="id"/>
+        <result property="email" column="email"/>
         <result property="emailTime" column="email_time"/>
         <result property="dueTime" column="due_time"/>
         <result property="resetTime" column="reset_time"/>
         <result property="token" column="token"/>
         <result property="available" column="available"/>
-        <result property="status" column="status"/>
+        <result property="status" column="status" typeHandler="org.apache.iotdb.ui.handler.EmailLogStatusHandler"/>
         <result property="tempAccount" column="temp_account"/>
         <result property="tempPassword" column="temp_password"/>
         <association property="user" resultMap="org.apache.iotdb.ui.mapper.UserDao.result" columnPrefix="u__"/>

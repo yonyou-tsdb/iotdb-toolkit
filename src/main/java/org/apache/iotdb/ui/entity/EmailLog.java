@@ -41,6 +41,13 @@ public class EmailLog extends PojoSupport implements EmailLogFace {
 	private Long id;
 
 	/**
+	 * 邮箱
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "email", jdbcType = JdbcType.VARCHAR)
+	private String email;
+
+	/**
 	 * 重置请求时间
 	 * 
 	 */
@@ -99,6 +106,9 @@ public class EmailLog extends PojoSupport implements EmailLogFace {
 	@FieldMapperAnnotation(dbFieldName = "account_id", jdbcType = JdbcType.BIGINT, dbAssociationUniqueKey = "id")
 	private User user;
 
+	@FieldMapperAnnotation(dbFieldName = "account_id", jdbcType = JdbcType.BIGINT, delegate = true)
+	private Long userId;
+
 	public User getUser() {
 		return user;
 	}
@@ -120,6 +130,14 @@ public class EmailLog extends PojoSupport implements EmailLogFace {
 	@Override
 	public Object getId() {
 		return id;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public Date getEmailTime() {
@@ -192,6 +210,14 @@ public class EmailLog extends PojoSupport implements EmailLogFace {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 }

@@ -60,6 +60,7 @@ create table tb_user
 create table tb_email_log
 (
    id                   bigint not null comment '主键',
+   email           		varchar(100) comment '邮箱',
    email_time           datetime comment '激活请求时间',
    due_time             datetime comment '链接有效期到期时间',
    reset_time           datetime comment '激活发生时间',

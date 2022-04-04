@@ -20,7 +20,7 @@ package org.apache.iotdb.ui.model;
 
 public enum EmailLogStatus {
 
-	INSERT("I", "新增"), UPDATE("U", "更新"), NULL(null, null);
+	INSERT("I", "新增"), UPDATE("U", "更新");
 
 	private final String id;
 
@@ -40,13 +40,16 @@ public enum EmailLogStatus {
 	}
 
 	public static EmailLogStatus forId(String id) {
+		if (id == null) {
+			return null;
+		}
 		switch (id) {
 		case "I":
 			return INSERT;
 		case "U":
 			return UPDATE;
 		default:
-			return NULL;
+			return null;
 		}
 	}
 }
