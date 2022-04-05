@@ -34,6 +34,7 @@ import org.apache.iotdb.ui.config.websocket.TimerConfig;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.EmailLog;
 import org.apache.iotdb.ui.entity.User;
+import org.apache.iotdb.ui.exception.BaseException;
 import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.EmailLogDao;
@@ -43,6 +44,7 @@ import org.apache.iotdb.ui.model.CaptchaWrapper;
 import org.apache.iotdb.ui.model.EmailLogStatus;
 import org.apache.iotdb.ui.service.RandomGenerator;
 import org.apache.iotdb.ui.service.ThirdVelocityEmailService;
+import org.apache.iotdb.ui.service.TransactionService;
 import org.apache.iotdb.ui.util.IpUtils;
 import org.apache.iotdb.ui.util.VerifyCodeUtils;
 import org.apache.shiro.SecurityUtils;
@@ -89,6 +91,9 @@ public class UserController {
 
 	@Autowired
 	private ThirdVelocityEmailService thirdVelocityEmailService;
+
+	@Autowired
+	private TransactionService transactionService;
 
 	@ApiOperation(value = "user", notes = "user")
 	@GetMapping(value = "/user")
@@ -254,12 +259,19 @@ public class UserController {
 		emailLog.setEmailTime(now);
 		Date dueTime = new Date(now.getTime() + 86400000);
 		emailLog.setDueTime(dueTime);
+		emailLog.setEmail(mail);
 		emailLog.setAvailable(true);
 		emailLog.setStatus(EmailLogStatus.INSERT);
 		emailLog.setTempAccount(username);
 		String encodedPassword = bCryptPasswordEncoder.encode(password);
 		emailLog.setTempPassword(encodedPassword);
-		emailLogDao.insert(emailLog);
+
+		try {
+			transactionService.insertEmailLogTransactive(emailLog);
+		} catch (BaseException e) {
+			return new BaseVO<>(e.getErrorCode(), e.getMessage(), null);
+		}
+
 		String url = "http://localhost:8080" + "/api/activateAccount/" + emailLog.getId() + "/" + randomToken;
 
 		sendRegisterEmail(mail, username, url);

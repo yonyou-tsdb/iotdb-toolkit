@@ -118,4 +118,7 @@ public class FeedbackError {
 
 	public static final String ACCOUNT_CAPTCHA_ERROR = "ACCOUNT-10001";
 	public static final String ACCOUNT_CAPTCHA_ERROR_MSG = "验证码有误";
+
+	public static final String ACCOUNT_REGISTER_ERROR = "ACCOUNT-10002";
+	public static final String ACCOUNT_REGISTER_ERROR_MSG = "注册的用户名或邮箱重复";
 }

@@ -18,12 +18,17 @@
  */
 package org.apache.iotdb.ui.service;
 
+import org.apache.iotdb.ui.condition.EmailLogCondition;
 import org.apache.iotdb.ui.entity.Connect;
+import org.apache.iotdb.ui.entity.EmailLog;
 import org.apache.iotdb.ui.entity.Query;
 import org.apache.iotdb.ui.exception.BaseException;
 import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.mapper.ConnectDao;
+import org.apache.iotdb.ui.mapper.EmailLogDao;
 import org.apache.iotdb.ui.mapper.QueryDao;
+import org.apache.iotdb.ui.mapper.UserDao;
+import org.apache.iotdb.ui.model.EmailLogStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -38,6 +43,12 @@ public class TransactionService {
 
 	@Autowired
 	private QueryDao queryDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private EmailLogDao emailLogDao;
 
 	@Transactional(value = "transactionManager1", rollbackFor = {
 			BaseException.class }, readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
@@ -67,13 +78,29 @@ public class TransactionService {
 
 	@Transactional(value = "transactionManager1", rollbackFor = {
 			BaseException.class }, readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-	public int insertQueryTransactive(Query query) throws BaseException {
+	public int insertQueryTransactive(Query query, Long connectId) throws BaseException {
 		int ret = queryDao.insert(query);
 		Query q = new Query();
 		q.setName(query.getName());
+		q.setConnectId(connectId);
 		int n = queryDao.count(q);
 		if (n != 1) {
 			throw new BaseException(FeedbackError.QUERY_EXIST, FeedbackError.QUERY_EXIST_MSG);
+		}
+		return ret;
+	}
+
+	@Transactional(value = "transactionManager1", rollbackFor = {
+			BaseException.class }, readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+	public int insertEmailLogTransactive(EmailLog emailLog) throws BaseException {
+		int ret = emailLogDao.insert(emailLog);
+		EmailLogCondition elc = new EmailLogCondition();
+		elc.setEmailEqualOrUsernameEqual(emailLog.getEmail(), emailLog.getTempAccount());
+		elc.setAvailable(false);
+		elc.setStatus(EmailLogStatus.INSERT);
+		int n = emailLogDao.count(elc);
+		if (n > 0) {
+			throw new BaseException(FeedbackError.ACCOUNT_REGISTER_ERROR, FeedbackError.ACCOUNT_REGISTER_ERROR_MSG);
 		}
 		return ret;
 	}

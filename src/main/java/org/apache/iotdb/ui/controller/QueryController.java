@@ -430,7 +430,7 @@ public class QueryController {
 			query.setSqls(sqls);
 			query.setCreateTime(Calendar.getInstance().getTime());
 			try {
-				transactionService.insertQueryTransactive(query);
+				transactionService.insertQueryTransactive(query, connectId);
 			} catch (BaseException e) {
 				return new BaseVO<>(e.getErrorCode(), e.getMessage(), null);
 			}

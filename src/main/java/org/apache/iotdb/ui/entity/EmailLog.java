@@ -208,10 +208,6 @@ public class EmailLog extends PojoSupport implements EmailLogFace {
 		this.id = id;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
-	}
-
 	public Long getUserId() {
 		return userId;
 	}
