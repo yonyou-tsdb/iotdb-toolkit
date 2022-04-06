@@ -121,4 +121,13 @@ public class FeedbackError {
 
 	public static final String ACCOUNT_REGISTER_ERROR = "ACCOUNT-10002";
 	public static final String ACCOUNT_REGISTER_ERROR_MSG = "注册的用户名或邮箱重复";
+
+	public static final String ACCOUNT_ACTIVATE_ERROR = "ACCOUNT-10003";
+	public static final String ACCOUNT_ACTIVATE_ERROR_MSG = "激活失败，已存在相同的用户名或邮箱";
+
+	public static final String ACCOUNT_EMAIL_ERROR = "ACCOUNT-10004";
+	public static final String ACCOUNT_EMAIL_ERROR_MSG = "系统繁忙，请您稍后再发送邮件";
+
+	public static final String ACCOUNT_LOGIN_ERROR = "ACCOUNT-10005";
+	public static final String ACCOUNT_LOGIN_ERROR_MSG = "用户名未激活或与密码不匹配";
 }

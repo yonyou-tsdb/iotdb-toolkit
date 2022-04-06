@@ -18,6 +18,8 @@
  */
 package org.apache.iotdb.ui.condition;
 
+import java.util.Date;
+
 import org.apache.iotdb.ui.entity.EmailLog;
 import org.apache.iotdb.ui.entity.User;
 
@@ -54,12 +56,34 @@ public class EmailLogCondition extends EmailLog implements Conditionable {
 			@ConditionMapperAnnotation(dbFieldName = "name", conditionType = ConditionType.EQUAL, subTarget = User.class), })
 	private Object[] emailEqualOrUsernameEqual;
 
+	@ConditionMapperAnnotation(dbFieldName = "email_time", conditionType = ConditionType.GREATER_THAN)
+	private Date emailTimeGreaterThan;
+
+	@ConditionMapperAnnotation(dbFieldName = "email_time", conditionType = ConditionType.LESS_OR_EQUAL)
+	private Date emailTimeLessOrEqual;
+
 	public Object[] getEmailEqualOrUsernameEqual() {
 		return emailEqualOrUsernameEqual;
 	}
 
 	public void setEmailEqualOrUsernameEqual(Object... emailEqualOrUsernameEqual) {
 		this.emailEqualOrUsernameEqual = emailEqualOrUsernameEqual;
+	}
+
+	public Date getEmailTimeGreaterThan() {
+		return emailTimeGreaterThan;
+	}
+
+	public void setEmailTimeGreaterThan(Date emailTimeGreaterThan) {
+		this.emailTimeGreaterThan = emailTimeGreaterThan;
+	}
+
+	public Date getEmailTimeLessOrEqual() {
+		return emailTimeLessOrEqual;
+	}
+
+	public void setEmailTimeLessOrEqual(Date emailTimeLessOrEqual) {
+		this.emailTimeLessOrEqual = emailTimeLessOrEqual;
 	}
 
 }

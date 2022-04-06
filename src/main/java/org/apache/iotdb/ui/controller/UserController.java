@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.iotdb.ui.condition.EmailLogCondition;
 import org.apache.iotdb.ui.config.EmailConfig;
 import org.apache.iotdb.ui.config.shiro.UsernamePasswordIdToken;
 import org.apache.iotdb.ui.config.websocket.TimerConfig;
@@ -114,12 +115,6 @@ public class UserController {
 	public BaseVO<JSONObject> loginAccount(HttpServletRequest request, @RequestParam("username") String username,
 			@RequestParam("password") String password) {
 		JSONObject json = new JSONObject();
-		if (username == null) {
-			json.put("status", "error");
-			json.put("type", "account");
-			json.put("currentAuthority", "guest");
-			return new BaseVO<JSONObject>("1", "用户名不能为空", json);
-		}
 		User u = new User();
 		u.setName(username);
 		User user = userDao.selectOne(u);
@@ -147,7 +142,8 @@ public class UserController {
 			json.put("status", "error");
 			json.put("type", "account");
 			json.put("currentAuthority", "guest");
-			ret = new BaseVO<JSONObject>("1", "找不到用户或用户名与密码不匹配", json);
+			ret = new BaseVO<JSONObject>(FeedbackError.ACCOUNT_LOGIN_ERROR, FeedbackError.ACCOUNT_LOGIN_ERROR_MSG,
+					json);
 		}
 		return ret;
 	}
@@ -248,9 +244,18 @@ public class UserController {
 		} else {
 			captchaMap.remove(token);
 		}
-		// 查询是否在1分钟之内已发送过邮件
+		// 每0.5秒内只能发送一次邮件
 		Date now = Calendar.getInstance().getTime();
 		Date timeLimitationAgo = new Date(now.getTime() - 500);
+
+		EmailLogCondition elc = new EmailLogCondition();
+		elc.setStatus(EmailLogStatus.INSERT);
+		elc.setEmailTimeGreaterThan(timeLimitationAgo);
+		elc.setEmailTimeLessOrEqual(now);
+		int count = emailLogDao.count(elc);
+		if (count > 0) {
+			return new BaseVO<>(FeedbackError.ACCOUNT_EMAIL_ERROR, FeedbackError.ACCOUNT_EMAIL_ERROR_MSG, null);
+		}
 		// 发送邮件
 		EmailLog emailLog = new EmailLog();
 
@@ -272,7 +277,8 @@ public class UserController {
 			return new BaseVO<>(e.getErrorCode(), e.getMessage(), null);
 		}
 
-		String url = "http://localhost:8080" + "/api/activateAccount/" + emailLog.getId() + "/" + randomToken;
+		String url = String.format("http://%s/api/activateAccount/%s/%s", emailConfig.getEndPoint(), emailLog.getId(),
+				randomToken);
 
 		sendRegisterEmail(mail, username, url);
 
@@ -282,17 +288,22 @@ public class UserController {
 	@RequestMapping(method = { RequestMethod.GET }, value = "/api/activateAccount/{elId}/{token}")
 	public BaseVO<JSONObject> activateAccount(@PathVariable("elId") Long elId, @PathVariable("token") String token) {
 		EmailLog emailLog = emailLogDao.select(elId);
-		if (emailLog != null && token.equals(emailLog.getToken()) && emailLog.getAvailable()) {
+		Date now = Calendar.getInstance().getTime();
+		if (emailLog != null && token.equals(emailLog.getToken()) && emailLog.getAvailable()
+				&& now.getTime() < emailLog.getDueTime().getTime()) {
 			// 开始激活
 			User user = new User();
 			user.setName(emailLog.getTempAccount());
 			user.setPassword(emailLog.getTempPassword());
 			user.setSetting(new JSONObject());
-			userDao.insert(user);
+			try {
+				transactionService.insertUserTransactive(user, emailLog);
+			} catch (BaseException e) {
+				return new BaseVO<>(e.getErrorCode(), e.getMessage(), null);
+			}
 
 			emailLog.setTempAccount(null);
 			emailLog.setTempPassword(null);
-			Date now = Calendar.getInstance().getTime();
 			emailLog.setResetTime(now);
 			emailLog.setAvailable(false);
 			emailLog.setUserId(user.getId());

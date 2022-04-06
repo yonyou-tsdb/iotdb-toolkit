@@ -92,8 +92,13 @@ public class EmailLogTest {
 		Object[] list = user.getEmailLog().toArray();
 		Assert.assertEquals(1, list.length);
 		EmailLog emailLog1 = (EmailLog) list[0];
-		Assert.assertEquals(113L, emailLog1.getId());
+		Assert.assertEquals(113, emailLog1.getId().longValue());
 
-		System.out.println(JSONObject.toJSONString(user));
+		EmailLog el3 = new EmailLog();
+		el3.setId(100L);
+		el3.setEmail("aa@aa.aa");
+		emailLogDao.insert(el3);
+		System.out.println(JSONObject.toJSONString(el3));
+		emailLogDao.delete(el3);
 	}
 }

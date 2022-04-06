@@ -128,7 +128,7 @@ public class EmailLog extends PojoSupport implements EmailLogFace {
 	}
 
 	@Override
-	public Object getId() {
+	public Long getId() {
 		return id;
 	}
 

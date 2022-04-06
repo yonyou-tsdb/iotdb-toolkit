@@ -51,3 +51,4 @@ email:
    host: '@need_env@'
    username: '@need_env@'
    password: '@need_env@'
+   endPoint: '@need_env@'

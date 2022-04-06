@@ -22,6 +22,7 @@ import org.apache.iotdb.ui.condition.EmailLogCondition;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.EmailLog;
 import org.apache.iotdb.ui.entity.Query;
+import org.apache.iotdb.ui.entity.User;
 import org.apache.iotdb.ui.exception.BaseException;
 import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.mapper.ConnectDao;
@@ -101,6 +102,21 @@ public class TransactionService {
 		int n = emailLogDao.count(elc);
 		if (n > 0) {
 			throw new BaseException(FeedbackError.ACCOUNT_REGISTER_ERROR, FeedbackError.ACCOUNT_REGISTER_ERROR_MSG);
+		}
+		return ret;
+	}
+
+	@Transactional(value = "transactionManager1", rollbackFor = {
+			BaseException.class }, readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+	public int insertUserTransactive(User user, EmailLog emailLog) throws BaseException {
+		int ret = userDao.insert(user);
+		EmailLogCondition elc = new EmailLogCondition();
+		elc.setEmailEqualOrUsernameEqual(emailLog.getEmail(), emailLog.getTempAccount());
+		elc.setAvailable(false);
+		elc.setStatus(EmailLogStatus.INSERT);
+		int n = emailLogDao.count(elc);
+		if (n > 0) {
+			throw new BaseException(FeedbackError.ACCOUNT_ACTIVATE_ERROR, FeedbackError.ACCOUNT_ACTIVATE_ERROR_MSG);
 		}
 		return ret;
 	}
