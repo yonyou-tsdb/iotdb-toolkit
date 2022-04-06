@@ -188,7 +188,7 @@ public class UserController {
 	}
 
 	@RequestMapping(method = { RequestMethod.GET }, value = "/api/acquireCaptcha")
-	public void sendRegisterEmail(HttpServletRequest request, HttpServletResponse response,
+	public void acquireCaptcha(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "token") String token) {
 		response.setHeader("Pragma", "No-cache");
 		response.setHeader("Cache-Control", "no-cache");
@@ -211,15 +211,6 @@ public class UserController {
 		thirdVelocityEmailService.sendEmail(model, title, vmPath, emails, new String[] {}, from);
 	}
 
-//	@RequestMapping(value = "/api/sendRegisterEmail", method = { RequestMethod.GET, RequestMethod.POST })
-//	public BaseVO<JSONObject> sendRegisterEmail(HttpServletRequest request,
-//			@RequestParam(value = "username", required = false) String username,
-//			@RequestParam(value = "password", required = false) String password,
-//			@RequestParam(value = "email") String email) {
-//		sendRegisterEmail(email);
-//		return BaseVO.success(null);
-//	}
-
 	private void sendRegisterEmail(String email, String username, String url) {
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("systemName", "Register");
@@ -227,7 +218,7 @@ public class UserController {
 		model.put("userName", username);
 		model.put("activateAccountUrl", url);
 		String[] emails = { email };
-		sendEmail(model, "IoTDB-UI Activate account service", "vm/register.vm", emails, emailConfig.getUsername());
+		sendEmail(model, "IoTDB-UI activate account service", "vm/register.vm", emails, emailConfig.getUsername());
 	}
 
 	@RequestMapping(value = "/api/register", method = { RequestMethod.GET, RequestMethod.POST })
@@ -286,7 +277,8 @@ public class UserController {
 	}
 
 	@RequestMapping(method = { RequestMethod.GET }, value = "/api/activateAccount/{elId}/{token}")
-	public BaseVO<JSONObject> activateAccount(@PathVariable("elId") Long elId, @PathVariable("token") String token) {
+	public void activateAccount(HttpServletRequest request, HttpServletResponse response,
+			@PathVariable("elId") Long elId, @PathVariable("token") String token) throws IOException {
 		EmailLog emailLog = emailLogDao.select(elId);
 		Date now = Calendar.getInstance().getTime();
 		if (emailLog != null && token.equals(emailLog.getToken()) && emailLog.getAvailable()
@@ -299,7 +291,9 @@ public class UserController {
 			try {
 				transactionService.insertUserTransactive(user, emailLog);
 			} catch (BaseException e) {
-				return new BaseVO<>(e.getErrorCode(), e.getMessage(), null);
+				String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPoint(), e.getMessage());
+				response.sendRedirect(url);
+				return;
 			}
 
 			emailLog.setTempAccount(null);
@@ -308,9 +302,112 @@ public class UserController {
 			emailLog.setAvailable(false);
 			emailLog.setUserId(user.getId());
 			emailLogDao.updatePersistent(emailLog);
-			return BaseVO.success("Activate account success.", null);
+			String url = String.format("http://%s/user/success?status=%s", emailConfig.getEndPoint(),
+					"Activate Account Success");
+			response.sendRedirect(url);
 		} else {
-			return BaseVO.success("Activate account fail, the token is wrong or used or expired.", null);
+			String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPoint(),
+					"Activate Account Fail, The Token Is Wrong Or Used Or Expired");
+			response.sendRedirect(url);
+		}
+	}
+
+	@RequestMapping(value = "/api/sendResetPasswordMail", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<JSONObject> sendResetPasswordMail(HttpServletRequest request,
+			@RequestParam(value = "email") String email, @RequestParam(value = "captcha") String captcha,
+			@RequestParam(value = "token") String token) {
+		// 查询captcha是否合格
+		CaptchaWrapper cw = captchaMap.get(token);
+		String realCaptcha = cw == null ? null : cw.getCaptchaValue();
+		if (!captcha.equalsIgnoreCase(realCaptcha)) {
+			return new BaseVO<JSONObject>(FeedbackError.ACCOUNT_CAPTCHA_ERROR, FeedbackError.ACCOUNT_CAPTCHA_ERROR_MSG,
+					null);
+		}
+
+		captchaMap.remove(token);
+		// 每0.5秒内只能发送一次邮件
+		Date now = Calendar.getInstance().getTime();
+		Date timeLimitationAgo = new Date(now.getTime() - 500);
+
+		EmailLogCondition elc = new EmailLogCondition();
+		elc.setStatus(EmailLogStatus.UPDATE);
+		elc.setEmailTimeGreaterThan(timeLimitationAgo);
+		elc.setEmailTimeLessOrEqual(now);
+		int count = emailLogDao.count(elc);
+		if (count > 0) {
+			return new BaseVO<>(FeedbackError.ACCOUNT_EMAIL_ERROR, FeedbackError.ACCOUNT_EMAIL_ERROR_MSG, null);
+		}
+
+		// 通过邮箱查找用户
+		EmailLog el = new EmailLog();
+		el.setStatus(EmailLogStatus.INSERT);
+		el.setAvailable(false);
+		el.setEmail(email);
+		EmailLog temp = emailLogDao.selectOne(el);
+		if (temp == null || temp.getUser() == null) {
+			return new BaseVO<>(FeedbackError.ACCOUNT_FIND_USER_BY_EMAIL_ERROR,
+					FeedbackError.ACCOUNT_FIND_USER_BY_EMAIL_ERROR_MSG, null);
+		}
+
+		// 发送邮件
+		EmailLog emailLog = new EmailLog();
+
+		String randomToken = RandomGenerator.getRandomString(50);
+		emailLog.setToken(randomToken);
+		emailLog.setEmailTime(now);
+		Date dueTime = new Date(now.getTime() + 86400000);
+		emailLog.setDueTime(dueTime);
+		emailLog.setEmail(email);
+		emailLog.setAvailable(true);
+		emailLog.setStatus(EmailLogStatus.UPDATE);
+		emailLog.setTempAccount(temp.getUser().getName());
+
+		emailLogDao.insert(emailLog);
+
+		String url = String.format("http://%s/api/resetPassword/%s/%s", emailConfig.getEndPoint(), emailLog.getId(),
+				randomToken);
+
+		sendResetPasswordEmail(email, temp.getUser().getName(), url);
+		return BaseVO.success(null);
+	}
+
+	private void sendResetPasswordEmail(String email, String username, String url) {
+		Map<String, Object> model = new HashMap<String, Object>();
+		model.put("systemName", "Account");
+		model.put("serviceName", "Reset password service");
+		model.put("userName", username);
+		model.put("url", url);
+		String[] emails = { email };
+		sendEmail(model, "IoTDB-UI reset password service", "vm/resetPassword.vm", emails, emailConfig.getUsername());
+	}
+
+	@RequestMapping(method = { RequestMethod.GET }, value = "/api/resetPassword/{elId}/{token}")
+	public void resetPassword(HttpServletRequest request, HttpServletResponse response, @PathVariable("elId") Long elId,
+			@PathVariable("token") String token) throws IOException {
+		EmailLog emailLog = emailLogDao.select(elId);
+		Date now = Calendar.getInstance().getTime();
+		if (emailLog != null && token.equals(emailLog.getToken()) && emailLog.getAvailable()
+				&& now.getTime() < emailLog.getDueTime().getTime()) {
+			// 跳转到更新密码页面
+			User user = new User();
+			user.setName(emailLog.getTempAccount());
+			user.setPassword(emailLog.getTempPassword());
+			user.setSetting(new JSONObject());
+			try {
+				transactionService.insertUserTransactive(user, emailLog);
+			} catch (BaseException e) {
+				String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPoint(), e.getMessage());
+				response.sendRedirect(url);
+				return;
+			}
+
+			String url = String.format("http://%s/user/reset-password?username=%s&id=%s&token=%s",
+					emailConfig.getUsername(), emailConfig.getEndPoint(), emailLog.getId(), emailLog.getToken());
+			response.sendRedirect(url);
+		} else {
+			String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPoint(),
+					"Reset Password Fail, The Token Is Wrong Or Used Or Expired");
+			response.sendRedirect(url);
 		}
 	}
 }

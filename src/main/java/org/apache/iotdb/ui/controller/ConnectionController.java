@@ -160,7 +160,7 @@ public class ConnectionController {
 
 		int i = 0;
 		try {
-			i = transactionService.insertAccountTransactive(connect);
+			i = transactionService.insertConnectTransactive(connect, user.getId());
 		} catch (BaseException e) {
 			return new BaseVO<>(e.getErrorCode(), e.getMessage(), null);
 		}
@@ -258,7 +258,7 @@ public class ConnectionController {
 			connect.setPort(port);
 			int i = 0;
 			try {
-				i = transactionService.updateAccountTransactive(connect);
+				i = transactionService.updateAccountTransactive(connect, user.getId());
 			} catch (BaseException e) {
 				return new BaseVO<>(e.getErrorCode(), e.getMessage(), null);
 			}

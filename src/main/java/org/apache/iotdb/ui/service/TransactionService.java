@@ -53,10 +53,11 @@ public class TransactionService {
 
 	@Transactional(value = "transactionManager1", rollbackFor = {
 			BaseException.class }, readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-	public int insertAccountTransactive(Connect connect) throws BaseException {
+	public int insertConnectTransactive(Connect connect, Long userId) throws BaseException {
 		int ret = connectDao.insert(connect);
 		Connect c = new Connect();
 		c.setAlias(connect.getAlias());
+		c.setUserId(userId);
 		int n = connectDao.count(c);
 		if (n != 1) {
 			throw new BaseException(FeedbackError.ALIAS_REPEAT, FeedbackError.ALIAS_REPEAT_MSG);
@@ -66,10 +67,11 @@ public class TransactionService {
 
 	@Transactional(value = "transactionManager1", rollbackFor = {
 			BaseException.class }, readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-	public int updateAccountTransactive(Connect connect) throws BaseException {
+	public int updateAccountTransactive(Connect connect, Long userId) throws BaseException {
 		int ret = connectDao.update(connect);
 		Connect c = new Connect();
 		c.setAlias(connect.getAlias());
+		c.setUserId(userId);
 		int n = connectDao.count(c);
 		if (n != 1) {
 			throw new BaseException(FeedbackError.ALIAS_REPEAT, FeedbackError.ALIAS_REPEAT_MSG);

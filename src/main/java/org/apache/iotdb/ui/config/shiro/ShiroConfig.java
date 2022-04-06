@@ -54,6 +54,8 @@ public class ShiroConfig {
 		map.put("/api/acquireCaptcha", "anon"); // 验证码不拦截
 		map.put("/api/register", "anon"); // 注册不拦截
 		map.put("/api/activateAccount/**", "anon"); // 激活账号不拦截
+		map.put("/api/sendResetPasswordMail", "anon"); // 发送找回密码邮件不拦截
+		map.put("/api/resetPassword/**", "anon"); // 找回密码链接不拦截
 		map.put("/toLogin", "anon"); // 空handler不拦截
 		map.put("/**", "authc");// 拦截所有请求，顺序不能变，拦截所有请求一定在最后一个
 
