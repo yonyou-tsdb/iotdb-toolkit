@@ -139,4 +139,7 @@ public class FeedbackError {
 
 	public static final String ACCOUNT_RESET_EMAILLOG_ERROR = "ACCOUNT-10008";
 	public static final String ACCOUNT_RESET_EMAILLOG_ERROR_MSG = "无法找到修改密码权限或权限已失效";
+
+	public static final String ACCOUNT_PASSWORD_ERROR = "ACCOUNT-10009";
+	public static final String ACCOUNT_PASSWORD_ERROR_MSG = "密码不正确";
 }

@@ -431,4 +431,28 @@ public class UserController {
 		}
 		return BaseVO.success(null);
 	}
+
+	@RequestMapping(value = "/api/updatePassword", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<JSONObject> updatePassword(@RequestParam(value = "passwordOrigin") String passwordOrigin,
+			@RequestParam(value = "password") String password) {
+		Subject subject = SecurityUtils.getSubject();
+		User u = (User) subject.getSession().getAttribute(USER);
+		User user = userDao.select(u.getId());
+		if (user == null) {
+			return new BaseVO<>(FeedbackError.GET_USER_FAIL, FeedbackError.GET_USER_FAIL_MSG, null);
+		}
+		if ("user".equals(user.getName())) {
+			return new BaseVO<>("1", "账号 user 的密码无法更改", null);
+		}
+		if (!bCryptPasswordEncoder.matches(passwordOrigin, user.getPassword())) {
+			return new BaseVO<>(FeedbackError.ACCOUNT_PASSWORD_ERROR, FeedbackError.ACCOUNT_PASSWORD_ERROR_MSG, null);
+		}
+		user.setPassword(bCryptPasswordEncoder.encode(password));
+		int c = userDao.update(user);
+		if (c != 1) {
+			return new BaseVO<>(FeedbackError.ACCOUNT_RESET_UPDATE_ERROR, FeedbackError.ACCOUNT_RESET_UPDATE_ERROR_MSG,
+					null);
+		}
+		return BaseVO.success(null);
+	}
 }
