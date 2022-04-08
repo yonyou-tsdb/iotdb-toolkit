@@ -388,26 +388,47 @@ public class UserController {
 		Date now = Calendar.getInstance().getTime();
 		if (emailLog != null && token.equals(emailLog.getToken()) && emailLog.getAvailable()
 				&& now.getTime() < emailLog.getDueTime().getTime()) {
-			// 跳转到更新密码页面
-			User user = new User();
-			user.setName(emailLog.getTempAccount());
-			user.setPassword(emailLog.getTempPassword());
-			user.setSetting(new JSONObject());
-			try {
-				transactionService.insertUserTransactive(user, emailLog);
-			} catch (BaseException e) {
-				String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPoint(), e.getMessage());
-				response.sendRedirect(url);
-				return;
-			}
-
 			String url = String.format("http://%s/user/reset-password?username=%s&id=%s&token=%s",
-					emailConfig.getUsername(), emailConfig.getEndPoint(), emailLog.getId(), emailLog.getToken());
+					emailConfig.getEndPoint(), emailLog.getTempAccount(), emailLog.getId(), token);
 			response.sendRedirect(url);
 		} else {
 			String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPoint(),
 					"Reset Password Fail, The Token Is Wrong Or Used Or Expired");
 			response.sendRedirect(url);
 		}
+	}
+
+	@RequestMapping(value = "/api/resetUpdatePassword", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<JSONObject> resetUpdatePassword(HttpServletRequest request, @RequestParam(value = "id") Long id,
+			@RequestParam(value = "token") String token, @RequestParam(value = "password") String password) {
+		EmailLog el = new EmailLog();
+		el.setId(id);
+		el.setToken(token);
+		el.setStatus(EmailLogStatus.UPDATE);
+		el.setAvailable(true);
+		EmailLog emailLog = emailLogDao.selectOne(el);
+		if (emailLog == null || emailLog.getTempAccount() == null) {
+			return new BaseVO<>(FeedbackError.ACCOUNT_RESET_EMAILLOG_ERROR,
+					FeedbackError.ACCOUNT_RESET_EMAILLOG_ERROR_MSG, null);
+		}
+		emailLog.setResetTime(Calendar.getInstance().getTime());
+		emailLog.setAvailable(false);
+		emailLogDao.update(emailLog);
+
+		String encodedPassword = bCryptPasswordEncoder.encode(password);
+		User u = new User();
+		u.setName(emailLog.getTempAccount());
+		User user = userDao.selectOne(u);
+		if (user == null) {
+			return new BaseVO<>(FeedbackError.ACCOUNT_RESET_UPDATE_ERROR, FeedbackError.ACCOUNT_RESET_UPDATE_ERROR_MSG,
+					null);
+		}
+		user.setPassword(encodedPassword);
+		int c = userDao.update(user);
+		if (c != 1) {
+			return new BaseVO<>(FeedbackError.ACCOUNT_RESET_UPDATE_ERROR, FeedbackError.ACCOUNT_RESET_UPDATE_ERROR_MSG,
+					null);
+		}
+		return BaseVO.success(null);
 	}
 }

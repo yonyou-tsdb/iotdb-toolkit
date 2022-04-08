@@ -21,6 +21,7 @@ package org.apache.iotdb.ui.config.shiro;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.iotdb.ui.config.EmailConfig;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.session.mgt.ExecutorServiceSessionValidationScheduler;
@@ -40,6 +41,9 @@ public class ShiroConfig {
 	@Autowired
 	private MyPermissionResolver myPermissionResolver;
 
+	@Autowired
+	private EmailConfig emailConfig;
+
 	@Bean(name = "shiroFilterFactoryBean")
 	public ShiroFilterFactoryBean getShiroFilterFactoryBean() {
 		ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();
@@ -56,13 +60,14 @@ public class ShiroConfig {
 		map.put("/api/activateAccount/**", "anon"); // 激活账号不拦截
 		map.put("/api/sendResetPasswordMail", "anon"); // 发送找回密码邮件不拦截
 		map.put("/api/resetPassword/**", "anon"); // 找回密码链接不拦截
-		map.put("/toLogin", "anon"); // 空handler不拦截
+		map.put("/api/resetUpdatePassword", "anon"); // 修改密码不拦截
+		map.put("/", "anon"); // 空handler不拦截
 		map.put("/**", "authc");// 拦截所有请求，顺序不能变，拦截所有请求一定在最后一个
 
 		// 配置认证和授权规则
 		bean.setFilterChainDefinitionMap(map);
 		// 设置登录地址
-		bean.setLoginUrl("/toLogin");
+		bean.setLoginUrl("http://" + emailConfig.getEndPoint());
 		bean.setUnauthorizedUrl("/401");
 		DefaultWebSecurityManager securityManager = getDefaultWebSecurityManager();
 		bean.setSecurityManager(securityManager);

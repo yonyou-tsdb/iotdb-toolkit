@@ -133,4 +133,10 @@ public class FeedbackError {
 
 	public static final String ACCOUNT_FIND_USER_BY_EMAIL_ERROR = "ACCOUNT-10006";
 	public static final String ACCOUNT_FIND_USER_BY_EMAIL_ERROR_MSG = "无法通过邮箱找到用户";
+
+	public static final String ACCOUNT_RESET_UPDATE_ERROR = "ACCOUNT-10007";
+	public static final String ACCOUNT_RESET_UPDATE_ERROR_MSG = "修改密码失败";
+
+	public static final String ACCOUNT_RESET_EMAILLOG_ERROR = "ACCOUNT-10008";
+	public static final String ACCOUNT_RESET_EMAILLOG_ERROR_MSG = "无法找到修改密码权限或权限已失效";
 }
