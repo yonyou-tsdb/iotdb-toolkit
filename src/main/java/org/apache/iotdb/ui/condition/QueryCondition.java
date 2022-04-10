@@ -18,6 +18,8 @@
  */
 package org.apache.iotdb.ui.condition;
 
+import java.util.List;
+
 import org.apache.iotdb.ui.entity.Query;
 
 import indi.mybatis.flying.annotations.ConditionMapperAnnotation;
@@ -34,6 +36,9 @@ public class QueryCondition extends Query implements Conditionable {
 
 	@ConditionMapperAnnotation(dbFieldName = "name", conditionType = ConditionType.LIKE)
 	private String nameLike;
+
+	@ConditionMapperAnnotation(dbFieldName = "connect_id", conditionType = ConditionType.IN)
+	private List<Long> connectIdIn;
 
 	public Limitable getLimiter() {
 		return limiter;
@@ -57,6 +62,14 @@ public class QueryCondition extends Query implements Conditionable {
 
 	public void setNameLike(String nameLike) {
 		this.nameLike = nameLike;
+	}
+
+	public List<Long> getConnectIdIn() {
+		return connectIdIn;
+	}
+
+	public void setConnectIdIn(List<Long> connectIdIn) {
+		this.connectIdIn = connectIdIn;
 	}
 
 }

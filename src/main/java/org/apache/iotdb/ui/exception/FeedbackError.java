@@ -117,7 +117,7 @@ public class FeedbackError {
 	public static final String QUERY_EXIST_MSG = "脚本名已存在";
 
 	public static final String ACCOUNT_CAPTCHA_ERROR = "ACCOUNT-10001";
-	public static final String ACCOUNT_CAPTCHA_ERROR_MSG = "验证码有误";
+	public static final String ACCOUNT_CAPTCHA_ERROR_MSG = "验证码有误或已过期";
 
 	public static final String ACCOUNT_REGISTER_ERROR = "ACCOUNT-10002";
 	public static final String ACCOUNT_REGISTER_ERROR_MSG = "注册的用户名或邮箱重复";
@@ -142,4 +142,7 @@ public class FeedbackError {
 
 	public static final String ACCOUNT_PASSWORD_ERROR = "ACCOUNT-10009";
 	public static final String ACCOUNT_PASSWORD_ERROR_MSG = "密码不正确";
+
+	public static final String ACCOUNT_DELETE_ERROR = "ACCOUNT-10010";
+	public static final String ACCOUNT_DELETE_ERROR_MSG = "删除账号失败";
 }

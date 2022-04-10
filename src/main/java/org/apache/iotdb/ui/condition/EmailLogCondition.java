@@ -62,6 +62,16 @@ public class EmailLogCondition extends EmailLog implements Conditionable {
 	@ConditionMapperAnnotation(dbFieldName = "email_time", conditionType = ConditionType.LESS_OR_EQUAL)
 	private Date emailTimeLessOrEqual;
 
+	@Or({ @ConditionMapperAnnotation(dbFieldName = "account_id", conditionType = ConditionType.EQUAL),
+			@ConditionMapperAnnotation(dbFieldName = "temp_account", conditionType = ConditionType.EQUAL), })
+	private Object[] accountIdEqualOrTempAccountEqual;
+
+	@ConditionMapperAnnotation(dbFieldName = "account_id", conditionType = ConditionType.EQUAL)
+	private Long accountIdEqual;
+
+	@ConditionMapperAnnotation(dbFieldName = "temp_account", conditionType = ConditionType.EQUAL)
+	private String tempAccountEqual;
+
 	public Object[] getEmailEqualOrUsernameEqual() {
 		return emailEqualOrUsernameEqual;
 	}
@@ -84,6 +94,30 @@ public class EmailLogCondition extends EmailLog implements Conditionable {
 
 	public void setEmailTimeLessOrEqual(Date emailTimeLessOrEqual) {
 		this.emailTimeLessOrEqual = emailTimeLessOrEqual;
+	}
+
+	public Object[] getAccountIdEqualOrTempAccountEqual() {
+		return accountIdEqualOrTempAccountEqual;
+	}
+
+	public void setAccountIdEqualOrTempAccountEqual(Object... accountIdEqualOrTempAccountEqual) {
+		this.accountIdEqualOrTempAccountEqual = accountIdEqualOrTempAccountEqual;
+	}
+
+	public Long getAccountIdEqual() {
+		return accountIdEqual;
+	}
+
+	public void setAccountIdEqual(Long accountIdEqual) {
+		this.accountIdEqual = accountIdEqual;
+	}
+
+	public String getTempAccountEqual() {
+		return tempAccountEqual;
+	}
+
+	public void setTempAccountEqual(String tempAccountEqual) {
+		this.tempAccountEqual = tempAccountEqual;
 	}
 
 }

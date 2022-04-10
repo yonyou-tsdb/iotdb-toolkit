@@ -173,13 +173,10 @@ public class UserController {
 
 	@ApiOperation(value = "/api/outLogin", notes = "/api/outLogin")
 	@RequestMapping(value = "/api/outLogin", method = { RequestMethod.GET, RequestMethod.POST })
-	public JSONObject outLogin() {
+	public BaseVO<JSONObject> outLogin() {
 		Subject subject = SecurityUtils.getSubject();
 		subject.logout();
-		JSONObject ret = new JSONObject();
-		ret.put("data", new JSONObject());
-		ret.put("success", true);
-		return ret;
+		return BaseVO.success(null);
 	}
 
 	// 简单的无返回值的handler，无需写入swagger
@@ -453,6 +450,22 @@ public class UserController {
 			return new BaseVO<>(FeedbackError.ACCOUNT_RESET_UPDATE_ERROR, FeedbackError.ACCOUNT_RESET_UPDATE_ERROR_MSG,
 					null);
 		}
+		return BaseVO.success(null);
+	}
+
+	@RequestMapping(value = "/api/deleteAccount", method = { RequestMethod.POST })
+	public BaseVO<JSONObject> deleteAccount() {
+		Subject subject = SecurityUtils.getSubject();
+		User user = (User) subject.getSession().getAttribute(USER);
+		if ("user".equals(user.getName())) {
+			return new BaseVO<>("1", "账号 user 无法删除", null);
+		}
+		try {
+			transactionService.deleteUserTransactive(user);
+		} catch (BaseException e) {
+			return new BaseVO<>(FeedbackError.ACCOUNT_DELETE_ERROR, FeedbackError.ACCOUNT_DELETE_ERROR_MSG, null);
+		}
+		subject.logout();
 		return BaseVO.success(null);
 	}
 }

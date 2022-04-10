@@ -18,13 +18,19 @@
  */
 package org.apache.iotdb.ui.service;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.iotdb.ui.condition.ConnectCondition;
 import org.apache.iotdb.ui.condition.EmailLogCondition;
+import org.apache.iotdb.ui.condition.QueryCondition;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.EmailLog;
 import org.apache.iotdb.ui.entity.Query;
 import org.apache.iotdb.ui.entity.User;
 import org.apache.iotdb.ui.exception.BaseException;
 import org.apache.iotdb.ui.exception.FeedbackError;
+import org.apache.iotdb.ui.face.ConnectFace;
 import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.EmailLogDao;
 import org.apache.iotdb.ui.mapper.QueryDao;
@@ -41,6 +47,9 @@ public class TransactionService {
 
 	@Autowired
 	private ConnectDao connectDao;
+
+	@Autowired
+	private ConnectService connectService;
 
 	@Autowired
 	private QueryDao queryDao;
@@ -119,6 +128,36 @@ public class TransactionService {
 		int n = emailLogDao.count(elc);
 		if (n > 0) {
 			throw new BaseException(FeedbackError.ACCOUNT_ACTIVATE_ERROR, FeedbackError.ACCOUNT_ACTIVATE_ERROR_MSG);
+		}
+		return ret;
+	}
+
+	@Transactional(value = "transactionManager1", rollbackFor = {
+			BaseException.class }, readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+	public int deleteUserTransactive(User user) throws BaseException {
+		connectService.loadUser(user, new Connect());
+		QueryCondition qc = new QueryCondition();
+		List<Long> connectIdList = new LinkedList<>();
+		for (ConnectFace e : user.getConnect()) {
+			connectIdList.add(((Connect) e).getId());
+		}
+		qc.setConnectIdIn(connectIdList);
+		queryDao.delete(qc);
+
+		ConnectCondition cc = new ConnectCondition();
+		cc.setUserIdEqual(user.getId());
+		connectDao.delete(cc);
+
+		int ret = userDao.delete(user);
+
+		try {
+			EmailLogCondition elc = new EmailLogCondition();
+			elc.setAccountIdEqual(user.getId());
+			emailLogDao.delete(elc);
+			elc.setAccountIdEqual(null);
+			elc.setTempAccountEqual(user.getName());
+			emailLogDao.delete(elc);
+		} catch (Exception e) {
 		}
 		return ret;
 	}

@@ -18,6 +18,8 @@
  */
 package org.apache.iotdb.ui.condition;
 
+import java.util.List;
+
 import org.apache.iotdb.ui.entity.Connect;
 
 import indi.mybatis.flying.annotations.ConditionMapperAnnotation;
@@ -34,6 +36,9 @@ public class ConnectCondition extends Connect implements Conditionable {
 
 	@ConditionMapperAnnotation(dbFieldName = "alias", conditionType = ConditionType.LIKE)
 	private String aliasLike;
+
+	@ConditionMapperAnnotation(dbFieldName = "user_id", conditionType = ConditionType.EQUAL)
+	private Long userIdEqual;
 
 	public Limitable getLimiter() {
 		return limiter;
@@ -57,6 +62,14 @@ public class ConnectCondition extends Connect implements Conditionable {
 
 	public void setAliasLike(String aliasLike) {
 		this.aliasLike = aliasLike;
+	}
+
+	public Long getUserIdEqual() {
+		return userIdEqual;
+	}
+
+	public void setUserIdEqual(Long userIdEqual) {
+		this.userIdEqual = userIdEqual;
 	}
 
 }
