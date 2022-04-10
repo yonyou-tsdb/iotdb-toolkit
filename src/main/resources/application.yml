@@ -62,9 +62,10 @@ management:
         include: '*'
 swagger: 
    enable: true
-email: 
-   port: 465
-   host: '@need_env@'
-   username: '@need_env@'
-   password: '@need_env@'
-   endPoint: '@need_env@'
+iotdbui:
+   frontend: 
+   email: 
+      port: 465
+      host: 
+      username: 
+      password: 

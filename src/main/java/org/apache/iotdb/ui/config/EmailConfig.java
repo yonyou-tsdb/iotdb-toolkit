@@ -39,19 +39,19 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 @Configuration
 public class EmailConfig {
 
-	@Value("${email.host}")
+	@Value("${iotdbui.email.host:}")
 	private String host;
 
-	@Value("${email.port}")
+	@Value("${iotdbui.email.port:465}")
 	private int port;
 
-	@Value("${email.username}")
+	@Value("${iotdbui.email.username:}")
 	private String username;
 
-	@Value("${email.password}")
+	@Value("${iotdbui.email.password:}")
 	private String password;
 
-	@Value("${email.endPoint}")
+	@Value("${iotdbui.frontend:}")
 	private String endPoint;
 
 	@Bean(name = "javaMailSender", value = "javaMailSender")
