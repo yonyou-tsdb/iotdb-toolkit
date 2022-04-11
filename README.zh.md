@@ -20,7 +20,7 @@ Nginx
 
 2.确保 sqlite 文件 `iotdbui.db` 存在于项目根目录内。如果您使用其它数据库，需要修改 `src/main/resources/application.yml` 文件
 
-<font color='red'>3.从 `0.12.4` 开始增加了发送邮件服务，如果您需要使用此功能，需要有一个开启了 smtp 服务的邮箱，然后在项目根目录下的 application.yml 中加入相关配置，例如演示服务器上的配置如下：</font>
+3.从 `0.12.4` 开始增加了发送邮件服务，如果您需要使用此功能，需要有一个开启了 smtp 服务的邮箱，然后在项目根目录下的 application.yml 中加入邮箱配置，以及 IoTDB-UI 的前端（即 IP 和端口）frontend。例如演示服务器上的配置如下：
 
 ```
 iotdbui:
@@ -32,7 +32,9 @@ iotdbui:
     password: 'xxxxxx'
 ```
 
-<font color='red'>之所以在根目录下修改 application.yml 会生效，是因为 Dockerfile 中的命令指向了这个文件，如果您使用其他位置的配置文件，把上面的配置加到您使用的文件上即可</font>
+之所以在根目录下修改 application.yml 会生效，是因为 Dockerfile 中的命令指向了这个文件，您也可以把它加入到 /src/main/resources/application.yml 或您使用的其他位置的配置文件。如果不在配置文件加入这些内容也不影响使用默认账号登录系统，但无法使用基于邮箱的注册账号、找回密码等功能
+
+本次更新后默认账号由 admin 变为 user，因安全要求变得更加严格 admin 账号不再可用。同时加入一张新表 tb_email_log （<a href="https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql">所有相关表信息</a>），如果您需要保留本地 iotdbui.db 中的数据，可以手动新增 tb_email_log 表，再把项目根目录下 iotdbui.db 中 tb_user 表中默认账号的信息拷贝到自己使用的数据库
 
 4.使用 docker-compose 部署（需安装 docker 及 docker-compose）：
 

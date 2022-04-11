@@ -20,7 +20,7 @@ Nginx
 
 2.Make sure the sqlite file `iotdbui.db` exists in the project root directory. If you use another database, you need to modify the `src/main/resources/application.yml` file
 
-<font color='red'>3. The sending mail service has been added since `0.12.4`. If you need to use this function, you need to have a mailbox with the smtp service enabled, and then add the relevant configuration to application.yml in the project root directory, for example, in the demo The configuration on the server is as follows:</font>
+3. The sending mail service has been added since `0.12.4`. If you need to use this function, you need to have a mailbox with the smtp service enabled, then add the relevant configuration to application.yml in the project root directory, and the frontend of IoTDB-UI (i.e. IP and port). for example, in the demo The configuration on the server is as follows:
 
 ```
 iotdbui:
@@ -32,7 +32,9 @@ iotdbui:
     password: 'xxxxxx'
 ```
 
-<font color='red'>The reason why modifying application.yml in the root directory will take effect is because the command in the Dockerfile points to this file. If you use a configuration file in another location, just add the above configuration to the file you use</font>
+The reason why modifying application.yml in the root directory will take effect is because the command in the Dockerfile points to this file, you can also add it to the configuration file in /src/main/resources/application.yml or other location you use . If you do not add these contents to the configuration file, it will not affect the use of the default account to log in to the system, but you cannot use the email-based account registration, password retrieval and other functions
+
+After this update, the default account is changed from admin to user. Due to stricter security requirements, the admin account is no longer available. Also add a new table tb_email_log (<a href="https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql">all related table information</a>), if you need to keep the data in the local iotdbui.db, you can manually add the tb_email_log table, and then copy the default account information in the tb_user table in the iotdbui.db under the project root directory to the database you use
 
 4.Deploy using docker-compose (require docker and docker-compose):
 
