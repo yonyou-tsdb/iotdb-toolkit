@@ -2,6 +2,10 @@
 
 IoTDB-UI是一个可以深度管理IoTDB的管理系统，它提供了桌面软件级别的精确管理， 希望它能对您使用 IoTDB 有所帮助。
 
+#### 最新版本
+
+`0.12.4`
+
 #### 需求
 
 Java 1.8 or above
@@ -12,19 +16,33 @@ Nginx
 
 #### 部署步骤
 
-1.在项目根目录执行 `mvn clean package` 以编译
+1.在项目根目录执行 `mvn clean install` 以编译，之后在 target 文件夹下可找到 iotdb-ui-0.12.4.jar 文件
 
 2.确保 sqlite 文件 `iotdbui.db` 存在于项目根目录内。如果您使用其它数据库，需要修改 `src/main/resources/application.yml` 文件
 
-3.使用 docker-compose 部署（需安装 docker 及 docker-compose）：
+<font color='red'>3.从 `0.12.4` 开始增加了发送邮件服务，如果您需要使用此功能，需要有一个开启了 smtp 服务的邮箱，然后在项目根目录下的 application.yml 中加入相关配置，例如演示服务器上的配置如下：</font>
 
-- 在项目根目录执行 `docker-compose up`
-  
-4.使用传统方式部署：
+```
+iotdbui:
+  frontend: 115.28.134.232:8800
+  email:
+    port: 465
+    host: 'smtp.xxx.com.'
+    username: 'xxx@xxx.com'
+    password: 'xxxxxx'
+```
 
-- 在项目根目录执行 `java -jar target/iotdb-ui-0.12.3.jar` 以启动，默认使用 8080 端口
+<font color='red'>之所以在根目录下修改 application.yml 会生效，是因为 Dockerfile 中的命令指向了这个文件，如果您使用其他位置的配置文件，把上面的配置加到您使用的文件上即可</font>
+
+4.使用 docker-compose 部署（需安装 docker 及 docker-compose）：
+
+- 在项目根目录执行 `docker-compose up -d`
   
-- 使用 nginx 映射 `/front/dist` 中的内容，或者映射在iotdb-ui前端项目中手动构建的内容。 例如，下面的配置将前端映射到了 8040 端口，同时将后端转发到 8080 端口:
+5.使用传统方式部署：
+
+- 在项目根目录执行 `java -jar target/iotdb-ui-0.12.4.jar --spring.config.location=application.xml` 以启动，默认使用 8080 端口
+  
+- 使用 nginx 映射 `/front/dist` 中的内容，或者映射在 iotdb-ui 前端项目中手动构建的内容。 例如，下面的配置将前端映射到了 8040 端口，同时将后端转发到 8080 端口:
 
 ```
 server {
@@ -42,4 +60,4 @@ server {
 
 - 如果在 nginx 上启用 websocket 功能，可以获得更好的用户体验。如果不启用 websocket 功能，也不会影响使用
 
-5.现在在浏览器打开之前设置的端口（如 http://localhost:8040/ ），开始享受 iotdb 的魅力吧！
+6.现在在浏览器打开之前设置的端口（如 http://localhost:8040/ ），开始享受 iotdb 的魅力吧！
