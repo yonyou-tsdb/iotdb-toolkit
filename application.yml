@@ -1,6 +1,7 @@
-email:
-  port: 465
-  host: 
-  username: 
-  password: 
-  endPoint: 
+iotdbui:
+   frontend: 
+   email:
+     port: 465
+     host: 
+     username: 
+     password: 

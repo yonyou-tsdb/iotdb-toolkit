@@ -3,7 +3,7 @@ version: "3.7"
 services:
   backend:
     build: .
-    image: iotdb-ui_backend:0.12.4-SNAPSHOT
+    image: iotdb-ui_backend:0.12.4
     restart: always
     volumes:
     - ./iotdbui.db:/iotdbui.db

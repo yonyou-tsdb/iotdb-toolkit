@@ -1,6 +1,6 @@
 FROM maven
 
-COPY target/iotdb-ui-0.12.4-SNAPSHOT.jar iotdb-ui.jar
+COPY target/iotdb-ui-0.12.4.jar iotdb-ui.jar
 
 COPY application.yml application.yml
 
