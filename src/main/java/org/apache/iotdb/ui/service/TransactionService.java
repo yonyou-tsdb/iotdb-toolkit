@@ -107,10 +107,16 @@ public class TransactionService {
 	public int insertEmailLogTransactive(EmailLog emailLog) throws BaseException {
 		int ret = emailLogDao.insert(emailLog);
 		EmailLogCondition elc = new EmailLogCondition();
-		elc.setEmailEqualOrUsernameEqual(emailLog.getEmail(), emailLog.getTempAccount());
+		elc.setEmail(emailLog.getEmail());
 		elc.setAvailable(false);
 		elc.setStatus(EmailLogStatus.INSERT);
 		int n = emailLogDao.count(elc);
+		if (n > 0) {
+			throw new BaseException(FeedbackError.ACCOUNT_REGISTER_ERROR, FeedbackError.ACCOUNT_REGISTER_ERROR_MSG);
+		}
+		User u = new User();
+		u.setName(emailLog.getTempAccount());
+		n = userDao.count(u);
 		if (n > 0) {
 			throw new BaseException(FeedbackError.ACCOUNT_REGISTER_ERROR, FeedbackError.ACCOUNT_REGISTER_ERROR_MSG);
 		}
