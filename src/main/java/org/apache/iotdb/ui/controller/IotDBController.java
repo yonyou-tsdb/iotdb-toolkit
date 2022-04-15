@@ -29,13 +29,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.iotdb.rpc.IoTDBConnectionException;
+import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.Session;
 import org.apache.iotdb.session.SessionDataSet;
 import org.apache.iotdb.session.pool.SessionPool;
@@ -181,7 +181,11 @@ public class IotDBController {
 			m.put("granularity", granularity.getValue());
 			m.put("depth", c);
 			m.put("range", array[0].trim());
-			m.put("auth", array[1].trim().split(" "));
+			if (array.length > 1) {
+				m.put("auth", array[1].trim().split(" "));
+			} else {
+				m.put("auth", new String[] {});
+			}
 			m.put("key", i++);
 			list1.add(m);
 		}
@@ -238,6 +242,7 @@ public class IotDBController {
 			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, FeedbackError.WRONG_DB_PARAM_MSG, null);
 		}
 		List<String> sqlList = new ArrayList<>();
+		List<String> sqlList2 = new ArrayList<>();
 		String[] rangeArray = ranges.split(",");
 		Set<String> rangeSet = new HashSet<>();
 		for (String s : rangeArray) {
@@ -277,6 +282,8 @@ public class IotDBController {
 				} else {
 					sqlList.add(new StringBuilder("REVOKE USER ").append(user).append(" PRIVILEGES '").append(ss)
 							.append("' on ").append(e.getKey()).append(";").toString());
+					sqlList2.add(new StringBuilder("REVOKE USER ").append(user).append(" PRIVILEGES ").append(ss)
+							.append(" on ").append(e.getKey()).append(";").toString());
 				}
 			}
 		}
@@ -286,6 +293,8 @@ public class IotDBController {
 				if (unchange.get(r) == null || !unchange.get(r).contains(a)) {
 					sqlList.add(new StringBuilder("GRANT USER ").append(user).append(" PRIVILEGES '").append(a)
 							.append("' on ").append(r).append(";").toString());
+					sqlList2.add(new StringBuilder("GRANT USER ").append(user).append(" PRIVILEGES ").append(a)
+							.append(" on ").append(r).append(";").toString());
 				}
 			}
 		}
@@ -293,10 +302,17 @@ public class IotDBController {
 			for (String s : sqlList) {
 				getDetermineSessionPool().executeNonQueryStatement(s);
 			}
-		} catch (Exception e) {
-			return new BaseVO<>(FeedbackError.PRIV_CHANGE_FAIL,
-					new StringBuilder(FeedbackError.PRIV_CHANGE_FAIL_MSG).append(":").append(e.getMessage()).toString(),
-					null);
+		} catch (Exception ee) {
+			try {
+				for (String s : sqlList2) {
+					getDetermineSessionPool().executeNonQueryStatement(s);
+				}
+			} catch (Exception e) {
+				return new BaseVO<>(FeedbackError.PRIV_CHANGE_FAIL,
+						new StringBuilder(FeedbackError.PRIV_CHANGE_FAIL_MSG).append(":").append(e.getMessage())
+								.toString(),
+						null);
+			}
 		}
 		return BaseVO.success(null);
 	}
@@ -306,7 +322,6 @@ public class IotDBController {
 	public BaseVO<Object> addPrivilegesWithTenant(HttpServletRequest request, @RequestParam("user") String user,
 			@RequestParam(value = "auth") String authStr,
 			@RequestParam(value = "timeseries", required = false) String timeseries) throws SQLException {
-		List<String> sqlList = new ArrayList<>();
 		String[] auths = authStr.trim().split(",");
 		StringBuilder range = new StringBuilder("root");
 		if (timeseries != null && !"".equals(timeseries)) {
@@ -314,12 +329,17 @@ public class IotDBController {
 		}
 		JSONArray success = new JSONArray();
 		for (String a : auths) {
-			StringBuilder sb = new StringBuilder("grant user ");
-			sqlList.add(sb.append(user).append(" privileges '").append(a).append("' on ").append(range).toString());
 			try {
-				getDetermineSessionPool().executeNonQueryStatement(sb.toString());
+				getDetermineSessionPool().executeNonQueryStatement(new StringBuilder("grant user ").append(user)
+						.append(" privileges '").append(a).append("' on ").append(range).toString());
 				success.add(a);
 			} catch (Exception e) {
+				try {
+					getDetermineSessionPool().executeNonQueryStatement(new StringBuilder("grant user ").append(user)
+							.append(" privileges ").append(a).append(" on ").append(range).toString());
+					success.add(a);
+				} catch (StatementExecutionException | IoTDBConnectionException e1) {
+				}
 			}
 		}
 		JSONObject json = new JSONObject();
