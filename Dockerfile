@@ -1,7 +1,17 @@
-FROM maven
+FROM nginx
 
-COPY target/iotdb-ui-0.12.4.jar iotdb-ui.jar
+COPY start.sh /root/start.sh
 
-COPY application.yml application.yml
+COPY zulu-8/ /usr/zulu-8/
 
-ENTRYPOINT java -jar -Dspring-boot.run.jvmArguments="-Dspring.config.location=application.yml" iotdb-ui.jar
+COPY iotdb-ui-0.12.4-1.jar /root/iotdb-ui.jar
+
+COPY application.yml /root/application.yml
+
+COPY nginx.conf /etc/nginx/nginx.conf
+
+COPY dist-0.12.4-1/ /usr/share/nginx/html
+
+RUN chmod 777 /root/start.sh
+
+ENTRYPOINT /root/start.sh

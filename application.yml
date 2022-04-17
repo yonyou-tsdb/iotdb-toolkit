@@ -1,7 +1,0 @@
-iotdbui:
-   frontend: 
-   email:
-     port: 465
-     host: 
-     username: 
-     password: 
