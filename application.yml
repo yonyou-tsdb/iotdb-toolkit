@@ -1,0 +1,7 @@
+iotdbui:
+  frontend: 127.0.0.1:7776
+  email:
+    port: 465
+    host: 
+    username: 
+    password: 
