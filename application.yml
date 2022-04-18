@@ -1,7 +1,38 @@
+server:
+  port: 8080
+  servlet: 
+     session: 
+        cookie:
+           http-only: false
+spring:
+  servlet:
+    multipart:
+      max-file-size: 300MB
+      max-request-size: 300MB
+  main:
+    allow-bean-definition-overriding: true
+  data-source1:
+    name: dataSource1
+    url: jdbc:sqlite:iotdbui.db
+    useSSL: false
+    username: root
+    password: root
+    type: com.alibaba.druid.pool.DruidDataSource
+    filters:
+    maxActive: 20
+    initialSize: 1
+    maxWait: 60000
+    minIdle: 1
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
 iotdbui:
-  frontend: 127.0.0.1:7776
+  frontend: _iotdbui_frontend_
   email:
-    port: 465
-    host: 
-    username: 
-    password: 
+    port: _iotdbui_email_port_
+    host: _iotdbui_email_host_
+    username: _iotdbui_email_username_
+    password: _iotdbui_email_password_

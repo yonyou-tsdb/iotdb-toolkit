@@ -14,4 +14,6 @@ COPY dist-0.12.4-1/ /usr/share/nginx/html
 
 RUN chmod 777 /root/start.sh
 
+RUN chmod -R 777 /usr/zulu-8/
+
 ENTRYPOINT /root/start.sh
