@@ -265,7 +265,7 @@ public class UserController {
 			return new BaseVO<>(e.getErrorCode(), e.getMessage(), null);
 		}
 
-		String url = String.format("http://%s/api/activateAccount/%s/%s", emailConfig.getEndPoint(), emailLog.getId(),
+		String url = String.format("http://%s/api/activateAccount/%s/%s", emailConfig.getEndPointWisely(), emailLog.getId(),
 				randomToken);
 
 		sendRegisterEmail(mail, username, url);
@@ -288,7 +288,7 @@ public class UserController {
 			try {
 				transactionService.insertUserTransactive(user, emailLog);
 			} catch (BaseException e) {
-				String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPoint(), e.getMessage());
+				String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPointWisely(), e.getMessage());
 				response.sendRedirect(url);
 				return;
 			}
@@ -299,11 +299,11 @@ public class UserController {
 			emailLog.setAvailable(false);
 			emailLog.setUserId(user.getId());
 			emailLogDao.updatePersistent(emailLog);
-			String url = String.format("http://%s/user/success?status=%s", emailConfig.getEndPoint(),
+			String url = String.format("http://%s/user/success?status=%s", emailConfig.getEndPointWisely(),
 					"Activate Account Success");
 			response.sendRedirect(url);
 		} else {
-			String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPoint(),
+			String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPointWisely(),
 					"Activate Account Fail, The Token Is Wrong Or Used Or Expired");
 			response.sendRedirect(url);
 		}
@@ -361,7 +361,7 @@ public class UserController {
 
 		emailLogDao.insert(emailLog);
 
-		String url = String.format("http://%s/api/resetPassword/%s/%s", emailConfig.getEndPoint(), emailLog.getId(),
+		String url = String.format("http://%s/api/resetPassword/%s/%s", emailConfig.getEndPointWisely(), emailLog.getId(),
 				randomToken);
 
 		sendResetPasswordEmail(email, temp.getUser().getName(), url);
@@ -386,10 +386,10 @@ public class UserController {
 		if (emailLog != null && token.equals(emailLog.getToken()) && emailLog.getAvailable()
 				&& now.getTime() < emailLog.getDueTime().getTime()) {
 			String url = String.format("http://%s/user/reset-password?username=%s&id=%s&token=%s",
-					emailConfig.getEndPoint(), emailLog.getTempAccount(), emailLog.getId(), token);
+					emailConfig.getEndPointWisely(), emailLog.getTempAccount(), emailLog.getId(), token);
 			response.sendRedirect(url);
 		} else {
-			String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPoint(),
+			String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPointWisely(),
 					"Reset Password Fail, The Token Is Wrong Or Used Or Expired");
 			response.sendRedirect(url);
 		}

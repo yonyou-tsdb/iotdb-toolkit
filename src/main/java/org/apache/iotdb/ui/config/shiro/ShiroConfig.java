@@ -67,7 +67,7 @@ public class ShiroConfig {
 		// 配置认证和授权规则
 		bean.setFilterChainDefinitionMap(map);
 		// 设置登录地址
-		bean.setLoginUrl("http://" + emailConfig.getEndPoint());
+		bean.setLoginUrl("http://" + emailConfig.getEndPointWisely());
 		bean.setUnauthorizedUrl("/401");
 		DefaultWebSecurityManager securityManager = getDefaultWebSecurityManager();
 		bean.setSecurityManager(securityManager);
