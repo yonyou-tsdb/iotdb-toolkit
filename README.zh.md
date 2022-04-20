@@ -14,7 +14,15 @@ Maven 3.3.0 or above
 
 Nginx
 
-#### 部署步骤
+#### Docker 方式部署（需安装 docker）
+
+1.执行 `docker pull limeng32/iotdbui` 或 `docker pull limeng32/iotdbui:0.12.4` 以获取最新镜像
+
+2.立刻开始使用：执行 `docker run -p 80:80 -it limeng32/iotdbui`。镜像内部暴露 `80` 端口，可以不设置任何环境变量就直接启动，这种情况下可以使用 iotdbui 大部分功能，但无法使用邮箱功能，容器关闭后数据也不会保存
+
+3.指定卷以让 iotdbui.db 保存数据：下载 <a href="https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db">https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db</a> 或按 <a href="https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql">https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql</a> 中的结构建立 iotdbui.db 文件，然后执行 `docker run -p 80:80 -v iotdbui.db:/iotdbui.db -it limeng32/iotdbui`。
+
+#### 直接部署
 
 1.在项目根目录执行 `mvn clean install` 以编译，之后在 target 文件夹下可找到 iotdb-ui-0.12.4.jar 文件
 
