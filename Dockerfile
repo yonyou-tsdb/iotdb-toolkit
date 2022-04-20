@@ -4,13 +4,13 @@ COPY start.sh /root/start.sh
 
 COPY zulu-8/ /usr/zulu-8/
 
-COPY iotdb-ui-0.12.4-1.jar /root/iotdb-ui.jar
+COPY iotdb-ui-0.12.4.jar /root/iotdb-ui.jar
 
 COPY application.yml /root/application.yml
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
-COPY dist-0.12.4-1/ /usr/share/nginx/html
+COPY dist-0.12.4/ /usr/share/nginx/html
 
 RUN chmod 777 /root/start.sh
 
