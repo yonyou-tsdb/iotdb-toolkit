@@ -18,9 +18,19 @@ Nginx
 
 1.执行 `docker pull limeng32/iotdbui` 或 `docker pull limeng32/iotdbui:0.12.4` 以获取最新镜像
 
-2.立刻开始使用：执行 `docker run -p 80:80 -it limeng32/iotdbui`。镜像内部暴露 `80` 端口，可以不设置任何环境变量就直接启动，这种情况下可以使用 iotdbui 大部分功能，但无法使用邮箱功能，容器关闭后数据也不会保存
+2.立刻开始使用：执行 `docker run -p 80:80 -it --rm limeng32/iotdbui`。镜像内部暴露 `80` 端口，可以不设置任何环境变量就直接启动，这种情况下可以使用 iotdbui 大部分功能，但无法使用邮箱功能，容器关闭后数据不保存
 
-3.指定卷以让 iotdbui.db 保存数据：下载 <a href="https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db">https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db</a> 或按 <a href="https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql">https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql</a> 中的结构建立 iotdbui.db 文件，然后执行 `docker run -p 80:80 -v iotdbui.db:/iotdbui.db -it limeng32/iotdbui`。
+3.指定卷以让 iotdbui.db 保存数据：下载 <a href="https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db">https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db</a> 或按 <a href="https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql">https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql</a> 中的结构建立 iotdbui.db 文件，然后执行 `docker run -p 80:80 -v /foo/bar/iotdbui.db:/iotdbui.db -it --rm limeng32/iotdbui`，这样数据可以保存在 `/foo/bar/iotdbui.db` 中。
+
+4.增加账号管理功能：为了使此功能可用需要您有一个开启了 smtp 服务的邮件服务器，然后在启动时增加以下环境变量
+
+| 名称 | 含义  |  范例  |
+|:--------|:-------:|-------:|
+| `iotdbui_frontend` | `部署iotdbui的 IP和端口` | `127.0.0.1:80` |
+| `iotdbui_email_port` | `邮件服务器的端口` | `465` |
+| `iotdbui_email_host` | `邮件服务器的地址` | `smtp.mxhichina.com.` |
+| `iotdbui_email_username` | `邮件服务器的用户名` | `postmaster@foo.bar` |
+| `iotdbui_email_password` | `邮件服务器的密码` | `xxxxxxxx` |
 
 #### 直接部署
 
