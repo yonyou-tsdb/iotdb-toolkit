@@ -8,58 +8,26 @@ IoTDB-UI is a management system that can deeply manage IoTDB. It provides precis
 
 #### Required
 
-Java 1.8 or above
-
-Maven 3.3.0 or above
-
-Nginx
+docker
 
 #### Deployment steps
 
-1.In the project root directory execute `mvn clean install` to compile, then you can find the iotdb-ui-0.12.4.jar file in the target folder
+1. Execute `docker pull limeng32/iotdbui` or `docker pull limeng32/iotdbui:0.12.4` to get the latest image
 
-2.Make sure the sqlite file `iotdbui.db` exists in the project root directory. If you use another database, you need to modify the `src/main/resources/application.yml` file
+2. Start using it immediately: execute `docker run -p 80:80 -it --rm limeng32/iotdbui`, you can start it directly without setting any environment variables (the `80` port is exposed inside the image). In this case, most of the functions of iotdbui can be used, but the account management function cannot be used, and the data will not be saved after the container is closed
 
-3. The sending mail service has been added since `0.12.4`. If you need to use this function, you need to have a mailbox with the smtp service enabled, then add the relevant configuration to application.yml in the project root directory, and the frontend of IoTDB-UI (i.e. IP and port). for example, in the demo The configuration on the server is as follows:
+3. Add the function of saving data: download <a href="https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db">https://github.com/limeng32/iotdbui-back/ blob/docker/iotdbui.db</a> or follow
+ <a href="https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql">https://github.com/ limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql</a> Build the structure in the iotdbui.db file, If its path is `/foo/bar/iotdbui.db`, ​​execute
+ `docker run -p 80:80 -v /foo/bar/iotdbui.db:/iotdbui.db -it --rm limeng32/iotdbui`, then the data can be saved in `/foo/bar/iotdbui.db`.
+ 
+ 4. Use the account management function: In order to make this function available, you need to have a mail server with the smtp service enabled, and add the following environment variables at startup
 
-```
-iotdbui:
-  frontend: 115.28.134.232:8800
-  email:
-    port: 465
-    host: 'smtp.xxx.com.'
-    username: 'xxx@xxx.com'
-    password: 'xxxxxx'
-```
+| Name | Meaning | Example |
+|:-------|:-------:|-------:|
+| `iotdbui_frontend` | IP and port where iotdbui is deployed | `127.0.0.1:80` |
+| `iotdbui_email_port` | The port of the mail server | `465` |
+| `iotdbui_email_host` | The address of the mail server | `smtp.xxx.com.` |
+| `iotdbui_email_username` | Email server username | `postmaster@foo.bar` |
+| `iotdbui_email_password` | Email server password | `xxxxxxxx` |
 
-The reason why modifying application.yml in the root directory will take effect is because the command in the Dockerfile points to this file, you can also add it to the configuration file in /src/main/resources/application.yml or other location you use . If you do not add these contents to the configuration file, it will not affect the use of the default account to log in to the system, but you cannot use the email-based account registration, password retrieval and other functions
-
-After this update, the default account is changed from admin to user. Due to stricter security requirements, the admin account is no longer available. Also add a new table tb_email_log (<a href="https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql">all related table information</a>), if you need to keep the data in the local iotdbui.db, you can manually add the tb_email_log table, and then copy the default account information in the tb_user table in the iotdbui.db under the project root directory to the database you use
-
-4.Deploy using docker-compose (require docker and docker-compose):
-
-- In the project root directory execute `docker-compose up -d`
-
-5.Deploy using traditional way:
-
-- In the project root directory execute `java -jar target/iotdb-ui-0.12.4.jar --spring.config.location=application.xml` to startup, 8080 port is used by default
-
-- Map the contents in `/front/dist` or the front-end project compiled by yourself to a port through nginx. For example, the following configuration maps the application to port 8040:
-
-```
-server {
-	listen		8040;
-	server_name	localhost;
-	location / {
-		root	iotdbui-back/front/dist;
-		index	index.html;
-	}
-	location /api/ {
-           proxy_pass    http://localhost:8080/api/;
-        }
-}
-```
-
-- If you enable the websocket feature on nginx, you can get a better user experience. If you do not enable it, it will not affect the use at all;
-
-6.Now use your browser to open the port you previously set (for example http://localhost:8040/ ）, start to enjoy iotdb!
+For example, execute `docker run -p 80:80 -v /foo/bar/iotdbui.db:/iotdbui.db -e iotdbui_frontend="127.0.0.1:80" -e iotdbui_email_port=465 -e iotdbui_email_host="smtp.xxx.com." -e iotdbui_email_username="postmaster@foo.bar" -e iotdbui_email_password="xxxxxxxx" -it --rm limeng32/iotdbui`, then you can register your account by email
