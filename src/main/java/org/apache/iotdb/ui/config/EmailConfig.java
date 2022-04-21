@@ -154,7 +154,7 @@ public class EmailConfig {
 
 	public String getEndPointWisely() {
 		if ("_iotdbui_frontend_".equals(endPoint)) {
-			return "";
+			return "127.0.0.1:80";
 		}
 		return endPoint;
 	}

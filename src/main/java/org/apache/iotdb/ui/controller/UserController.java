@@ -288,7 +288,7 @@ public class UserController {
 			try {
 				transactionService.insertUserTransactive(user, emailLog);
 			} catch (BaseException e) {
-				String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPointWisely(), e.getMessage());
+				String url = String.format("http://%s/user/fail/?status=%s", emailConfig.getEndPointWisely(), e.getMessage());
 				response.sendRedirect(url);
 				return;
 			}
@@ -299,11 +299,11 @@ public class UserController {
 			emailLog.setAvailable(false);
 			emailLog.setUserId(user.getId());
 			emailLogDao.updatePersistent(emailLog);
-			String url = String.format("http://%s/user/success?status=%s", emailConfig.getEndPointWisely(),
+			String url = String.format("http://%s/user/success/?status=%s", emailConfig.getEndPointWisely(),
 					"Activate Account Success");
 			response.sendRedirect(url);
 		} else {
-			String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPointWisely(),
+			String url = String.format("http://%s/user/fail/?status=%s", emailConfig.getEndPointWisely(),
 					"Activate Account Fail, The Token Is Wrong Or Used Or Expired");
 			response.sendRedirect(url);
 		}
@@ -385,11 +385,11 @@ public class UserController {
 		Date now = Calendar.getInstance().getTime();
 		if (emailLog != null && token.equals(emailLog.getToken()) && emailLog.getAvailable()
 				&& now.getTime() < emailLog.getDueTime().getTime()) {
-			String url = String.format("http://%s/user/reset-password?username=%s&id=%s&token=%s",
+			String url = String.format("http://%s/user/reset-password/?username=%s&id=%s&token=%s",
 					emailConfig.getEndPointWisely(), emailLog.getTempAccount(), emailLog.getId(), token);
 			response.sendRedirect(url);
 		} else {
-			String url = String.format("http://%s/user/fail?status=%s", emailConfig.getEndPointWisely(),
+			String url = String.format("http://%s/user/fail/?status=%s", emailConfig.getEndPointWisely(),
 					"Reset Password Fail, The Token Is Wrong Or Used Or Expired");
 			response.sendRedirect(url);
 		}
