@@ -16,8 +16,8 @@ docker
 
 2. Start using it immediately: execute `docker run -p 80:80 -it --rm limeng32/iotdbui`, you can start it directly without setting any environment variables (the `80` port is exposed inside the image). In this case, most of the functions of iotdbui can be used, but the account management function cannot be used, and the data will not be saved after the container is closed
 
-3. Add the function of saving data: download <a href="https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db">https://github.com/limeng32/iotdbui-back/ blob/docker/iotdbui.db</a> or follow
- <a href="https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql">https://github.com/ limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql</a> Build the structure in the iotdbui.db file, If its path is `/foo/bar/iotdbui.db`, ​​execute
+3. Add the function of saving data: download <a href="https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db">https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db</a> or follow
+ <a href="https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql">https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql</a> to build the structure in the iotdbui.db file, If its path is `/foo/bar/iotdbui.db`, ​​execute
  `docker run -p 80:80 -v /foo/bar/iotdbui.db:/iotdbui.db -it --rm limeng32/iotdbui`, then the data can be saved in `/foo/bar/iotdbui.db`.
  
  4. Use the account management function: In order to make this function available, you need to have a mail server with the smtp service enabled, and add the following environment variables at startup
