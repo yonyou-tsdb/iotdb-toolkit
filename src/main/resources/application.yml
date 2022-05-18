@@ -48,6 +48,9 @@ spring:
     testWhileIdle: true
     testOnBorrow: false
     testOnReturn: false
+  messages:
+    basename: messages/message
+    encoding: utf-8
 endpoints:
   shutdown:
     enabled: true
