@@ -47,6 +47,7 @@ import org.apache.iotdb.ui.model.BaseVO;
 import org.apache.iotdb.ui.model.Granularity;
 import org.apache.iotdb.ui.model.UserDto;
 import org.apache.iotdb.ui.util.CommonUtils;
+import org.apache.iotdb.ui.util.MessageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -201,7 +202,8 @@ public class IotDBController {
 		SessionDataSet ds = dsw == null ? null : dsw.getSessionDataSet();
 		int times = dsw == null ? 0 : dsw.increaseTimes();
 		if (ds == null) {
-			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, FeedbackError.NO_SESSION_DATASET_MSG, null);
+			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, MessageUtil.get(FeedbackError.NO_SESSION_DATASET),
+					null);
 		}
 		List<Map<String, Object>> list = new LinkedList<>();
 		boolean hasMore = queryController.transform(list, ds, SHOW_PRIVILEGES_BATCH_SIZE);
@@ -438,7 +440,8 @@ public class IotDBController {
 		SessionDataSet ds = dsw == null ? null : dsw.getSessionDataSet();
 		int times = dsw == null ? 0 : dsw.increaseTimes();
 		if (ds == null) {
-			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, FeedbackError.NO_SESSION_DATASET_MSG, null);
+			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, MessageUtil.get(FeedbackError.NO_SESSION_DATASET),
+					null);
 		}
 		int j = times * SHOW_SG_BATCH_SIZE;
 		List<Map<String, Object>> list = new LinkedList<>();
@@ -569,7 +572,8 @@ public class IotDBController {
 		SessionDataSet ds = dsw == null ? null : dsw.getSessionDataSet();
 		int times = dsw == null ? 0 : dsw.increaseTimes();
 		if (ds == null) {
-			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, FeedbackError.NO_SESSION_DATASET_MSG, null);
+			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, MessageUtil.get(FeedbackError.NO_SESSION_DATASET),
+					null);
 		}
 		List<Map<String, Object>> list = new LinkedList<>();
 		boolean hasMore = queryController.transform(list, ds, SHOW_TIMESERIES_BATCH_SIZE);

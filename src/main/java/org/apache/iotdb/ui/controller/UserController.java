@@ -265,8 +265,8 @@ public class UserController {
 			return new BaseVO<>(e.getErrorCode(), e.getMessage(), null);
 		}
 
-		String url = String.format("http://%s/api/activateAccount/%s/%s", emailConfig.getEndPointWisely(), emailLog.getId(),
-				randomToken);
+		String url = String.format("http://%s/api/activateAccount/%s/%s", emailConfig.getEndPointWisely(),
+				emailLog.getId(), randomToken);
 
 		sendRegisterEmail(mail, username, url);
 
@@ -288,7 +288,8 @@ public class UserController {
 			try {
 				transactionService.insertUserTransactive(user, emailLog);
 			} catch (BaseException e) {
-				String url = String.format("http://%s/user/fail/?status=%s", emailConfig.getEndPointWisely(), e.getMessage());
+				String url = String.format("http://%s/user/fail/?status=%s", emailConfig.getEndPointWisely(),
+						e.getMessage());
 				response.sendRedirect(url);
 				return;
 			}
@@ -361,8 +362,8 @@ public class UserController {
 
 		emailLogDao.insert(emailLog);
 
-		String url = String.format("http://%s/api/resetPassword/%s/%s", emailConfig.getEndPointWisely(), emailLog.getId(),
-				randomToken);
+		String url = String.format("http://%s/api/resetPassword/%s/%s", emailConfig.getEndPointWisely(),
+				emailLog.getId(), randomToken);
 
 		sendResetPasswordEmail(email, temp.getUser().getName(), url);
 		return BaseVO.success(null);

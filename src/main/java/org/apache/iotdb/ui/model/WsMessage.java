@@ -2,11 +2,12 @@ package org.apache.iotdb.ui.model;
 
 public enum WsMessage {
 
-	CONNECT_SUCCESS("CONNECT_SUCCESS", "连接成功"), EXPORT_START("EXPORT_START", "导出开始"),
-	EXPORT_ONGOING("EXPORT_ONGOING", "导出进行中"), EXPORT_INTERRUPT("EXPORT_INTERRUPT", "导出中止"),
-	EXPORT_FINISH("EXPORT_FINISH", "导出结束"), IMPORT_START("IMPORT_START", "导入开始"),
-	IMPORT_ONGOING("IMPORT_ONGOING", "导入进行中"), IMPORT_INTERRUPT("IMPORT_INTERRUPT", "导入中止"),
-	IMPORT_FINISH("IMPORT_FINISH", "导入结束"), FETCH_JOBS("FETCH_JOBS", "获取任务列表"), ADD_JOB("ADD_JOB", "增加任务");
+	CONNECT_SUCCESS("CONNECT_SUCCESS", "Connect Success"), EXPORT_START("EXPORT_START", "Export Start"),
+	EXPORT_ONGOING("EXPORT_ONGOING", "Export Ongoing"), EXPORT_INTERRUPT("EXPORT_INTERRUPT", "Export Interrupt"),
+	EXPORT_FINISH("EXPORT_FINISH", "Export Finish"), IMPORT_START("IMPORT_START", "Import Start"),
+	IMPORT_ONGOING("IMPORT_ONGOING", "Import Ongoing"), IMPORT_INTERRUPT("IMPORT_INTERRUPT", "Import Interrupt"),
+	IMPORT_FINISH("IMPORT_FINISH", "Import Finish"), FETCH_JOBS("FETCH_JOBS", "Fetch Jobs"),
+	ADD_JOB("ADD_JOB", "Add Job");
 
 	private final String value;
 

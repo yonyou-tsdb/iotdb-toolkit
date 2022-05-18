@@ -36,6 +36,7 @@ import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.UserDao;
 import org.apache.iotdb.ui.model.BaseVO;
 import org.apache.iotdb.ui.service.TransactionService;
+import org.apache.iotdb.ui.util.MessageUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +104,7 @@ public class ConnectionController {
 		c.setId(id);
 		Connect connect = connectDao.selectOne(c);
 		if (connect == null) {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
 		}
 		Connect connect2 = new Connect();
 		if (password == null) {
@@ -285,7 +286,7 @@ public class ConnectionController {
 		c.setId(id);
 		Connect connect = connectDao.selectOne(c);
 		if (connect == null) {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
 		} else {
 			return BaseVO.success(connect);
 		}

@@ -57,6 +57,7 @@ import org.apache.iotdb.ui.model.CompressMode;
 import org.apache.iotdb.ui.model.ExportTimeFormat;
 import org.apache.iotdb.ui.service.TransactionService;
 import org.apache.iotdb.ui.util.IpUtils;
+import org.apache.iotdb.ui.util.MessageUtil;
 import org.apache.iotdb.ui.util.SessionExportCsv;
 import org.apache.iotdb.ui.util.SessionImportCsv;
 import org.apache.shiro.SecurityUtils;
@@ -110,7 +111,8 @@ public class QueryController {
 
 	private boolean checkConnectAuth(Long connectId) throws BaseException {
 		if (connectId == null) {
-			throw new BaseException(FeedbackError.SELECT_CONNECTION_FAIL, FeedbackError.SELECT_CONNECTION_FAIL_MSG);
+			throw new BaseException(FeedbackError.SELECT_CONNECTION_FAIL,
+					MessageUtil.get(FeedbackError.SELECT_CONNECTION_FAIL));
 		}
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
@@ -259,11 +261,12 @@ public class QueryController {
 					return handleNonQuery(sqls, tabKey, tabToken);
 				}
 				return new BaseVO<>(FeedbackError.QUERY_FAIL,
-						new StringBuilder(FeedbackError.QUERY_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+						new StringBuilder(MessageUtil.get(FeedbackError.QUERY_FAIL)).append(":").append(e.getMessage())
+								.toString(),
 						null);
 			}
 		} else {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
 		}
 	}
 
@@ -272,9 +275,8 @@ public class QueryController {
 		try {
 			iotDBController.getDetermineSessionPool().executeNonQueryStatement(sqls);
 		} catch (Exception e) {
-			return new BaseVO<>(FeedbackError.QUERY_FAIL,
-					new StringBuilder(FeedbackError.QUERY_FAIL_MSG).append(":").append(e.getMessage()).toString(),
-					null);
+			return new BaseVO<>(FeedbackError.QUERY_FAIL, new StringBuilder(MessageUtil.get(FeedbackError.QUERY_FAIL))
+					.append(":").append(e.getMessage()).toString(), null);
 		}
 		Long after = System.currentTimeMillis();
 
@@ -290,7 +292,7 @@ public class QueryController {
 			@RequestParam(value = "timestamp") Long timestamp, @RequestParam(value = "point") String point,
 			@RequestParam(value = "value") String value) {
 		if (point.indexOf('.') < 0) {
-			return new BaseVO<>(FeedbackError.NO_SUPPORT_SQL, FeedbackError.NO_SUPPORT_SQL_MSG, null);
+			return new BaseVO<>(FeedbackError.NO_SUPPORT_SQL, MessageUtil.get(FeedbackError.NO_SUPPORT_SQL), null);
 		}
 		String physical = point.substring(point.lastIndexOf('.') + 1, point.length());
 		String entity = point.substring(0, point.lastIndexOf('.'));
@@ -303,8 +305,10 @@ public class QueryController {
 			try {
 				iotDBController.getDetermineSessionPool().executeNonQueryStatement(sql);
 			} catch (Exception e) {
-				return new BaseVO<>(FeedbackError.NO_SUPPORT_SQL, new StringBuilder(FeedbackError.NO_SUPPORT_SQL_MSG)
-						.append(": \"").append(sql).append("\" :").append(e.getMessage()).toString(), null);
+				return new BaseVO<>(FeedbackError.NO_SUPPORT_SQL,
+						new StringBuilder(MessageUtil.get(FeedbackError.NO_SUPPORT_SQL)).append(": \"").append(sql)
+								.append("\" :").append(e.getMessage()).toString(),
+						null);
 			}
 		} else {
 			StringBuilder sb = new StringBuilder("insert into ");
@@ -331,8 +335,10 @@ public class QueryController {
 			try {
 				iotDBController.getDetermineSessionPool().executeNonQueryStatement(sql);
 			} catch (Exception e) {
-				return new BaseVO<>(FeedbackError.NO_SUPPORT_SQL, new StringBuilder(FeedbackError.NO_SUPPORT_SQL_MSG)
-						.append(": \"").append(sql).append("\" :").append(e.getMessage()).toString(), null);
+				return new BaseVO<>(FeedbackError.NO_SUPPORT_SQL,
+						new StringBuilder(MessageUtil.get(FeedbackError.NO_SUPPORT_SQL)).append(": \"").append(sql)
+								.append("\" :").append(e.getMessage()).toString(),
+						null);
 			}
 		}
 		sql = String.format("select %s from %s where time=%d", physical, entity, timestamp);
@@ -358,7 +364,8 @@ public class QueryController {
 			@RequestParam(value = "tabToken") String tabToken) {
 		SessionDataSet ds = ContinuousIoTDBSession.getContinuousDataSet(queryToken);
 		if (ds == null) {
-			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, FeedbackError.NO_SESSION_DATASET_MSG, null);
+			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, MessageUtil.get(FeedbackError.NO_SESSION_DATASET),
+					null);
 		}
 		List<Map<String, Object>> list = new LinkedList<>();
 		boolean hasMore = transform(list, ds, 5000);
@@ -394,7 +401,7 @@ public class QueryController {
 			Page<Query> page = new Page<>(list, qc.getLimiter());
 			return BaseVO.success(page);
 		} else {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
 		}
 	}
 
@@ -422,7 +429,7 @@ public class QueryController {
 			Page<Query> page = new Page<>(list, qc.getLimiter());
 			return BaseVO.success(page);
 		} else {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
 		}
 	}
 
@@ -449,7 +456,7 @@ public class QueryController {
 			}
 			return BaseVO.success(null);
 		} else {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
 		}
 	}
 
@@ -494,7 +501,7 @@ public class QueryController {
 			}
 			return BaseVO.success(null);
 		} else {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
 		}
 	}
 
@@ -524,13 +531,14 @@ public class QueryController {
 							sessionId);
 				} catch (Exception e) {
 					return new BaseVO<>(FeedbackError.IMPORT_CSV_FAIL,
-							new StringBuilder(FeedbackError.IMPORT_CSV_FAIL_MSG).append(e.getMessage()).toString(),
+							new StringBuilder(MessageUtil.get(FeedbackError.IMPORT_CSV_FAIL)).append(e.getMessage())
+									.toString(),
 							null);
 				}
 			}
 			return BaseVO.success(null);
 		} else {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
 		}
 	}
 }

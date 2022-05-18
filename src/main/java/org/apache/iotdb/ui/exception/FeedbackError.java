@@ -33,7 +33,6 @@ public class FeedbackError {
 	public static final String NO_CONN_MSG = "连接不存在";
 
 	public static final String CHECK_FAIL = "CONN-10006";
-	public static final String CHECK_FAIL_MSG = "没有权限或连接不存在";
 
 	public static final String TEST_CONN_FAIL = "CONN-10007";
 	public static final String TEST_CONN_FAIL_MSG = "连接不可达或连接超时";
@@ -51,7 +50,6 @@ public class FeedbackError {
 	public static final String DELETE_TS_FAIL_MSG = "删除时间序列失败";
 
 	public static final String QUERY_FAIL = "IOTDB-10009";
-	public static final String QUERY_FAIL_MSG = "sql查询失败";
 
 	public static final String WRONG_DB_PARAM = "IOTDB-10011";
 	public static final String WRONG_DB_PARAM_MSG = "输入参数不合法";
@@ -99,16 +97,12 @@ public class FeedbackError {
 	public static final String PRIV_TIMESERIES_FAIL_MSG = "物理量路径权限操作失败";
 
 	public static final String SELECT_CONNECTION_FAIL = "IOTDB-10001";
-	public static final String SELECT_CONNECTION_FAIL_MSG = "请选择数据源";
 
 	public static final String NO_SESSION_DATASET = "IOTDB-10040";
-	public static final String NO_SESSION_DATASET_MSG = "会话数据集已关闭";
 
 	public static final String NO_SUPPORT_SQL = "IOTDB-10049";
-	public static final String NO_SUPPORT_SQL_MSG = "不支持此sql执行";
 
 	public static final String IMPORT_CSV_FAIL = "CSV-10008";
-	public static final String IMPORT_CSV_FAIL_MSG = "导入csv文件失败，由于:";
 
 	public static final String DELETE_USER_FAIL = "USER-10006";
 	public static final String DELETE_USER_FAIL_MSG = "删除用户失败";
