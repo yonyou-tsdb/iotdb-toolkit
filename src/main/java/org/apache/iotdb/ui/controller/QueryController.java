@@ -252,17 +252,12 @@ public class QueryController {
 					json.put("hasMore", hasMore);
 					return BaseVO.success(json.toJSONString(), list);
 				} else {
-					Long before = System.currentTimeMillis();
-					iotDBController.getDetermineSessionPool().executeNonQueryStatement(sqls);
-					Long after = System.currentTimeMillis();
-
-					JSONObject json = new JSONObject();
-					json.put("costMilliSecond", (after - before));
-					json.put("tabKey", tabKey);
-					json.put("tabToken", tabToken);
-					return BaseVO.success(json.toJSONString(), null);
+					return handleNonQuery(sqls, tabKey, tabToken);
 				}
 			} catch (Exception e) {
+				if (e.getMessage().startsWith("400:")) {
+					return handleNonQuery(sqls, tabKey, tabToken);
+				}
 				return new BaseVO<>(FeedbackError.QUERY_FAIL,
 						new StringBuilder(FeedbackError.QUERY_FAIL_MSG).append(":").append(e.getMessage()).toString(),
 						null);
@@ -270,6 +265,24 @@ public class QueryController {
 		} else {
 			return new BaseVO<>(FeedbackError.CHECK_FAIL, FeedbackError.CHECK_FAIL_MSG, null);
 		}
+	}
+
+	private BaseVO<Object> handleNonQuery(String sqls, String tabKey, String tabToken) {
+		Long before = System.currentTimeMillis();
+		try {
+			iotDBController.getDetermineSessionPool().executeNonQueryStatement(sqls);
+		} catch (Exception e) {
+			return new BaseVO<>(FeedbackError.QUERY_FAIL,
+					new StringBuilder(FeedbackError.QUERY_FAIL_MSG).append(":").append(e.getMessage()).toString(),
+					null);
+		}
+		Long after = System.currentTimeMillis();
+
+		JSONObject json = new JSONObject();
+		json.put("costMilliSecond", (after - before));
+		json.put("tabKey", tabKey);
+		json.put("tabToken", tabToken);
+		return BaseVO.success(json.toJSONString(), null);
 	}
 
 	@RequestMapping(value = "/api/query/updatePoint", method = { RequestMethod.GET, RequestMethod.POST })
