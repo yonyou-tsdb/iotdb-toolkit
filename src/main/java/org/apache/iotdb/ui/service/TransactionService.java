@@ -36,6 +36,7 @@ import org.apache.iotdb.ui.mapper.EmailLogDao;
 import org.apache.iotdb.ui.mapper.QueryDao;
 import org.apache.iotdb.ui.mapper.UserDao;
 import org.apache.iotdb.ui.model.EmailLogStatus;
+import org.apache.iotdb.ui.util.MessageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -69,7 +70,7 @@ public class TransactionService {
 		c.setUserId(userId);
 		int n = connectDao.count(c);
 		if (n != 1) {
-			throw new BaseException(FeedbackError.ALIAS_REPEAT, FeedbackError.ALIAS_REPEAT_MSG);
+			throw new BaseException(FeedbackError.ALIAS_REPEAT, MessageUtil.get(FeedbackError.ALIAS_REPEAT));
 		}
 		return ret;
 	}
@@ -83,7 +84,7 @@ public class TransactionService {
 		c.setUserId(userId);
 		int n = connectDao.count(c);
 		if (n != 1) {
-			throw new BaseException(FeedbackError.ALIAS_REPEAT, FeedbackError.ALIAS_REPEAT_MSG);
+			throw new BaseException(FeedbackError.ALIAS_REPEAT, MessageUtil.get(FeedbackError.ALIAS_REPEAT));
 		}
 		return ret;
 	}
@@ -97,7 +98,7 @@ public class TransactionService {
 		q.setConnectId(connectId);
 		int n = queryDao.count(q);
 		if (n != 1) {
-			throw new BaseException(FeedbackError.QUERY_EXIST, FeedbackError.QUERY_EXIST_MSG);
+			throw new BaseException(FeedbackError.QUERY_EXIST, MessageUtil.get(FeedbackError.QUERY_EXIST));
 		}
 		return ret;
 	}
@@ -112,13 +113,15 @@ public class TransactionService {
 		elc.setStatus(EmailLogStatus.INSERT);
 		int n = emailLogDao.count(elc);
 		if (n > 0) {
-			throw new BaseException(FeedbackError.ACCOUNT_REGISTER_ERROR, FeedbackError.ACCOUNT_REGISTER_ERROR_MSG);
+			throw new BaseException(FeedbackError.ACCOUNT_REGISTER_ERROR,
+					MessageUtil.get(FeedbackError.ACCOUNT_REGISTER_ERROR));
 		}
 		User u = new User();
 		u.setName(emailLog.getTempAccount());
 		n = userDao.count(u);
 		if (n > 0) {
-			throw new BaseException(FeedbackError.ACCOUNT_REGISTER_ERROR, FeedbackError.ACCOUNT_REGISTER_ERROR_MSG);
+			throw new BaseException(FeedbackError.ACCOUNT_REGISTER_ERROR,
+					MessageUtil.get(FeedbackError.ACCOUNT_REGISTER_ERROR));
 		}
 		return ret;
 	}
@@ -133,7 +136,8 @@ public class TransactionService {
 		elc.setStatus(EmailLogStatus.INSERT);
 		int n = emailLogDao.count(elc);
 		if (n > 0) {
-			throw new BaseException(FeedbackError.ACCOUNT_ACTIVATE_ERROR, FeedbackError.ACCOUNT_ACTIVATE_ERROR_MSG);
+			throw new BaseException(FeedbackError.ACCOUNT_ACTIVATE_ERROR,
+					MessageUtil.get(FeedbackError.ACCOUNT_ACTIVATE_ERROR));
 		}
 		return ret;
 	}

@@ -21,80 +21,54 @@ package org.apache.iotdb.ui.exception;
 public class FeedbackError {
 
 	public static final String ALIAS_REPEAT = "CONN-10001";
-	public static final String ALIAS_REPEAT_MSG = "连接名称重复";
 
 	public static final String INSERT_CONN_FAIL = "CONN-10002";
-	public static final String INSERT_CONN_FAIL_MSG = "添加或更新连接失败";
 
 	public static final String DELETE_CONN_FAIL = "CONN-10003";
-	public static final String DELETE_CONN_FAIL_MSG = "删除连接失败";
 
 	public static final String NO_CONN = "CONN-10004";
-	public static final String NO_CONN_MSG = "连接不存在";
 
 	public static final String CHECK_FAIL = "CONN-10006";
 
 	public static final String TEST_CONN_FAIL = "CONN-10007";
-	public static final String TEST_CONN_FAIL_MSG = "连接不可达或连接超时";
 
 	public static final String USER_AUTH_FAIL = "USER-10008";
-	public static final String USER_AUTH_FAIL_MSG = "用户不一致,不能进行操作";
 
 	public static final String TEST_CONN_FAIL_PWD = "CONN-10010";
-	public static final String TEST_CONN_FAIL_PWD_MSG = "连接失败，用户名或密码错误";
 
-	public static final String INSERT_TS_FAIL = "IOTDB-10001";
-	public static final String INSERT_TS_FAIL_MSG = "插入时间序列失败";
+	public static final String INSERT_TS_FAIL = "IOTDB-10002";
 
-	public static final String DELETE_TS_FAIL = "IOTDB-10002";
-	public static final String DELETE_TS_FAIL_MSG = "删除时间序列失败";
+	public static final String DELETE_TS_FAIL = "IOTDB-10003";
 
 	public static final String QUERY_FAIL = "IOTDB-10009";
 
 	public static final String WRONG_DB_PARAM = "IOTDB-10011";
-	public static final String WRONG_DB_PARAM_MSG = "输入参数不合法";
 
 	public static final String GET_USER_FAIL = "IOTDB-10012";
-	public static final String GET_USER_FAIL_MSG = "获取用户信息失败";
 
 	public static final String GET_TIMESERIES_FAIL = "IOTDB-10013";
-	public static final String GET_TIMESERIES_FAIL_MSG = "获取时间序列信息失败";
 
 	public static final String SET_TTL_FAIL = "IOTDB-10014";
-	public static final String SET_TTL_FAIL_MSG = "设置存活时间失败";
 
 	public static final String SET_GROUP_FAIL = "IOTDB-10022";
-	public static final String SET_GROUP_FAIL_MSG = "创建存储组失败";
 
 	public static final String DELETE_GROUP_FAIL = "IOTDB-10023";
-	public static final String DELETE_GROUP_FAIL_MSG = "删除存储组失败";
 
 	public static final String SET_DB_USER_FAIL = "IOTDB-10026";
-	public static final String SET_DB_USER_FAIL_MSG = "创建数据库用户失败";
 
 	public static final String PRIV_ROOT_FAIL = "IOTDB-10029";
-	public static final String PRIV_ROOT_FAIL_MSG = "根路径权限操作失败";
 
 	public static final String PRIV_GROUP_FAIL = "IOTDB-10030";
-	public static final String PRIV_GROUP_FAIL_MSG = "组路径权限操作失败";
 
 	public static final String PRIV_DEVICE_FAIL = "IOTDB-10031";
-	public static final String PRIV_DEVICE_FAIL_MSG = "实体路径权限操作失败";
 
 	public static final String PRIV_CHANGE_FAIL = "IOTDB-10032";
-	public static final String PRIV_CHANGE_FAIL_MSG = "权限修改失败";
-
-	public static final String PRIV_ADD_FAIL = "IOTDB-10033";
-	public static final String PRIV_ADD_FAIL_MSG = "权限增加失败";
 
 	public static final String UPDATE_PWD_FAIL = "IOTDB-10039";
-	public static final String UPDATE_PWD_FAIL_MSG = "修改账号密码失败";
 
 	public static final String GET_STORAGE_FAIL = "IOTDB-10112";
-	public static final String GET_STORAGE_FAIL_MSG = "获取存储组信息失败";
 
 	public static final String PRIV_TIMESERIES_FAIL = "IOTDB-10132";
-	public static final String PRIV_TIMESERIES_FAIL_MSG = "物理量路径权限操作失败";
 
 	public static final String SELECT_CONNECTION_FAIL = "IOTDB-10001";
 
@@ -105,38 +79,30 @@ public class FeedbackError {
 	public static final String IMPORT_CSV_FAIL = "CSV-10008";
 
 	public static final String DELETE_USER_FAIL = "USER-10006";
-	public static final String DELETE_USER_FAIL_MSG = "删除用户失败";
+	
+	public static final String DELETE_ACCOUNT_USER_FAIL = "USER-10007";
+	
+	public static final String CHANGE_ACCOUNT_USER_PASSWORD_FAIL = "USER-10008";
 
 	public static final String QUERY_EXIST = "QUERY-10001";
-	public static final String QUERY_EXIST_MSG = "脚本名已存在";
 
 	public static final String ACCOUNT_CAPTCHA_ERROR = "ACCOUNT-10001";
-	public static final String ACCOUNT_CAPTCHA_ERROR_MSG = "验证码有误或已过期";
 
 	public static final String ACCOUNT_REGISTER_ERROR = "ACCOUNT-10002";
-	public static final String ACCOUNT_REGISTER_ERROR_MSG = "注册的用户名或邮箱重复";
 
 	public static final String ACCOUNT_ACTIVATE_ERROR = "ACCOUNT-10003";
-	public static final String ACCOUNT_ACTIVATE_ERROR_MSG = "Same Username Or Email Already Exists";
 
 	public static final String ACCOUNT_EMAIL_ERROR = "ACCOUNT-10004";
-	public static final String ACCOUNT_EMAIL_ERROR_MSG = "系统繁忙，请您稍后再发送邮件";
 
 	public static final String ACCOUNT_LOGIN_ERROR = "ACCOUNT-10005";
-	public static final String ACCOUNT_LOGIN_ERROR_MSG = "用户名未激活或与密码不匹配";
 
 	public static final String ACCOUNT_FIND_USER_BY_EMAIL_ERROR = "ACCOUNT-10006";
-	public static final String ACCOUNT_FIND_USER_BY_EMAIL_ERROR_MSG = "无法通过邮箱找到用户";
 
 	public static final String ACCOUNT_RESET_UPDATE_ERROR = "ACCOUNT-10007";
-	public static final String ACCOUNT_RESET_UPDATE_ERROR_MSG = "修改密码失败";
 
 	public static final String ACCOUNT_RESET_EMAILLOG_ERROR = "ACCOUNT-10008";
-	public static final String ACCOUNT_RESET_EMAILLOG_ERROR_MSG = "无法找到修改密码权限或权限已失效";
 
 	public static final String ACCOUNT_PASSWORD_ERROR = "ACCOUNT-10009";
-	public static final String ACCOUNT_PASSWORD_ERROR_MSG = "密码不正确";
 
 	public static final String ACCOUNT_DELETE_ERROR = "ACCOUNT-10010";
-	public static final String ACCOUNT_DELETE_ERROR_MSG = "删除账号失败";
 }

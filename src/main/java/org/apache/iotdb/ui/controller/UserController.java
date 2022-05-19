@@ -47,6 +47,7 @@ import org.apache.iotdb.ui.service.RandomGenerator;
 import org.apache.iotdb.ui.service.ThirdVelocityEmailService;
 import org.apache.iotdb.ui.service.TransactionService;
 import org.apache.iotdb.ui.util.IpUtils;
+import org.apache.iotdb.ui.util.MessageUtil;
 import org.apache.iotdb.ui.util.VerifyCodeUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.session.Session;
@@ -142,8 +143,8 @@ public class UserController {
 			json.put("status", "error");
 			json.put("type", "account");
 			json.put("currentAuthority", "guest");
-			ret = new BaseVO<JSONObject>(FeedbackError.ACCOUNT_LOGIN_ERROR, FeedbackError.ACCOUNT_LOGIN_ERROR_MSG,
-					json);
+			ret = new BaseVO<JSONObject>(FeedbackError.ACCOUNT_LOGIN_ERROR,
+					MessageUtil.get(FeedbackError.ACCOUNT_LOGIN_ERROR), json);
 		}
 		return ret;
 	}
@@ -227,8 +228,8 @@ public class UserController {
 		CaptchaWrapper cw = captchaMap.get(token);
 		String realCaptcha = cw == null ? null : cw.getCaptchaValue();
 		if (!captcha.equalsIgnoreCase(realCaptcha)) {
-			return new BaseVO<JSONObject>(FeedbackError.ACCOUNT_CAPTCHA_ERROR, FeedbackError.ACCOUNT_CAPTCHA_ERROR_MSG,
-					null);
+			return new BaseVO<JSONObject>(FeedbackError.ACCOUNT_CAPTCHA_ERROR,
+					MessageUtil.get(FeedbackError.ACCOUNT_CAPTCHA_ERROR), null);
 		} else {
 			captchaMap.remove(token);
 		}
@@ -242,7 +243,8 @@ public class UserController {
 		elc.setEmailTimeLessOrEqual(now);
 		int count = emailLogDao.count(elc);
 		if (count > 0) {
-			return new BaseVO<>(FeedbackError.ACCOUNT_EMAIL_ERROR, FeedbackError.ACCOUNT_EMAIL_ERROR_MSG, null);
+			return new BaseVO<>(FeedbackError.ACCOUNT_EMAIL_ERROR, MessageUtil.get(FeedbackError.ACCOUNT_EMAIL_ERROR),
+					null);
 		}
 		// 发送邮件
 		EmailLog emailLog = new EmailLog();
@@ -318,8 +320,8 @@ public class UserController {
 		CaptchaWrapper cw = captchaMap.get(token);
 		String realCaptcha = cw == null ? null : cw.getCaptchaValue();
 		if (!captcha.equalsIgnoreCase(realCaptcha)) {
-			return new BaseVO<JSONObject>(FeedbackError.ACCOUNT_CAPTCHA_ERROR, FeedbackError.ACCOUNT_CAPTCHA_ERROR_MSG,
-					null);
+			return new BaseVO<JSONObject>(FeedbackError.ACCOUNT_CAPTCHA_ERROR,
+					MessageUtil.get(FeedbackError.ACCOUNT_CAPTCHA_ERROR), null);
 		}
 
 		captchaMap.remove(token);
@@ -333,7 +335,8 @@ public class UserController {
 		elc.setEmailTimeLessOrEqual(now);
 		int count = emailLogDao.count(elc);
 		if (count > 0) {
-			return new BaseVO<>(FeedbackError.ACCOUNT_EMAIL_ERROR, FeedbackError.ACCOUNT_EMAIL_ERROR_MSG, null);
+			return new BaseVO<>(FeedbackError.ACCOUNT_EMAIL_ERROR, MessageUtil.get(FeedbackError.ACCOUNT_EMAIL_ERROR),
+					null);
 		}
 
 		// 通过邮箱查找用户
@@ -344,7 +347,7 @@ public class UserController {
 		EmailLog temp = emailLogDao.selectOne(el);
 		if (temp == null || temp.getUser() == null) {
 			return new BaseVO<>(FeedbackError.ACCOUNT_FIND_USER_BY_EMAIL_ERROR,
-					FeedbackError.ACCOUNT_FIND_USER_BY_EMAIL_ERROR_MSG, null);
+					MessageUtil.get(FeedbackError.ACCOUNT_FIND_USER_BY_EMAIL_ERROR), null);
 		}
 
 		// 发送邮件
@@ -407,7 +410,7 @@ public class UserController {
 		EmailLog emailLog = emailLogDao.selectOne(el);
 		if (emailLog == null || emailLog.getTempAccount() == null) {
 			return new BaseVO<>(FeedbackError.ACCOUNT_RESET_EMAILLOG_ERROR,
-					FeedbackError.ACCOUNT_RESET_EMAILLOG_ERROR_MSG, null);
+					MessageUtil.get(FeedbackError.ACCOUNT_RESET_EMAILLOG_ERROR), null);
 		}
 		emailLog.setResetTime(Calendar.getInstance().getTime());
 		emailLog.setAvailable(false);
@@ -418,14 +421,14 @@ public class UserController {
 		u.setName(emailLog.getTempAccount());
 		User user = userDao.selectOne(u);
 		if (user == null) {
-			return new BaseVO<>(FeedbackError.ACCOUNT_RESET_UPDATE_ERROR, FeedbackError.ACCOUNT_RESET_UPDATE_ERROR_MSG,
-					null);
+			return new BaseVO<>(FeedbackError.ACCOUNT_RESET_UPDATE_ERROR,
+					MessageUtil.get(FeedbackError.ACCOUNT_RESET_UPDATE_ERROR), null);
 		}
 		user.setPassword(encodedPassword);
 		int c = userDao.update(user);
 		if (c != 1) {
-			return new BaseVO<>(FeedbackError.ACCOUNT_RESET_UPDATE_ERROR, FeedbackError.ACCOUNT_RESET_UPDATE_ERROR_MSG,
-					null);
+			return new BaseVO<>(FeedbackError.ACCOUNT_RESET_UPDATE_ERROR,
+					MessageUtil.get(FeedbackError.ACCOUNT_RESET_UPDATE_ERROR), null);
 		}
 		return BaseVO.success(null);
 	}
@@ -437,19 +440,21 @@ public class UserController {
 		User u = (User) subject.getSession().getAttribute(USER);
 		User user = userDao.select(u.getId());
 		if (user == null) {
-			return new BaseVO<>(FeedbackError.GET_USER_FAIL, FeedbackError.GET_USER_FAIL_MSG, null);
+			return new BaseVO<>(FeedbackError.GET_USER_FAIL, MessageUtil.get(FeedbackError.GET_USER_FAIL), null);
 		}
 		if ("user".equals(user.getName())) {
-			return new BaseVO<>("1", "账号 user 的密码无法更改", null);
+			return new BaseVO<>(FeedbackError.CHANGE_ACCOUNT_USER_PASSWORD_FAIL,
+					MessageUtil.get(FeedbackError.CHANGE_ACCOUNT_USER_PASSWORD_FAIL), null);
 		}
 		if (!bCryptPasswordEncoder.matches(passwordOrigin, user.getPassword())) {
-			return new BaseVO<>(FeedbackError.ACCOUNT_PASSWORD_ERROR, FeedbackError.ACCOUNT_PASSWORD_ERROR_MSG, null);
+			return new BaseVO<>(FeedbackError.ACCOUNT_PASSWORD_ERROR,
+					MessageUtil.get(FeedbackError.ACCOUNT_PASSWORD_ERROR), null);
 		}
 		user.setPassword(bCryptPasswordEncoder.encode(password));
 		int c = userDao.update(user);
 		if (c != 1) {
-			return new BaseVO<>(FeedbackError.ACCOUNT_RESET_UPDATE_ERROR, FeedbackError.ACCOUNT_RESET_UPDATE_ERROR_MSG,
-					null);
+			return new BaseVO<>(FeedbackError.ACCOUNT_RESET_UPDATE_ERROR,
+					MessageUtil.get(FeedbackError.ACCOUNT_RESET_UPDATE_ERROR), null);
 		}
 		return BaseVO.success(null);
 	}
@@ -459,12 +464,14 @@ public class UserController {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(USER);
 		if ("user".equals(user.getName())) {
-			return new BaseVO<>("1", "账号 user 无法删除", null);
+			return new BaseVO<>(FeedbackError.DELETE_ACCOUNT_USER_FAIL,
+					MessageUtil.get(FeedbackError.DELETE_ACCOUNT_USER_FAIL), null);
 		}
 		try {
 			transactionService.deleteUserTransactive(user);
 		} catch (BaseException e) {
-			return new BaseVO<>(FeedbackError.ACCOUNT_DELETE_ERROR, FeedbackError.ACCOUNT_DELETE_ERROR_MSG, null);
+			return new BaseVO<>(FeedbackError.ACCOUNT_DELETE_ERROR, MessageUtil.get(FeedbackError.ACCOUNT_DELETE_ERROR),
+					null);
 		}
 		subject.logout();
 		return BaseVO.success(null);
