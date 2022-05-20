@@ -105,6 +105,10 @@ public class QueryController {
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(QueryController.class);
 
+	private static final int PAGE_SIZE = 5000;
+
+	private static final int BATCH_SIZE = 100_000;
+
 	public Session getDetermineTemporarySession() {
 		return dynamicSessionPool.determineTemporarySession();
 	}
@@ -163,7 +167,8 @@ public class QueryController {
 		return transform(sessionDataSetWrapper, false);
 	}
 
-	public boolean transform(List<Map<String, Object>> list, SessionDataSet sessionDataSet, int rows, boolean debug) {
+	public boolean transformForQuery(List<Map<String, Object>> list, SessionDataSet sessionDataSet, int rows,
+			boolean debug) {
 		boolean ret = false;
 		try {
 			List<String> columnNames = sessionDataSet.getColumnNames();
@@ -172,6 +177,11 @@ public class QueryController {
 				hasTime = true;
 				columnNames.remove("Time");
 			}
+			int columns = columnNames.size();
+			if (columns < 1) {
+				columns = 1;
+			}
+			rows = Math.min(BATCH_SIZE / columns, rows);
 			int i = 0;
 			while (sessionDataSet.hasNext()) {
 				i++;
@@ -203,8 +213,53 @@ public class QueryController {
 		return ret;
 	}
 
+	public boolean transform(List<Map<String, Object>> list, SessionDataSet sessionDataSet, int rows, boolean debug) {
+		boolean ret = false;
+		try {
+			List<String> columnNames = sessionDataSet.getColumnNames();
+			boolean hasTime = false;
+			if (columnNames.contains("Time")) {
+				hasTime = true;
+				columnNames.remove("Time");
+			}
+			int i = 0;
+			while (sessionDataSet.hasNext()) {
+				i++;
+				RowRecord rowRecord = sessionDataSet.next();
+				if (debug) {
+					LOGGER.error(rowRecord.getFields().toString());
+				}
+				Map<String, Object> map = new LinkedHashMap<>();
+				if (hasTime) {
+					map.put("Time", rowRecord.getTimestamp());
+				}
+				Iterator<String> it = columnNames.iterator();
+
+				int j = 0;
+				while (it.hasNext()) {
+					String next = it.next();
+					Field f = rowRecord.getFields().get(j);
+					map.put(next, f.getDataType() == null ? null : f.getStringValue());
+					j++;
+				}
+				list.add(map);
+				if (i == rows) {
+					ret = true;
+					break;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ret;
+	}
+
 	public boolean transform(List<Map<String, Object>> list, SessionDataSet sessionDataSet, int rows) {
 		return transform(list, sessionDataSet, rows, false);
+	}
+
+	public boolean transformForQuery(List<Map<String, Object>> list, SessionDataSet sessionDataSet, int rows) {
+		return transformForQuery(list, sessionDataSet, rows, false);
 	}
 
 	@RequestMapping(value = "/api/query/querySql", method = { RequestMethod.GET, RequestMethod.POST })
@@ -239,7 +294,7 @@ public class QueryController {
 					SessionDataSet ds = session.executeQueryStatement(sqls);
 
 					List<Map<String, Object>> list = new LinkedList<>();
-					boolean hasMore = transform(list, ds, 5000);
+					boolean hasMore = transformForQuery(list, ds, PAGE_SIZE);
 					Long after = System.currentTimeMillis();
 
 					if (hasMore) {
@@ -368,7 +423,7 @@ public class QueryController {
 					null);
 		}
 		List<Map<String, Object>> list = new LinkedList<>();
-		boolean hasMore = transform(list, ds, 5000);
+		boolean hasMore = transformForQuery(list, ds, PAGE_SIZE);
 		JSONObject json = new JSONObject();
 		json.put("tabKey", tabKey);
 		json.put("tabToken", tabToken);
