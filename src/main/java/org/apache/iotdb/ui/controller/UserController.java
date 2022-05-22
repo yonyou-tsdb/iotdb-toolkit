@@ -97,20 +97,6 @@ public class UserController {
 	@Autowired
 	private TransactionService transactionService;
 
-	@ApiOperation(value = "user", notes = "user")
-	@GetMapping(value = "/user")
-	public BaseVO<User> user(@RequestParam("id") Long id) {
-		User user = userDao.select(id);
-		return BaseVO.success(user);
-	}
-
-	@ApiOperation(value = "connect", notes = "connect")
-	@GetMapping(value = "/connect")
-	public BaseVO<Connect> connect(@RequestParam("id") Long id) {
-		Connect connect = connectDao.select(id);
-		return BaseVO.success(connect);
-	}
-
 	@ApiOperation(value = "/api/login/account", notes = "/api/login/account")
 	@RequestMapping(value = "/api/login/account", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<JSONObject> loginAccount(HttpServletRequest request, @RequestParam("username") String username,
@@ -178,11 +164,6 @@ public class UserController {
 		Subject subject = SecurityUtils.getSubject();
 		subject.logout();
 		return BaseVO.success(null);
-	}
-
-	// 简单的无返回值的handler，无需写入swagger
-	@RequestMapping(value = "/toLogin", method = { RequestMethod.GET, RequestMethod.POST })
-	public void toLogin() {
 	}
 
 	@RequestMapping(method = { RequestMethod.GET }, value = "/api/acquireCaptcha")
