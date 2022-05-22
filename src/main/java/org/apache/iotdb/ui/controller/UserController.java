@@ -55,7 +55,6 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -97,22 +96,8 @@ public class UserController {
 	@Autowired
 	private TransactionService transactionService;
 
-	@ApiOperation(value = "user", notes = "user")
-	@GetMapping(value = "/user")
-	public BaseVO<User> user(@RequestParam("id") Long id) {
-		User user = userDao.select(id);
-		return BaseVO.success(user);
-	}
-
-	@ApiOperation(value = "connect", notes = "connect")
-	@GetMapping(value = "/connect")
-	public BaseVO<Connect> connect(@RequestParam("id") Long id) {
-		Connect connect = connectDao.select(id);
-		return BaseVO.success(connect);
-	}
-
 	@ApiOperation(value = "/api/login/account", notes = "/api/login/account")
-	@RequestMapping(value = "/api/login/account", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/login/account", method = { RequestMethod.POST })
 	public BaseVO<JSONObject> loginAccount(HttpServletRequest request, @RequestParam("username") String username,
 			@RequestParam("password") String password) {
 		JSONObject json = new JSONObject();
@@ -163,7 +148,7 @@ public class UserController {
 	}
 
 	@ApiOperation(value = "/api/currentUser", notes = "/api/currentUser")
-	@RequestMapping(value = "/api/currentUser", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/currentUser", method = { RequestMethod.POST })
 	public BaseVO<JSONObject> currentUser() {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(USER);
@@ -173,16 +158,11 @@ public class UserController {
 	}
 
 	@ApiOperation(value = "/api/outLogin", notes = "/api/outLogin")
-	@RequestMapping(value = "/api/outLogin", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/outLogin", method = { RequestMethod.POST })
 	public BaseVO<JSONObject> outLogin() {
 		Subject subject = SecurityUtils.getSubject();
 		subject.logout();
 		return BaseVO.success(null);
-	}
-
-	// 简单的无返回值的handler，无需写入swagger
-	@RequestMapping(value = "/toLogin", method = { RequestMethod.GET, RequestMethod.POST })
-	public void toLogin() {
 	}
 
 	@RequestMapping(method = { RequestMethod.GET }, value = "/api/acquireCaptcha")
@@ -219,7 +199,7 @@ public class UserController {
 		sendEmail(model, "IoTDB-UI activate account service", "vm/register.vm", emails, emailConfig.getUsername());
 	}
 
-	@RequestMapping(value = "/api/register", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/register", method = { RequestMethod.POST })
 	public BaseVO<JSONObject> register(HttpServletRequest request, @RequestParam(value = "mail") String mail,
 			@RequestParam(value = "username") String username, @RequestParam(value = "password") String password,
 			@RequestParam(value = "captcha") String captcha, @RequestParam(value = "token") String token) {
@@ -267,8 +247,8 @@ public class UserController {
 			return new BaseVO<>(e.getErrorCode(), e.getMessage(), null);
 		}
 
-		String url = String.format("http://%s/api/activateAccount/%s/%s", emailConfig.getEndPointWisely(),
-				emailLog.getId(), randomToken);
+		String url = String.format("http://%s/api/activateAccount/%s/%s", emailConfig.getEndPoint(), emailLog.getId(),
+				randomToken);
 
 		sendRegisterEmail(mail, username, url);
 
@@ -290,8 +270,7 @@ public class UserController {
 			try {
 				transactionService.insertUserTransactive(user, emailLog);
 			} catch (BaseException e) {
-				String url = String.format("http://%s/user/fail/?status=%s", emailConfig.getEndPointWisely(),
-						e.getMessage());
+				String url = String.format("http://%s/user/fail/?status=%s", emailConfig.getEndPoint(), e.getMessage());
 				response.sendRedirect(url);
 				return;
 			}
@@ -302,17 +281,17 @@ public class UserController {
 			emailLog.setAvailable(false);
 			emailLog.setUserId(user.getId());
 			emailLogDao.updatePersistent(emailLog);
-			String url = String.format("http://%s/user/success/?status=%s", emailConfig.getEndPointWisely(),
+			String url = String.format("http://%s/user/success/?status=%s", emailConfig.getEndPoint(),
 					"Activate Account Success");
 			response.sendRedirect(url);
 		} else {
-			String url = String.format("http://%s/user/fail/?status=%s", emailConfig.getEndPointWisely(),
+			String url = String.format("http://%s/user/fail/?status=%s", emailConfig.getEndPoint(),
 					"Activate Account Fail, The Token Is Wrong Or Used Or Expired");
 			response.sendRedirect(url);
 		}
 	}
 
-	@RequestMapping(value = "/api/sendResetPasswordMail", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/sendResetPasswordMail", method = { RequestMethod.POST })
 	public BaseVO<JSONObject> sendResetPasswordMail(HttpServletRequest request,
 			@RequestParam(value = "email") String email, @RequestParam(value = "captcha") String captcha,
 			@RequestParam(value = "token") String token) {
@@ -365,8 +344,8 @@ public class UserController {
 
 		emailLogDao.insert(emailLog);
 
-		String url = String.format("http://%s/api/resetPassword/%s/%s", emailConfig.getEndPointWisely(),
-				emailLog.getId(), randomToken);
+		String url = String.format("http://%s/api/resetPassword/%s/%s", emailConfig.getEndPoint(), emailLog.getId(),
+				randomToken);
 
 		sendResetPasswordEmail(email, temp.getUser().getName(), url);
 		return BaseVO.success(null);
@@ -390,16 +369,16 @@ public class UserController {
 		if (emailLog != null && token.equals(emailLog.getToken()) && emailLog.getAvailable()
 				&& now.getTime() < emailLog.getDueTime().getTime()) {
 			String url = String.format("http://%s/user/reset-password/?username=%s&id=%s&token=%s",
-					emailConfig.getEndPointWisely(), emailLog.getTempAccount(), emailLog.getId(), token);
+					emailConfig.getEndPoint(), emailLog.getTempAccount(), emailLog.getId(), token);
 			response.sendRedirect(url);
 		} else {
-			String url = String.format("http://%s/user/fail/?status=%s", emailConfig.getEndPointWisely(),
+			String url = String.format("http://%s/user/fail/?status=%s", emailConfig.getEndPoint(),
 					"Reset Password Fail, The Token Is Wrong Or Used Or Expired");
 			response.sendRedirect(url);
 		}
 	}
 
-	@RequestMapping(value = "/api/resetUpdatePassword", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/resetUpdatePassword", method = { RequestMethod.POST })
 	public BaseVO<JSONObject> resetUpdatePassword(HttpServletRequest request, @RequestParam(value = "id") Long id,
 			@RequestParam(value = "token") String token, @RequestParam(value = "password") String password) {
 		EmailLog el = new EmailLog();
@@ -433,7 +412,7 @@ public class UserController {
 		return BaseVO.success(null);
 	}
 
-	@RequestMapping(value = "/api/updatePassword", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/updatePassword", method = { RequestMethod.POST })
 	public BaseVO<JSONObject> updatePassword(@RequestParam(value = "passwordOrigin") String passwordOrigin,
 			@RequestParam(value = "password") String password) {
 		Subject subject = SecurityUtils.getSubject();

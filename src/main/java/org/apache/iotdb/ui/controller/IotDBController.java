@@ -89,7 +89,7 @@ public class IotDBController {
 	}
 
 	@ApiOperation(value = "/api/iotdb/listUser", notes = "/api/iotdb/listUser")
-	@RequestMapping(value = "/api/iotdb/listUser", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/listUser", method = { RequestMethod.POST })
 	public BaseVO<Object> listUserWithTenant(HttpServletRequest request) throws SQLException {
 		String sql = "list user";
 		try {
@@ -136,7 +136,7 @@ public class IotDBController {
 	}
 
 	@ApiOperation(value = "/api/iotdb/listPrivileges", notes = "/api/iotdb/listPrivileges")
-	@RequestMapping(value = "/api/iotdb/listPrivileges", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/listPrivileges", method = { RequestMethod.POST })
 	public BaseVO<Object> listPrivilegesWithTenant(HttpServletRequest request, @RequestParam("user") String user,
 			@RequestParam(value = "token") String token) throws SQLException {
 		String sql = new StringBuilder("list user privileges ").append(user).toString();
@@ -197,7 +197,7 @@ public class IotDBController {
 	}
 
 	@ApiOperation(value = "/api/iotdb/listPrivilegesAppend", notes = "/api/iotdb/listPrivilegesAppend")
-	@RequestMapping(value = "/api/iotdb/listPrivilegesAppend", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/listPrivilegesAppend", method = { RequestMethod.POST })
 	public BaseVO<Object> listPrivilegesAppendWithTenant(HttpServletRequest request,
 			@RequestParam(value = "token") String token) throws SQLException {
 		SessionDataSetWrapper dsw = ContinuousIoTDBSession.getContinuousDataSetWrapper(token);
@@ -238,7 +238,7 @@ public class IotDBController {
 	}
 
 	@ApiOperation(value = "/api/iotdb/changePrivileges", notes = "/api/iotdb/changePrivileges")
-	@RequestMapping(value = "/api/iotdb/changePrivileges", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/changePrivileges", method = { RequestMethod.POST })
 	public BaseVO<Object> changePrivilegesWithTenant(HttpServletRequest request, @RequestParam("user") String user,
 			@RequestParam(value = "auth", required = false) String auths, @RequestParam(value = "range") String ranges)
 			throws Exception {
@@ -322,7 +322,7 @@ public class IotDBController {
 	}
 
 	@ApiOperation(value = "/api/iotdb/addPrivileges", notes = "/api/iotdb/addPrivileges")
-	@RequestMapping(value = "/api/iotdb/addPrivileges", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/addPrivileges", method = { RequestMethod.POST })
 	public BaseVO<Object> addPrivilegesWithTenant(HttpServletRequest request, @RequestParam("user") String user,
 			@RequestParam(value = "auth") String authStr,
 			@RequestParam(value = "timeseries", required = false) String timeseries) throws SQLException {
@@ -353,7 +353,7 @@ public class IotDBController {
 	}
 
 	@ApiOperation(value = "/api/iotdb/addUser/{user}", notes = "/api/iotdb/addUser/{user}")
-	@RequestMapping(value = "/api/iotdb/addUser/{user}", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/addUser/{user}", method = { RequestMethod.POST })
 	public BaseVO<Object> addUserWithTenant(HttpServletRequest request, @Valid UserDto userDto) throws SQLException {
 		try {
 			getDetermineSessionPool().executeNonQueryStatement(new StringBuilder("CREATE USER ")
@@ -368,7 +368,7 @@ public class IotDBController {
 	}
 
 	@ApiOperation(value = "/api/iotdb/editUser", notes = "/api/iotdb/editUser")
-	@RequestMapping(value = "/api/iotdb/editUser", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/editUser", method = { RequestMethod.POST })
 	public BaseVO<Object> editUserWithTenant(HttpServletRequest request, @RequestParam("user") String user,
 			@RequestParam(value = "password") String password) throws SQLException {
 		if (!(user.matches(REG) && password.matches(REG))) {
@@ -386,7 +386,7 @@ public class IotDBController {
 		return BaseVO.success(null);
 	}
 
-	@RequestMapping(value = "/api/iotdb/deleteUser", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/deleteUser", method = { RequestMethod.POST })
 	public BaseVO<Object> deleteUserWithTenant(HttpServletRequest request, @RequestParam("user") String user)
 			throws SQLException {
 		if (!(user.matches(REG))) {
@@ -403,7 +403,7 @@ public class IotDBController {
 		return BaseVO.success(null);
 	}
 
-	@RequestMapping(value = "/api/iotdb/showStorage", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/showStorage", method = { RequestMethod.POST })
 	public BaseVO<Object> showStorageWithTenant(HttpServletRequest request, @RequestParam(value = "token") String token)
 			throws SQLException {
 		try {
@@ -439,7 +439,7 @@ public class IotDBController {
 		}
 	}
 
-	@RequestMapping(value = "/api/iotdb/showStorageAppend", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/showStorageAppend", method = { RequestMethod.POST })
 	public BaseVO<Object> showStorageAppendWithTenant(HttpServletRequest request,
 			@RequestParam(value = "token") String token) throws SQLException {
 		SessionDataSetWrapper dsw = ContinuousIoTDBSession.getContinuousDataSetWrapper(token);
@@ -470,7 +470,7 @@ public class IotDBController {
 		return BaseVO.success(json.toJSONString(), list);
 	}
 
-	@RequestMapping(value = "/api/iotdb/addStorageGroup", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/addStorageGroup", method = { RequestMethod.POST })
 	public BaseVO<Object> addStorageGroupWithTenant(HttpServletRequest request, @RequestParam("name") String name,
 			@RequestParam(value = "ttl", required = false) Long ttl) throws SQLException {
 		try {
@@ -495,7 +495,7 @@ public class IotDBController {
 		return BaseVO.success(null);
 	}
 
-	@RequestMapping(value = "/api/iotdb/deleteStorageGroup", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/deleteStorageGroup", method = { RequestMethod.POST })
 	public BaseVO<Object> deleteStorageGroupWithTenant(HttpServletRequest request, @RequestParam("name") String name)
 			throws SQLException {
 		String sql = new StringBuilder("delete storage group ").append(name).toString();
@@ -510,7 +510,7 @@ public class IotDBController {
 		return BaseVO.success(null);
 	}
 
-	@RequestMapping(value = "/api/iotdb/editStorageGroup", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/editStorageGroup", method = { RequestMethod.POST })
 	public BaseVO<Object> editStorageGroupWithTenant(HttpServletRequest request, @RequestParam("name") String name,
 			@RequestParam(value = "ttl", required = false) Long ttl) throws SQLException {
 		String sql = null;
@@ -530,7 +530,7 @@ public class IotDBController {
 		return BaseVO.success(null);
 	}
 
-	@RequestMapping(value = "/api/iotdb/showTimeseries", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/showTimeseries", method = { RequestMethod.POST })
 	public BaseVO<Object> showTimeseriesWithTenant(HttpServletRequest request, @RequestParam("path") String path,
 			@RequestParam(value = "token") String token) throws SQLException {
 		String sql0 = new StringBuilder("show timeseries ").append(path).toString();
@@ -576,7 +576,7 @@ public class IotDBController {
 		Collections.sort(list0, new CompareByLength("granularity", "range"));
 	}
 
-	@RequestMapping(value = "/api/iotdb/showTimeseriesAppend", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/showTimeseriesAppend", method = { RequestMethod.POST })
 	public BaseVO<Object> showTimeseriesAppendWithTenant(HttpServletRequest request,
 			@RequestParam(value = "token") String token) throws SQLException {
 		SessionDataSetWrapper dsw = ContinuousIoTDBSession.getContinuousDataSetWrapper(token);
@@ -598,7 +598,7 @@ public class IotDBController {
 		return BaseVO.success(json.toJSONString(), list);
 	}
 
-	@RequestMapping(value = "/api/iotdb/deleteTimeseries", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/deleteTimeseries", method = { RequestMethod.POST })
 	public BaseVO<Object> deleteTimeseriesWithTenant(HttpServletRequest request, @RequestParam("path") String path)
 			throws SQLException {
 		String sql = new StringBuilder("delete timeseries ").append(path).toString();
@@ -613,7 +613,7 @@ public class IotDBController {
 		return BaseVO.success(null);
 	}
 
-	@RequestMapping(value = "/api/iotdb/addTimeseries", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/iotdb/addTimeseries", method = { RequestMethod.POST })
 	public BaseVO<Object> addTimeseriesWithTenant(HttpServletRequest request, @RequestParam("path") String path,
 			@RequestParam(value = "dataType") String dataType, @RequestParam(value = "encoding") String encoding)
 			throws SQLException {

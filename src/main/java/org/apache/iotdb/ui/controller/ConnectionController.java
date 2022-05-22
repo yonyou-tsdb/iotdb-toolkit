@@ -76,7 +76,7 @@ public class ConnectionController {
 	private UserDao userDao;
 
 	@ApiOperation(value = "/api/connection/test", notes = "/api/connection/test")
-	@RequestMapping(value = "/api/connection/test", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/connection/test", method = { RequestMethod.POST })
 	public BaseVO<Object> connectionTest(@RequestParam("connectionUsername") String username,
 			@RequestParam("connectionPassword") String password, @RequestParam("ip") String ip,
 			@RequestParam("port") Integer port) {
@@ -92,7 +92,7 @@ public class ConnectionController {
 	}
 
 	@ApiOperation(value = "/api/connection/testById", notes = "/api/connection/testById")
-	@RequestMapping(value = "/api/connection/testById", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/connection/testById", method = { RequestMethod.POST })
 	public BaseVO<Object> connectionTestById(@RequestParam("connectionId") Long id,
 			@RequestParam("connectionUsername") String username,
 			@RequestParam(value = "connectionPassword", required = false) String password,
@@ -146,7 +146,7 @@ public class ConnectionController {
 	}
 
 	@ApiOperation(value = "/api/connection/addThenReturnLess", notes = "/api/connection/addThenReturnLess")
-	@RequestMapping(value = "/api/connection/addThenReturnLess", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/connection/addThenReturnLess", method = { RequestMethod.POST })
 	public BaseVO<Object> connectionAddThenReturnLess(@RequestParam("connectionUsername") String username,
 			@RequestParam("connectionPassword") String password, @RequestParam("ip") String ip,
 			@RequestParam("port") Integer port, @RequestParam("connectionName") String connectionName) {
@@ -185,7 +185,7 @@ public class ConnectionController {
 	}
 
 	@ApiOperation(value = "/api/connection/less", notes = "/api/connection/less")
-	@RequestMapping(value = "/api/connection/less", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/connection/less", method = { RequestMethod.POST })
 	public BaseVO<Object> connectionLess() {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
@@ -199,7 +199,7 @@ public class ConnectionController {
 	}
 
 	@ApiOperation(value = "/api/connection/all", notes = "/api/connection/all")
-	@RequestMapping(value = "/api/connection/all", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/connection/all", method = { RequestMethod.POST })
 	public BaseVO<Object> connectionAll(@RequestParam("pageSize") Integer pageSize,
 			@RequestParam("pageNum") Integer pageNum,
 			@RequestParam(value = "aliasLike", required = false) String aliasLike) {
@@ -217,7 +217,7 @@ public class ConnectionController {
 	}
 
 	@ApiOperation(value = "/api/connection/delete", notes = "/api/connection/delete")
-	@RequestMapping(value = "/api/connection/delete", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/connection/delete", method = { RequestMethod.POST })
 	public BaseVO<Object> connectionDelete(@RequestParam("id") Long id) {
 		Connect connect = connectDao.select(id);
 		if (connect == null) {
@@ -243,7 +243,7 @@ public class ConnectionController {
 	}
 
 	@ApiOperation(value = "/api/connection/update", notes = "/api/connection/update")
-	@RequestMapping(value = "/api/connection/update", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/connection/update", method = { RequestMethod.POST })
 	public BaseVO<Object> connectionUpdate(@RequestParam("connectionUsername") String username,
 			@RequestParam("connectionId") Long id, @RequestParam("connectionPassword") String password,
 			@RequestParam("ip") String ip, @RequestParam("port") Integer port,
@@ -281,7 +281,7 @@ public class ConnectionController {
 	}
 
 	@ApiOperation(value = "/api/connection/view", notes = "/api/connection/view")
-	@RequestMapping(value = "/api/connection/view", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/connection/view", method = { RequestMethod.POST })
 	public BaseVO<Object> connectionView(@RequestParam("connectionId") Long id) {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
@@ -297,7 +297,7 @@ public class ConnectionController {
 	}
 
 	@ApiOperation(value = "/api/connection/default", notes = "/api/connection/default")
-	@RequestMapping(value = "/api/connection/default", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/connection/default", method = { RequestMethod.POST })
 	public BaseVO<Object> connectionDefault(@RequestParam("connectionId") Long id) {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
@@ -315,7 +315,7 @@ public class ConnectionController {
 	}
 
 	@ApiOperation(value = "/api/connection/undefault", notes = "/api/connection/undefault")
-	@RequestMapping(value = "/api/connection/undefault", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/connection/undefault", method = { RequestMethod.POST })
 	public BaseVO<Object> connectionUndefault(@RequestParam("connectionId") Long id) {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);

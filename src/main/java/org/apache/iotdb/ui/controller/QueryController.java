@@ -262,7 +262,7 @@ public class QueryController {
 		return transformForQuery(list, sessionDataSet, rows, false);
 	}
 
-	@RequestMapping(value = "/api/query/querySql", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/query/querySql", method = { RequestMethod.POST })
 	public BaseVO<Object> querySqlWithTenant(HttpServletRequest request, @RequestParam(value = "sqls") String sqls,
 			@RequestParam(value = "queryToken") String queryToken, @RequestParam(value = "tabKey") String tabKey,
 			@RequestParam(value = "tabToken") String tabToken) throws SQLException {
@@ -342,7 +342,7 @@ public class QueryController {
 		return BaseVO.success(json.toJSONString(), null);
 	}
 
-	@RequestMapping(value = "/api/query/updatePoint", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/query/updatePoint", method = { RequestMethod.POST })
 	public BaseVO<Object> updatePointWithTenant(HttpServletRequest request,
 			@RequestParam(value = "timestamp") Long timestamp, @RequestParam(value = "point") String point,
 			@RequestParam(value = "value") String value) {
@@ -413,7 +413,7 @@ public class QueryController {
 		return BaseVO.success("success", ret);
 	}
 
-	@RequestMapping(value = "/api/query/querySqlAppend", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/query/querySqlAppend", method = { RequestMethod.POST })
 	public BaseVO<Object> querySqlAppendWithTenant(HttpServletRequest request,
 			@RequestParam(value = "queryToken") String queryToken, @RequestParam(value = "tabKey") String tabKey,
 			@RequestParam(value = "tabToken") String tabToken) {
@@ -435,7 +435,7 @@ public class QueryController {
 		return BaseVO.success(json.toJSONString(), list);
 	}
 
-	@RequestMapping(value = "/api/query/all", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/query/all", method = { RequestMethod.POST })
 	public BaseVO<Object> queryAll(HttpServletRequest request, @RequestParam("pageSize") Integer pageSize,
 			@RequestParam("pageNum") Integer pageNum,
 			@RequestParam(value = "nameLike", required = false) String nameLike) {
@@ -460,7 +460,7 @@ public class QueryController {
 		}
 	}
 
-	@RequestMapping(value = "/api/query/deleteThenReturnAll", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/query/deleteThenReturnAll", method = { RequestMethod.POST })
 	public BaseVO<Object> deleteThenReturnAll(HttpServletRequest request, @RequestParam("queryId") Long queryId,
 			@RequestParam("pageSize") Integer pageSize, @RequestParam("pageNum") Integer pageNum,
 			@RequestParam(value = "nameLike", required = false) String nameLike) {
@@ -488,7 +488,7 @@ public class QueryController {
 		}
 	}
 
-	@RequestMapping(value = "/api/query/save", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/query/save", method = { RequestMethod.POST })
 	public BaseVO<Object> querySave(HttpServletRequest request, @RequestParam("sqls") String sqls,
 			@RequestParam("name") String name) {
 		Long connectId = DynamicDataSourceAspect.getTenantCode(request);
@@ -515,7 +515,7 @@ public class QueryController {
 		}
 	}
 
-	@RequestMapping(value = "/api/query/exportCsv", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/query/exportCsv", method = { RequestMethod.GET })
 	public BaseVO<Object> queryExportCsvWithTenant(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "sqls") String sqls, @RequestParam(value = "timeformat") String timeformat,
 			@RequestParam(value = "timeZone") String timeZone, @RequestParam(value = "targetFile") String targetFile,
