@@ -8,5 +8,12 @@ sed -i "s/_iotdbui_email_host_/$iotdbui_email_host/" /root/application.yml
 sed -i "s/_iotdbui_email_username_/$iotdbui_email_username/" /root/application.yml
 sed -i "s/_iotdbui_email_password_/$iotdbui_email_password/" /root/application.yml
 
+if [ -z $iotdbui_db_name ]
+then
+   sed -i "s/_iotdbui_db_name_/iotdbui_default\.db/" /root/application.yml
+else
+   sed -i "s/_iotdbui_db_name_/$iotdbui_db_name/" /root/application.yml
+fi
+
 /usr/sbin/nginx -c /etc/nginx/nginx.conf -g 'daemon on;'
 java -jar /root/iotdb-ui.jar --spring.config.location=/root/application.yml

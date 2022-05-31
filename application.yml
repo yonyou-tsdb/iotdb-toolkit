@@ -13,7 +13,7 @@ spring:
     allow-bean-definition-overriding: true
   data-source1:
     name: dataSource1
-    url: jdbc:sqlite:iotdbui.db
+    url: jdbc:sqlite:/root/_iotdbui_db_name_
     useSSL: false
     username: root
     password: root
