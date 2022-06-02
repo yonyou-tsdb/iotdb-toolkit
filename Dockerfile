@@ -6,7 +6,7 @@ COPY zulu-8/ /usr/zulu-8/
 
 COPY iotdb-ui-0.12.4.jar /root/iotdb-ui.jar
 
-COPY iotdbui.db /root/iotdbui_default.db
+COPY iotdbui.db /root/iotdbui.db
 
 COPY application.yml /root/application.yml
 

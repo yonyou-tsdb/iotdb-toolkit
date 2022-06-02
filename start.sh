@@ -10,7 +10,7 @@ sed -i "s/_iotdbui_email_password_/$iotdbui_email_password/" /root/application.y
 
 if [ -z $iotdbui_db_name ]
 then
-   sed -i "s/_iotdbui_db_name_/iotdbui_default\.db/" /root/application.yml
+   sed -i "s/_iotdbui_db_name_/iotdbui\.db/" /root/application.yml
 else
    sed -i "s/_iotdbui_db_name_/$iotdbui_db_name/" /root/application.yml
 fi
