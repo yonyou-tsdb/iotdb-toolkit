@@ -42,6 +42,9 @@ spring:
     testOnReturn: false
     poolPreparedStatements: true
     maxOpenPreparedStatements: 20
+  messages:
+    basename: messages/message
+    encoding: utf-8
 dataSource1:
     schema: '/db/schema.iotdb-ui.dev.sql'
 swagger: 
@@ -53,3 +56,10 @@ iotdbui:
       host: 
       username: 
       password: 
+   monitor:
+      rmi:
+         basePath: 
+         srcFiles: 
+         jarReyOnPath: 
+         jarFilePath: 
+         jarFileName: 

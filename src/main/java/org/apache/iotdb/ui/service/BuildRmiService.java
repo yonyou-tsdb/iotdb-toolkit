@@ -21,14 +21,20 @@ package org.apache.iotdb.ui.service;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.iotdb.ui.config.MonitorConfig;
 import org.apache.iotdb.ui.util.CompilerUtils;
 import org.apache.iotdb.ui.util.CreateJarUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BuildRmiService {
+
+	@Autowired
+	private MonitorConfig monitorConfig;
 
 	String basePath = String.format("E:%sworkspace1%sDynamicTrigger", File.separator, File.separator);
 //	String basePath = "E:\\workspace1\\world";
@@ -44,7 +50,6 @@ public class BuildRmiService {
 //	String jarReyOnPath = "E:\\workspace1\\world\\lib";
 	// 生成jar文件路径
 //	String jarFilePath = "E:\\workspace1\\apache-iotdb-0.12.1-github\\iotdb\\server\\target\\iotdb-server-0.14.0-SNAPSHOT\\ext\\trigger";
-	String jarFilePath = "E:\\workspace1\\DynamicTrigger";
 //  String jarFilePath = "E:\\workspace1\\world";
 	// 生成jar文件名称
 	String jarFileName = "DynamicTrigger";
@@ -56,14 +61,15 @@ public class BuildRmiService {
 		String classPath = "";
 		try {
 			// 将RMI需要使用的JAVA文件拷贝到制定目录中
+			String source = UUID.randomUUID().toString().replaceAll("-", "");
 			System.out.println("分隔符:" + File.separator);
 			System.out.println("资源拷贝......");
-			sourcePath = jarFilePath + File.separator + "source";
+			sourcePath = monitorConfig.getRmiJarFilePath() + File.separator + source;
 			copySource(sourcePath);// 拷贝资源
 			System.out.println("资源拷贝结束");
 			System.out.println("编译资源......");
 			// 编译java文件
-			classPath = jarFilePath + File.separator + "class";
+			classPath = monitorConfig.getRmiJarFilePath() + File.separator + source + File.separator + "class";
 			try {
 				CompilerUtils.compiler(sourcePath, classPath, basePath, encoding, jarReyOnPath);
 			} catch (Exception e) {
@@ -72,7 +78,7 @@ public class BuildRmiService {
 			System.out.println("编译资源结束");
 			System.out.println("生成jar......");
 			// 生成jar文件
-			CreateJarUtils.createTempJar(classPath, jarFilePath, jarFileName);
+			CreateJarUtils.createTempJar(classPath, monitorConfig.getRmiJarFilePath(), jarFileName);
 			System.out.println("生成jar完成");
 			// 删除临时文件
 			ExeSuccess(sourcePath, classPath);

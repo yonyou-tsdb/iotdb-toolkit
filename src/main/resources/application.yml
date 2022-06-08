@@ -72,3 +72,12 @@ iotdbui:
       host: 
       username: 
       password: 
+   monitor:
+      rmi:
+         basePath: E:\workspace1\DynamicTrigger
+         srcFiles: 
+           - \src\cn\poet\bean\
+           - \src\poem\cn\poet\
+         jarReyOnPath: E:\workspace1\DynamicTrigger\lib
+         jarFilePath: E:\workspace1\DynamicTrigger\jar
+         jarFileName: 

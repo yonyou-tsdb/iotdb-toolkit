@@ -58,16 +58,16 @@ public class EmailConfig {
 	public JavaMailSender javaMailSenderImpl() {
 		JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
 		javaMailSender.setProtocol("smtp");
-		javaMailSender.setHost(getHostWisely());
-		javaMailSender.setUsername(getUsernameWisely());
-		javaMailSender.setPassword(getPasswordWisely());
+		javaMailSender.setHost(getHost());
+		javaMailSender.setUsername(getUsername());
+		javaMailSender.setPassword(getPassword());
 		Properties properties = new Properties();
 		properties.put("mail.smtp.auth", true);
 		properties.put("mail.smtp.timeout", 25000);
 		properties.put("mail.connectiontimeout.timeout", 25000);
 		properties.put("mail.writetimeout.timeout", 25000);
-		properties.put("mail.smtp.port", getPortWisely());
-		properties.put("mail.smtp.socketFactory.port", getPortWisely());
+		properties.put("mail.smtp.port", getPort());
+		properties.put("mail.smtp.socketFactory.port", getPort());
 		properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 		properties.put("mail.smtp.ssl.enable", true);
 		properties.put("mail.smtp.ssl.protocols", "TLSv1.2");
@@ -92,26 +92,12 @@ public class EmailConfig {
 		this.host = host;
 	}
 
-	private String getHostWisely() {
-		if ("_iotdbui_email_host_".equals(host)) {
-			return "";
-		}
-		return host;
-	}
-
 	public String getPort() {
 		return port;
 	}
 
 	public void setPort(String port) {
 		this.port = port;
-	}
-
-	private String getPortWisely() {
-		if ("_iotdbui_email_port_".equals(port)) {
-			return "465";
-		}
-		return port;
 	}
 
 	public String getUsername() {
@@ -122,26 +108,12 @@ public class EmailConfig {
 		this.username = username;
 	}
 
-	private String getUsernameWisely() {
-		if ("_iotdbui_email_username_".equals(username)) {
-			return "";
-		}
-		return username;
-	}
-
 	public String getPassword() {
 		return password;
 	}
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	private String getPasswordWisely() {
-		if ("_iotdbui_email_password_".equals(password)) {
-			return "";
-		}
-		return password;
 	}
 
 	public String getEndPoint() {
