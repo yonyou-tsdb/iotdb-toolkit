@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.iotdb.ui.config.MonitorConfig;
+import org.apache.iotdb.ui.config.MonitorRmiConfig;
 import org.apache.iotdb.ui.util.CompilerUtils;
 import org.apache.iotdb.ui.util.CreateJarUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,25 +34,25 @@ import org.springframework.stereotype.Service;
 public class BuildRmiService {
 
 	@Autowired
-	private MonitorConfig monitorConfig;
+	private MonitorRmiConfig monitorRmiConfig;
 
 //	String basePath = String.format("E:%sworkspace1%sDynamicTrigger", File.separator, File.separator);
 //	String basePath = "E:\\workspace1\\world";
 	// 需要编译的源文件路径
-	String[] srcFiles = {
-			String.format("%ssrc%scn%spoet%sbean%s", File.separator, File.separator, File.separator, File.separator,
-					File.separator),
-			File.separator + "src" + File.separator + "poem" + File.separator + "cn" + File.separator + "poet"
-					+ File.separator };
+//	String[] srcFiles = {
+//			String.format("%ssrc%scn%spoet%sbean%s", File.separator, File.separator, File.separator, File.separator,
+//					File.separator),
+//			File.separator + "src" + File.separator + "poem" + File.separator + "cn" + File.separator + "poet"
+//					+ File.separator };
 //	String[] srcFiles = { "/src/world/", };
 	// 依赖包所在路径
-	String jarReyOnPath = "E:\\workspace1\\DynamicTrigger\\lib";
+//	String jarReyOnPath = "E:\\workspace1\\DynamicTrigger\\lib";
 //	String jarReyOnPath = "E:\\workspace1\\world\\lib";
 	// 生成jar文件路径
 //	String jarFilePath = "E:\\workspace1\\apache-iotdb-0.12.1-github\\iotdb\\server\\target\\iotdb-server-0.14.0-SNAPSHOT\\ext\\trigger";
 //  String jarFilePath = "E:\\workspace1\\world";
 	// 生成jar文件名称
-	String jarFileName = "DynamicTrigger";
+//	String jarFileName = "DynamicTrigger";
 //	String jarFileName = "world";
 	String encoding = "utf-8";
 
@@ -64,21 +64,22 @@ public class BuildRmiService {
 			String source = UUID.randomUUID().toString().replaceAll("-", "");
 			System.out.println("分隔符:" + File.separator);
 			System.out.println("资源拷贝......");
-			sourcePath = monitorConfig.getRmiJarFilePath() + File.separator + source;
+			sourcePath = monitorRmiConfig.getJarFilePath() + File.separator + source;
 			copySource(sourcePath);// 拷贝资源
 			System.out.println("资源拷贝结束");
 			System.out.println("编译资源......");
 			// 编译java文件
-			classPath = monitorConfig.getRmiJarFilePath() + File.separator + source + File.separator + "class";
+			classPath = monitorRmiConfig.getJarFilePath() + File.separator + source + File.separator + "class";
 			try {
-				CompilerUtils.compiler(sourcePath, classPath, monitorConfig.getRmiBasePath(), encoding, jarReyOnPath);
+				CompilerUtils.compiler(sourcePath, classPath, monitorRmiConfig.getBasePath(), encoding,
+						monitorRmiConfig.getJarReyOnPath());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			System.out.println("编译资源结束");
 			System.out.println("生成jar......");
 			// 生成jar文件
-			CreateJarUtils.createTempJar(classPath, monitorConfig.getRmiJarFilePath(), jarFileName);
+			CreateJarUtils.createTempJar(classPath, monitorRmiConfig.getJarFilePath(), source);
 			System.out.println("生成jar完成");
 			// 删除临时文件
 			ExeSuccess(sourcePath, classPath);
@@ -120,10 +121,10 @@ public class BuildRmiService {
 	}
 
 	private void copySource(String sourcePath) throws IOException {
-		for (String f : srcFiles) {
+		for (String f : monitorRmiConfig.getSrcFiles()) {
 			String path = f.replace("/", File.separator);
 			System.out.println(path);
-			File srcFile = new File(monitorConfig.getRmiBasePath() + path);
+			File srcFile = new File(monitorRmiConfig.getBasePath() + path);
 			File targetFile = new File(sourcePath + path);
 			FileUtils.copyDirectory(srcFile, targetFile, new FileFilter() {
 				@Override

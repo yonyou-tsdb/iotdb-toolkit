@@ -79,6 +79,7 @@ public class File4ComplierUtils {
 	}
 
 	private static String getJarFiles(File sourceFile, String jars) throws Exception {
+		String delimiter = CompilerUtils.isWindows() ? ";" : ":";
 		if (!sourceFile.exists()) {
 			// 文件或者目录必须存在
 			throw new IOException("jar目录不存在");
@@ -92,11 +93,11 @@ public class File4ComplierUtils {
 				if (file.isDirectory()) {
 					getJarFiles(file, jars);
 				} else {
-					jars = jars + file.getPath() + ";";
+					jars = String.format("%s%s%s", jars, file.getPath(), delimiter);
 				}
 			}
 		} else {
-			jars = jars + sourceFile.getPath() + ";";
+			jars = String.format("%s%s%s", jars, sourceFile.getPath(), delimiter);
 		}
 		return jars;
 	}

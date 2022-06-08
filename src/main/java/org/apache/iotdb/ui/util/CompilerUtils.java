@@ -51,9 +51,15 @@ public class CompilerUtils {
 		return javaCompiler;
 	}
 
+	public static boolean isWindows() {
+		if ("\\".equals(File.separator)) {
+			return true;
+		}
+		return false;
+	}
+
 	public static void compiler(String filePath, String targetDir, String sourceDir, String encoding, String jarPath)
 			throws Exception {
-
 		// 得到filePath目录下的所有java源文件
 		List<File> sourceFileList = File4ComplierUtils.getSourceFiles(filePath);
 
