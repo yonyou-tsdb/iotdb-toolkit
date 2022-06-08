@@ -36,7 +36,7 @@ public class BuildRmiService {
 	@Autowired
 	private MonitorConfig monitorConfig;
 
-	String basePath = String.format("E:%sworkspace1%sDynamicTrigger", File.separator, File.separator);
+//	String basePath = String.format("E:%sworkspace1%sDynamicTrigger", File.separator, File.separator);
 //	String basePath = "E:\\workspace1\\world";
 	// 需要编译的源文件路径
 	String[] srcFiles = {
@@ -71,7 +71,7 @@ public class BuildRmiService {
 			// 编译java文件
 			classPath = monitorConfig.getRmiJarFilePath() + File.separator + source + File.separator + "class";
 			try {
-				CompilerUtils.compiler(sourcePath, classPath, basePath, encoding, jarReyOnPath);
+				CompilerUtils.compiler(sourcePath, classPath, monitorConfig.getRmiBasePath(), encoding, jarReyOnPath);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -123,7 +123,7 @@ public class BuildRmiService {
 		for (String f : srcFiles) {
 			String path = f.replace("/", File.separator);
 			System.out.println(path);
-			File srcFile = new File(basePath + path);
+			File srcFile = new File(monitorConfig.getRmiBasePath() + path);
 			File targetFile = new File(sourcePath + path);
 			FileUtils.copyDirectory(srcFile, targetFile, new FileFilter() {
 				@Override
