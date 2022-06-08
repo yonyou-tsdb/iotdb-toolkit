@@ -61,6 +61,7 @@ public class ShiroConfig {
 		map.put("/api/sendResetPasswordMail", "anon"); // 发送找回密码邮件不拦截
 		map.put("/api/resetPassword/**", "anon"); // 找回密码链接不拦截
 		map.put("/api/resetUpdatePassword", "anon"); // 修改密码不拦截
+		map.put("/api/monitor/**", "anon"); // 监控不拦截（暂时）
 		map.put("/", "anon"); // 空handler不拦截
 		map.put("/**", "authc");// 拦截所有请求，顺序不能变，拦截所有请求一定在最后一个
 
