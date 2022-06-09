@@ -33,7 +33,6 @@ import org.apache.commons.lang.StringUtils;
 
 public class CompilerUtils {
 	private static JavaCompiler javaCompiler;
-	private static String encoding = "UTF-8";
 
 	private CompilerUtils() {
 	};

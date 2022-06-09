@@ -31,6 +31,8 @@ public class MonitorRmiConfig {
 
 	private String jarReyOnPath;
 
+	private String tempPath;
+
 	private String jarFilePath;
 
 	public String getBasePath() {
@@ -63,6 +65,14 @@ public class MonitorRmiConfig {
 
 	public void setJarFilePath(String jarFilePath) {
 		this.jarFilePath = jarFilePath;
+	}
+
+	public String getTempPath() {
+		return tempPath;
+	}
+
+	public void setTempPath(String tempPath) {
+		this.tempPath = tempPath;
 	}
 
 }

@@ -79,4 +79,5 @@ iotdbui:
            - \src\cn\poet\bean\
            - \src\poem\cn\poet\
          jarReyOnPath: E:\workspace1\DynamicTrigger\lib
+         tempPath: E:\workspace1\DynamicTrigger\temp
          jarFilePath: E:\workspace1\DynamicTrigger\jar

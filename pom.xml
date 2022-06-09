@@ -295,6 +295,11 @@
 			<artifactId>spring-webmvc-velocity</artifactId>
 			<version>1.4.3.18.RELEASE</version>
 		</dependency>
+		<dependency>
+			<groupId>com.squareup</groupId>
+			<artifactId>javapoet</artifactId>
+			<version>1.13.0</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>

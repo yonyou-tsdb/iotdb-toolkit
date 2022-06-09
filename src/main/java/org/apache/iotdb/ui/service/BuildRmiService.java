@@ -64,12 +64,12 @@ public class BuildRmiService {
 			String source = UUID.randomUUID().toString().replaceAll("-", "");
 			System.out.println("分隔符:" + File.separator);
 			System.out.println("资源拷贝......");
-			sourcePath = monitorRmiConfig.getJarFilePath() + File.separator + source;
+			sourcePath = monitorRmiConfig.getTempPath() + File.separator + source;
 			copySource(sourcePath);// 拷贝资源
 			System.out.println("资源拷贝结束");
 			System.out.println("编译资源......");
 			// 编译java文件
-			classPath = monitorRmiConfig.getJarFilePath() + File.separator + source + File.separator + "class";
+			classPath = monitorRmiConfig.getTempPath() + File.separator + source + File.separator + "class";
 			try {
 				CompilerUtils.compiler(sourcePath, classPath, monitorRmiConfig.getBasePath(), encoding,
 						monitorRmiConfig.getJarReyOnPath());
