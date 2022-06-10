@@ -4,7 +4,7 @@ IoTDB-UI是一个可以深度管理IoTDB的管理系统，它提供了桌面软�
 
 #### 最新版本
 
-`0.12.4`
+`0.12.5`
 
 #### 需求
 
@@ -14,9 +14,13 @@ Maven 3.3.0 or above
 
 Nginx
 
-#### 部署步骤
+#### Docker部署（推荐）
 
-1.在项目根目录执行 `mvn clean install` 以编译，之后在 target 文件夹下可找到 iotdb-ui-0.12.4.jar 文件
+请见 https://github.com/limeng32/iotdbui-back/blob/docker/README.zh.md
+
+#### 传统方式部署
+
+1.在项目根目录执行 `mvn clean install` 以编译，之后在 target 文件夹下可找到 iotdb-ui-0.12.5.jar 文件
 
 2.确保 sqlite 文件 `iotdbui.db` 存在于项目根目录内。如果您使用其它数据库，需要修改 `src/main/resources/application.yml` 文件
 
@@ -32,17 +36,11 @@ iotdbui:
     password: 'xxxxxx'
 ```
 
-之所以在根目录下修改 application.yml 会生效，是因为 Dockerfile 中的命令指向了这个文件，您也可以把它加入到 /src/main/resources/application.yml 或您使用的其他位置的配置文件。如果不在配置文件加入这些内容也不影响使用默认账号登录系统，但无法使用基于邮箱的注册账号、找回密码等功能
+如果不在配置文件加入这些内容也不影响使用默认账号登录系统，但无法使用基于邮箱的注册账号、找回密码等功能
 
-本次更新后默认账号由 admin 变为 user，因安全要求变得更加严格 admin 账号不再可用。同时加入一张新表 tb_email_log （<a href="https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql">所有相关表信息</a>），如果您需要保留本地 iotdbui.db 中的数据，可以手动新增 tb_email_log 表，再把项目根目录下 iotdbui.db 中 tb_user 表中默认账号的信息拷贝到自己使用的数据库
+4.启动后端和前端服务：
 
-4.使用 docker-compose 部署（需安装 docker 及 docker-compose）：
-
-- 在项目根目录执行 `docker-compose up -d`
-  
-5.使用传统方式部署：
-
-- 在项目根目录执行 `java -jar target/iotdb-ui-0.12.4.jar --spring.config.location=application.xml` 以启动，默认使用 8080 端口
+- 在项目根目录执行 `java -jar target/iotdb-ui-0.12.5.jar --spring.config.location=application.xml` 以启动，默认使用 8080 端口
   
 - 使用 nginx 映射 `/front/dist` 中的内容，或者映射在 iotdb-ui 前端项目中手动构建的内容。 例如，下面的配置将前端映射到了 8040 端口，同时将后端转发到 8080 端口:
 
@@ -62,4 +60,4 @@ server {
 
 - 如果在 nginx 上启用 websocket 功能，可以获得更好的用户体验。如果不启用 websocket 功能，也不会影响使用
 
-6.现在在浏览器打开之前设置的端口（如 http://localhost:8040/ ），开始享受 iotdb 的魅力吧！
+5.现在在浏览器打开之前设置的端口（如 http://localhost:8040/ ），开始享受 iotdb 的魅力吧！
