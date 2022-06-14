@@ -22,13 +22,14 @@ import java.sql.SQLException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.iotdb.ui.model.BaseVO;
 import org.apache.iotdb.ui.service.BuildRmiService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
@@ -41,9 +42,21 @@ public class MonitorController {
 	@Autowired
 	private BuildRmiService buildRmiService;
 	
+	@Autowired
+	@Qualifier("httpClientBean")
+	private CloseableHttpClient HttpClientBean;
+	
 	@RequestMapping(value = "/api/monitor/buildRmi", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> querySqlWithTenant(HttpServletRequest request) throws SQLException {
+	public BaseVO<Object> buildRmi(HttpServletRequest request) throws SQLException {
 		buildRmiService.buildRmi();
+		return null;
+	}
+
+	@RequestMapping(value = "/api/monitor/readExporter", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> readExporter(HttpServletRequest request) throws SQLException {
+//		String resStr = RequestUtil.getHttpResponse(apiPath);
+//		CloseableHttpClient httpclient2 = ApplicationContextProvider.getBean("httpClientBean",
+//				CloseableHttpClient.class);
 		return null;
 	}
 
