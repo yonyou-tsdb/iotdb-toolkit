@@ -22,6 +22,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.iotdb.ui.reactor.GreetingWebClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
@@ -42,6 +43,9 @@ public class Application {
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class, args);
+
+		GreetingWebClient gwc = new GreetingWebClient();
+		System.out.println(gwc.getResult());
 	}
 
 	@Bean
@@ -68,14 +72,14 @@ public class Application {
 		List<MediaType> fastMediaTypes = new ArrayList<>();
 		fastMediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
 		fastJsonConverter.setSupportedMediaTypes(fastMediaTypes);
-		
+
 		// 处理Long型属性序列化后精度问题
 		SerializeConfig serializeConfig = SerializeConfig.globalInstance;
 		serializeConfig.put(BigInteger.class, ToStringSerializer.instance);
 		serializeConfig.put(Long.class, ToStringSerializer.instance);
 		serializeConfig.put(Long.TYPE, ToStringSerializer.instance);
 		fastJsonConfig.setSerializeConfig(serializeConfig);
-		
+
 		fastJsonConverter.setFastJsonConfig(fastJsonConfig);
 
 //		HttpMessageConverter<?> converter = fastJsonConverter;
