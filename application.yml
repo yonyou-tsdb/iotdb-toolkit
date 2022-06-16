@@ -29,6 +29,9 @@ spring:
     testWhileIdle: true
     testOnBorrow: false
     testOnReturn: false
+  messages:
+    basename: messages/message
+    encoding: utf-8
 iotdbui:
   frontend: _iotdbui_frontend_
   email:
