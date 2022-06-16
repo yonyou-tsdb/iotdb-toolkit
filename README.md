@@ -18,7 +18,7 @@ docker
 
 3. Add the function of saving data: download <a href="https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db">https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db</a> or follow
  <a href="https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql">https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql</a> to build the structure in the iotdbui.db file, If its path is `/foo/bar/iotdbui.db`, ​​execute
- `docker run -p 80:80 -v /foo/bar/iotdbui.db:/iotdbui.db -it --rm limeng32/iotdbui`, then the data can be saved in `/foo/bar/iotdbui.db`.
+ `docker run -p 80:80 -v /foo/bar/iotdbui.db:/root/iotdbui.db -it --rm limeng32/iotdbui`, then the data can be saved in `/foo/bar/iotdbui.db`.
  
  4. Use the account management function: In order to make this function available, you need to have a mail server with the smtp service enabled, and add the following environment variables at startup
 
@@ -30,4 +30,4 @@ docker
 | `iotdbui_email_username` | Email server username | `postmaster@foo.bar` |
 | `iotdbui_email_password` | Email server password | `xxxxxxxx` |
 
-For example, execute `docker run -p 80:80 -v /foo/bar/iotdbui.db:/iotdbui.db -e iotdbui_frontend="127.0.0.1:80" -e iotdbui_email_port=465 -e iotdbui_email_host="smtp.xxx.com." -e iotdbui_email_username="postmaster@foo.bar" -e iotdbui_email_password="xxxxxxxx" -it --rm limeng32/iotdbui`, then you can register your account by email
+For example, execute `docker run -p 80:80 -v /foo/bar/iotdbui.db:/root/iotdbui.db -e iotdbui_frontend="127.0.0.1:80" -e iotdbui_email_port=465 -e iotdbui_email_host="smtp.xxx.com." -e iotdbui_email_username="postmaster@foo.bar" -e iotdbui_email_password="xxxxxxxx" -it --rm limeng32/iotdbui`, then you can register your account by email
