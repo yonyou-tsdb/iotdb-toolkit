@@ -12,12 +12,12 @@ docker
 
 #### Deployment steps
 
-1. Execute `docker pull limeng32/iotdbui` or `docker pull limeng32/iotdbui:0.12.4` to get the latest image
+1. Execute `docker pull limeng32/iotdbui` or `docker pull limeng32/iotdbui:0.12.5` to get the latest image, or get the content in https://github.com/limeng32/iotdbui-back/tree/docker and execute `docker build` to build the image
 
 2. Start using it immediately: execute `docker run -p 80:80 -it --rm limeng32/iotdbui`, you can start it directly without setting any environment variables (the `80` port is exposed inside the image). In this case, most of the functions of iotdbui can be used, but the account management function cannot be used, and the data will not be saved after the container is closed
 
-3. Add the function of saving data: download <a href="https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db">https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db</a> or follow
- <a href="https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql">https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql</a> to build the structure in the iotdbui.db file, If its path is `/foo/bar/iotdbui.db`, ​​execute
+3. Add the function of saving data: download https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db or follow
+ https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql to build the structure in the iotdbui.db file, If its path is `/foo/bar/iotdbui.db`, ​​execute
  `docker run -p 80:80 -v /foo/bar/iotdbui.db:/root/iotdbui.db -it --rm limeng32/iotdbui`, then the data can be saved in `/foo/bar/iotdbui.db`.
  
  4. Use the account management function: In order to make this function available, you need to have a mail server with the smtp service enabled, and add the following environment variables at startup

@@ -12,11 +12,11 @@ docker
 
 #### 部署方式
 
-1.执行 `docker pull limeng32/iotdbui` 或 `docker pull limeng32/iotdbui:0.12.4` 以获取最新镜像
+1.执行 `docker pull limeng32/iotdbui` 或 `docker pull limeng32/iotdbui:0.12.5` 以获取最新镜像，或者下载 https://github.com/limeng32/iotdbui-back/tree/docker 中的内容后执行 `docker build` 构建镜像
 
 2.立刻开始使用：执行 `docker run -p 80:80 -it --rm limeng32/iotdbui`，可以不设置任何环境变量就直接启动（镜像内部暴露 `80` 端口）。这种情况下可以使用 iotdbui 大部分功能，但无法使用账号管理功能，且容器关闭后数据不保存
 
-3.增加保存数据功能：下载 <a href="https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db">https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db</a> 或按 <a href="https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql">https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql</a> 中的结构建立 iotdbui.db 文件，若其路径为 `/foo/bar/iotdbui.db`，则执行 `docker run -p 80:80 -v /foo/bar/iotdbui.db:/root/iotdbui.db -it --rm limeng32/iotdbui`，这样数据可以保存在 `/foo/bar/iotdbui.db` 中。
+3.增加保存数据功能：下载  https://github.com/limeng32/iotdbui-back/blob/docker/iotdbui.db 或按 https://github.com/limeng32/iotdbui-back/blob/master/src/test/resources/db/schema.iotdb-ui.dev.sql 中的结构建立 iotdbui.db 文件，若其路径为 `/foo/bar/iotdbui.db`，则执行 `docker run -p 80:80 -v /foo/bar/iotdbui.db:/root/iotdbui.db -it --rm limeng32/iotdbui`，这样数据可以保存在 `/foo/bar/iotdbui.db` 中。
 
 4.使用账号管理功能：为了使此功能可用需要您有一个开启了 smtp 服务的邮件服务器，并在启动时增加以下环境变量
 
