@@ -4,7 +4,7 @@ IoTDB-UI是一个可以深度管理IoTDB的管理系统，它提供了桌面软�
 
 #### 最新版本
 
-`0.12.4`
+`0.12.5`
 
 #### 需求
 
@@ -12,7 +12,7 @@ docker
 
 #### 部署方式
 
-1.执行 `docker pull limeng32/iotdbui` 或 `docker pull limeng32/iotdbui:0.12.5` 以获取最新镜像，或者下载 https://github.com/limeng32/iotdbui-back/tree/docker 中的内容后执行 `docker build` 构建镜像
+1.执行 `docker pull limeng32/iotdbui:0.12.5` 或 `docker pull registry.aliyuncs.com/limeng32/iotdbui:0.12.5` 以获取最新镜像，或者下载 https://github.com/limeng32/iotdbui-back/tree/docker 中的内容后执行 `docker build` 自行构建镜像
 
 2.立刻开始使用：执行 `docker run -p 80:80 -it --rm limeng32/iotdbui`，可以不设置任何环境变量就直接启动（镜像内部暴露 `80` 端口）。这种情况下可以使用 iotdbui 大部分功能，但无法使用账号管理功能，且容器关闭后数据不保存
 
