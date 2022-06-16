@@ -24,7 +24,7 @@ See https://github.com/limeng32/iotdbui-back/blob/docker/README.md
 
 2.Make sure the sqlite file `iotdbui.db` exists in the project root directory. If you use another database, you need to modify the `src/main/resources/application.yml` file
 
-3.The sending mail service has been added since `0.12.4`. If you need to use this feature, you need to have a mailbox with the smtp service enabled, and then add the mailbox configuration in application.yml in the project root directory, and the IoTDB-UI Frontend (ie IP and port) frontend. For example, the configuration on the demo server is as follows:
+3.The sending mail service has been added since `0.12.4`. If you need to use this feature, you need to have a mailbox with the smtp service enabled, and then add the application.yml file in the project root directory and add the mailbox configuration, and The frontend (ie IP and port) frontend of IoTDB-UI. For example, the configuration on the demo server is as follows:
 
 ```
 iotdbui:

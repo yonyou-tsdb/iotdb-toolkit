@@ -24,7 +24,7 @@ Nginx
 
 2.确保 sqlite 文件 `iotdbui.db` 存在于项目根目录内。如果您使用其它数据库，需要修改 `src/main/resources/application.yml` 文件
 
-3.从 `0.12.4` 开始增加了发送邮件服务，如果您需要使用此功能，需要有一个开启了 smtp 服务的邮箱，然后在项目根目录下的 application.yml 中加入邮箱配置，以及 IoTDB-UI 的前端（即 IP 和端口）frontend。例如演示服务器上的配置如下：
+3.从 `0.12.4` 开始增加了发送邮件服务，如果您需要使用此功能，需要有一个开启了 smtp 服务的邮箱，然后在项目根目录下新增  application.yml 文件并在其中加入邮箱配置，以及 IoTDB-UI 的前端（即 IP 和端口）frontend。例如演示服务器上的配置如下：
 
 ```
 iotdbui:
