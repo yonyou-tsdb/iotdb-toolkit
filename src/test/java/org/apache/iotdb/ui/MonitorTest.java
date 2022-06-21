@@ -25,7 +25,9 @@ import java.io.InputStreamReader;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.iotdb.ui.model.ExporterHeader;
+import org.apache.iotdb.ui.model.exporter.ExporterBody;
+import org.apache.iotdb.ui.model.exporter.ExporterHeader;
+import org.apache.iotdb.ui.model.exporter.ExporterMessageType;
 import org.apache.iotdb.ui.util.ExporterParsingUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -77,11 +79,21 @@ public class MonitorTest {
 				BufferedReader br = new BufferedReader(reader);) {
 			// 行读取
 			String line = null;
+			String lastMetricName = null;
+			ExporterMessageType lastMetricType = ExporterMessageType.UNTYPE;
 			while ((line = br.readLine()) != null) {
-				ExporterHeader eh = ExporterParsingUtil.read(line, null, null, null);
 				System.out.println(line);
-				if (eh != null) {
-					System.out.println(eh.getMetricName() + " , " + eh.getType());
+				if (line.startsWith(ExporterParsingUtil.COMMENT_SIGN)) {
+					ExporterHeader eh = ExporterParsingUtil.read(line, null, null, null);
+					System.out.println("==" + eh.getMetricName() + " , " + eh.getType());
+					lastMetricType = eh.getType();
+					lastMetricName = eh.getMetricName();
+				} else {
+					ExporterBody eb = ExporterParsingUtil.readBody(line, lastMetricType);
+					if (eb != null) {
+						System.out.println("::" + eb.getMetricName() + " , " + eb.getValue());
+						System.out.println("  " + eb.getLabel());
+					}
 				}
 			}
 		}

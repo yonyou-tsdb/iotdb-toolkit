@@ -20,9 +20,10 @@ package org.apache.iotdb.ui.util;
 
 import java.util.List;
 
-import org.apache.iotdb.ui.model.ExporterHeader;
-import org.apache.iotdb.ui.model.ExporterInsert;
-import org.apache.iotdb.ui.model.ExporterMessageType;
+import org.apache.iotdb.ui.model.exporter.ExporterBody;
+import org.apache.iotdb.ui.model.exporter.ExporterHeader;
+import org.apache.iotdb.ui.model.exporter.ExporterInsert;
+import org.apache.iotdb.ui.model.exporter.ExporterMessageType;
 
 public class ExporterParsingUtil {
 
@@ -30,27 +31,58 @@ public class ExporterParsingUtil {
 
 	public static final String COMMENT_SIGN = "#";
 
+	public static final char LEFT_BRACE = '{';
+
+	public static final char RIGHT_BRACE = '}';
+
+	public static final char BLANK = ' ';
+
 	public static final String TYPE = "TYPE";
 
 	public static final String HELP = "HELP";
 
+	public static final String LABEL_LEFT = "=\"";
+
+	public static final String LABEL_RIGHT = "\",";
+
 	public static ExporterHeader read(String metric, List<ExporterInsert> exporterInsertList, String metricName,
 			ExporterMessageType type) {
-		if (metric.startsWith(COMMENT_SIGN)) {
-			ExporterHeader eh = new ExporterHeader();
-			String temp = metric.substring(1).trim();
-			if (temp.startsWith(TYPE)) {
-				temp = temp.substring(4).trim();
-				eh.setMetricName(temp.substring(0, temp.indexOf(' ')));
-				eh.setType(ExporterMessageType.forValue(temp.substring(temp.lastIndexOf(' '), temp.length()).trim()));
-			} else if (temp.startsWith(HELP)) {
-				temp = temp.substring(4).trim();
-				eh.setMetricName(temp.substring(0, temp.indexOf(' ') > -1 ? temp.indexOf(' ') : temp.length()));
-			}
-			return eh;
+		ExporterHeader eh = new ExporterHeader();
+		String temp = metric.substring(1).trim();
+		if (temp.startsWith(TYPE)) {
+			temp = temp.substring(4).trim();
+			eh.setMetricName(temp.substring(0, temp.indexOf(' ')));
+			eh.setType(ExporterMessageType.forValue(temp.substring(temp.lastIndexOf(' '), temp.length()).trim()));
+		} else if (temp.startsWith(HELP)) {
+			temp = temp.substring(4).trim();
+			eh.setMetricName(temp.substring(0, temp.indexOf(' ') > -1 ? temp.indexOf(' ') : temp.length()));
 		}
-
-		return null;
+		return eh;
 	}
 
+	public static ExporterBody readBody(String metric, ExporterMessageType lastMetricType) {
+		String metricName = null;
+		if (metric.indexOf(LEFT_BRACE) > -1) {
+			metricName = metric.substring(0, metric.indexOf(LEFT_BRACE)).trim();
+		} else {
+			metricName = metric.substring(0, metric.indexOf(BLANK)).trim();
+		}
+		if (ExporterMessageType.HISTOGRAM.equals(lastMetricType) && metricName.endsWith("_bucket")) {
+			return null;
+		}
+		ExporterBody eb = new ExporterBody();
+		if (metric.indexOf(LEFT_BRACE) > -1 && metric.indexOf(RIGHT_BRACE) > metric.indexOf(LEFT_BRACE)) {
+			String label = metric.substring(metric.indexOf(LEFT_BRACE) + 1, metric.indexOf(RIGHT_BRACE));
+			while (label.indexOf(LABEL_LEFT) > -1 && label.indexOf(LABEL_RIGHT) > label.indexOf(LABEL_LEFT)) {
+				String labelName = label.substring(0, label.indexOf(LABEL_LEFT));
+				String labelValue = label.substring(label.indexOf(LABEL_LEFT) + 2, label.indexOf(LABEL_RIGHT));
+				label = label.substring(label.indexOf(LABEL_RIGHT) + 2, label.length());
+				eb.getLabel().put(labelName, labelValue);
+			}
+		}
+		eb.setMetricName(metricName);
+		String metricValue = metric.substring(metric.lastIndexOf(BLANK) + 1, metric.length());
+		eb.setValue(metricValue);
+		return eb;
+	}
 }
