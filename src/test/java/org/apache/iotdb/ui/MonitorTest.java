@@ -21,12 +21,15 @@ package org.apache.iotdb.ui;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Calendar;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.iotdb.session.Session;
 import org.apache.iotdb.ui.model.exporter.ExporterBody;
 import org.apache.iotdb.ui.model.exporter.ExporterHeader;
+import org.apache.iotdb.ui.model.exporter.ExporterInsert;
 import org.apache.iotdb.ui.model.exporter.ExporterMessageType;
 import org.apache.iotdb.ui.util.ExporterParsingUtil;
 import org.junit.Assert;
@@ -69,6 +72,9 @@ public class MonitorTest {
 
 	private void readMetrics() throws Exception {
 		HttpGet http = new HttpGet("http://172.20.48.111:9091/metrics");
+		Session session = new Session("172.20.48.111", 6667, "root", "root");
+		session.open();
+		Long timestamp = Calendar.getInstance().getTime().getTime();
 		// 发送请求，获取服务器返回的httpResponse对象
 		try (CloseableHttpResponse httpResponse = HttpClientBean.execute(http);
 				// 用输入流获取，字节读取
@@ -79,23 +85,27 @@ public class MonitorTest {
 				BufferedReader br = new BufferedReader(reader);) {
 			// 行读取
 			String line = null;
-			String lastMetricName = null;
 			ExporterMessageType lastMetricType = ExporterMessageType.UNTYPE;
+			ExporterInsert ei = new ExporterInsert();
 			while ((line = br.readLine()) != null) {
 				System.out.println(line);
 				if (line.startsWith(ExporterParsingUtil.COMMENT_SIGN)) {
 					ExporterHeader eh = ExporterParsingUtil.read(line, null, null, null);
 					System.out.println("==" + eh.getMetricName() + " , " + eh.getType());
 					lastMetricType = eh.getType();
-					lastMetricName = eh.getMetricName();
 				} else {
 					ExporterBody eb = ExporterParsingUtil.readBody(line, lastMetricType);
 					if (eb != null) {
 						System.out.println("::" + eb.getMetricName() + " , " + eb.getValue());
 						System.out.println("  " + eb.getLabel());
+						ei.addExporterBody(eb, timestamp);
+					}
+					if (ei.getSize() >= 100) {
+						ei.batchInsert(session, timestamp);
 					}
 				}
 			}
+			ei.batchInsert(session, timestamp);
 		}
 	}
 }

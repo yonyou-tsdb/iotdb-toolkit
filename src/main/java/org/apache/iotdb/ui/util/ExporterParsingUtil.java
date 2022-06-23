@@ -82,7 +82,11 @@ public class ExporterParsingUtil {
 		}
 		eb.setMetricName(metricName);
 		String metricValue = metric.substring(metric.lastIndexOf(BLANK) + 1, metric.length());
-		eb.setValue(metricValue);
+		try {
+			eb.setValue(Double.valueOf(metricValue));
+		} catch (Exception e) {
+			eb.setValue(Double.NaN);
+		}
 		return eb;
 	}
 }

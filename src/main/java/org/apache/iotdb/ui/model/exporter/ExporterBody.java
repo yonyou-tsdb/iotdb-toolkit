@@ -7,9 +7,9 @@ public class ExporterBody {
 
 	private String metricName;
 
-	private Object value;
+	private Double value;
 
-	private Map<String, String> label;
+	private Map<String, String> label = new TreeMap<>();
 
 	public String getMetricName() {
 		return metricName;
@@ -19,18 +19,15 @@ public class ExporterBody {
 		this.metricName = metricName;
 	}
 
-	public Object getValue() {
+	public Double getValue() {
 		return value;
 	}
 
-	public void setValue(Object value) {
+	public void setValue(Double value) {
 		this.value = value;
 	}
 
 	public Map<String, String> getLabel() {
-		if (label == null) {
-			label = new TreeMap<>();
-		}
 		return label;
 	}
 
@@ -38,4 +35,15 @@ public class ExporterBody {
 		this.label = label;
 	}
 
+	public String buildPath() {
+		if (label.isEmpty()) {
+			return metricName.replaceAll(" ", "_");
+		} else {
+			StringBuilder sb = new StringBuilder(metricName.replaceAll(" ", "_"));
+			for (Map.Entry<String, String> e : label.entrySet()) {
+				sb.append(".\"").append(e.getKey()).append("=").append(e.getValue()).append("\"");
+			}
+			return sb.toString();
+		}
+	}
 }
