@@ -71,8 +71,8 @@ public class ExporterParsingUtil {
 			return null;
 		}
 		ExporterBody eb = new ExporterBody();
-		if (metric.indexOf(LEFT_BRACE) > -1 && metric.indexOf(RIGHT_BRACE) > metric.indexOf(LEFT_BRACE)) {
-			String label = metric.substring(metric.indexOf(LEFT_BRACE) + 1, metric.indexOf(RIGHT_BRACE));
+		if (metric.indexOf(LEFT_BRACE) > -1 && metric.lastIndexOf(RIGHT_BRACE) > metric.indexOf(LEFT_BRACE)) {
+			String label = metric.substring(metric.indexOf(LEFT_BRACE) + 1, metric.lastIndexOf(RIGHT_BRACE));
 			while (label.indexOf(LABEL_LEFT) > -1 && label.indexOf(LABEL_RIGHT) > label.indexOf(LABEL_LEFT)) {
 				String labelName = label.substring(0, label.indexOf(LABEL_LEFT));
 				String labelValue = label.substring(label.indexOf(LABEL_LEFT) + 2, label.indexOf(LABEL_RIGHT));
@@ -81,7 +81,17 @@ public class ExporterParsingUtil {
 			}
 		}
 		eb.setMetricName(metricName);
-		String metricValue = metric.substring(metric.lastIndexOf(BLANK) + 1, metric.length());
+		String metricValue = metric.substring(metric.indexOf(BLANK, metric.lastIndexOf(RIGHT_BRACE)) + 1,
+				metric.length());
+		if (metricValue.indexOf(BLANK) > -1) {
+			String timestamp = metricValue.substring(metricValue.indexOf(BLANK) + 1, metricValue.length());
+			metricValue = metricValue.substring(0, metricValue.indexOf(BLANK));
+			try {
+				eb.setTimestamp(Long.valueOf(timestamp));
+			} catch (Exception e) {
+				eb.setTimestamp(null);
+			}
+		}
 		try {
 			eb.setValue(Double.valueOf(metricValue));
 		} catch (Exception e) {

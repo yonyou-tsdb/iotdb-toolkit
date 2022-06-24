@@ -56,6 +56,10 @@ import com.github.springtestdbunit.dataset.ReplacementDataSetLoader;
 @DbUnitConfiguration(dataSetLoader = ReplacementDataSetLoader.class, databaseConnection = { "dataSource1" })
 public class MonitorTest {
 
+	public String uri = "http://localhost/";
+
+//	public String uri = "http://172.20.48.111:9091/metrics";
+
 	@Autowired
 	@Qualifier("httpClientBean")
 	private CloseableHttpClient HttpClientBean;
@@ -71,7 +75,7 @@ public class MonitorTest {
 	}
 
 	private void readMetrics() throws Exception {
-		HttpGet http = new HttpGet("http://172.20.48.111:9091/metrics");
+		HttpGet http = new HttpGet(uri);
 		Session session = new Session("172.20.48.111", 6667, "root", "root");
 		session.open();
 		Long timestamp = Calendar.getInstance().getTime().getTime();
@@ -88,24 +92,20 @@ public class MonitorTest {
 			ExporterMessageType lastMetricType = ExporterMessageType.UNTYPE;
 			ExporterInsert ei = new ExporterInsert();
 			while ((line = br.readLine()) != null) {
-				System.out.println(line);
 				if (line.startsWith(ExporterParsingUtil.COMMENT_SIGN)) {
 					ExporterHeader eh = ExporterParsingUtil.read(line, null, null, null);
-					System.out.println("==" + eh.getMetricName() + " , " + eh.getType());
 					lastMetricType = eh.getType();
 				} else {
 					ExporterBody eb = ExporterParsingUtil.readBody(line, lastMetricType);
 					if (eb != null) {
-						System.out.println("::" + eb.getMetricName() + " , " + eb.getValue());
-						System.out.println("  " + eb.getLabel());
 						ei.addExporterBody(eb, timestamp);
 					}
 					if (ei.getSize() >= 100) {
-						ei.batchInsert(session, timestamp);
+						ei.batchInsert(session);
 					}
 				}
 			}
-			ei.batchInsert(session, timestamp);
+			ei.batchInsert(session);
 		}
 	}
 }

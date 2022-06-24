@@ -11,6 +11,8 @@ public class ExporterBody {
 
 	private Map<String, String> label = new TreeMap<>();
 
+	private Long timestamp;
+
 	public String getMetricName() {
 		return metricName;
 	}
@@ -35,6 +37,14 @@ public class ExporterBody {
 		this.label = label;
 	}
 
+	public Long getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(Long timestamp) {
+		this.timestamp = timestamp;
+	}
+
 	public String buildPath() {
 		if (label.isEmpty()) {
 			return metricName.replaceAll(" ", "_");
@@ -46,4 +56,5 @@ public class ExporterBody {
 			return sb.toString();
 		}
 	}
+
 }

@@ -51,7 +51,11 @@ public class ExporterInsert {
 	}
 
 	public void addExporterBody(ExporterBody exporterBody, Long timestamp) {
-		timestamps.add(timestamp);
+		if (exporterBody.getTimestamp() == null) {
+			timestamps.add(timestamp);
+		} else {
+			timestamps.add(exporterBody.getTimestamp());
+		}
 		List<Object> values = new LinkedList<>();
 		valuesList.add(values);
 		List<String> measurements = new LinkedList<>();
@@ -76,13 +80,9 @@ public class ExporterInsert {
 		size = 0;
 	}
 
-	public void batchInsert(Session session, Long timestamp) {
-		System.out.println("  ++ " + deviceIds.size() + "," + timestamps.size() + "," + measurementsList.size() + ","
-				+ valuesList.size());
-//		timestamps.add(timestamp);
+	public void batchInsert(Session session) {
 		try {
 			session.insertRecords(deviceIds, timestamps, measurementsList, typesList, valuesList);
-//			RecordsOfOneDevice(path, timestamps, measurementsList, typesList, valuesList);
 		} catch (IoTDBConnectionException | StatementExecutionException e1) {
 			e1.printStackTrace();
 		}
