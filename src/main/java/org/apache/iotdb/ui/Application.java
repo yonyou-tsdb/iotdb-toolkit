@@ -22,7 +22,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.iotdb.ui.reactor.GreetingWebClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
@@ -43,11 +42,9 @@ public class Application {
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class, args);
-
-		GreetingWebClient gwc = new GreetingWebClient();
-		System.out.println(gwc.getResult());
 	}
 
+	@SuppressWarnings("deprecation")
 	@Bean
 	public HttpMessageConverters fastJsonHttpMessageConverters() {
 

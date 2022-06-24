@@ -18,26 +18,15 @@
  */
 package org.apache.iotdb.ui;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Calendar;
-
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.iotdb.session.Session;
-import org.apache.iotdb.ui.model.exporter.ExporterBody;
-import org.apache.iotdb.ui.model.exporter.ExporterHeader;
-import org.apache.iotdb.ui.model.exporter.ExporterInsert;
-import org.apache.iotdb.ui.model.exporter.ExporterMessageType;
-import org.apache.iotdb.ui.util.ExporterParsingUtil;
+import org.apache.iotdb.ui.config.ExporterConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
@@ -54,19 +43,24 @@ import com.github.springtestdbunit.dataset.ReplacementDataSetLoader;
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
 		DbUnitTestExecutionListener.class })
 @DbUnitConfiguration(dataSetLoader = ReplacementDataSetLoader.class, databaseConnection = { "dataSource1" })
+@DependsOn("exporterConfig")
 public class MonitorTest {
 
-	public String uri = "http://localhost/";
+//	public String uri = "http://localhost/";
 
-//	public String uri = "http://172.20.48.111:9091/metrics";
+	public String uri = "http://172.20.48.111:9091/metrics";
 
 	@Autowired
 	@Qualifier("httpClientBean")
 	private CloseableHttpClient HttpClientBean;
+	
+	@Autowired
+	private ExporterConfig exporterConfig;
 
 	@Test
 	public void test0() {
 		Assert.assertNotNull(HttpClientBean);
+		Assert.assertNotNull(exporterConfig);
 		try {
 			readMetrics();
 		} catch (Exception e) {
@@ -75,37 +69,38 @@ public class MonitorTest {
 	}
 
 	private void readMetrics() throws Exception {
-		HttpGet http = new HttpGet(uri);
-		Session session = new Session("172.20.48.111", 6667, "root", "root");
-		session.open();
-		Long timestamp = Calendar.getInstance().getTime().getTime();
-		// 发送请求，获取服务器返回的httpResponse对象
-		try (CloseableHttpResponse httpResponse = HttpClientBean.execute(http);
-				// 用输入流获取，字节读取
-				InputStream inputStream = httpResponse.getEntity().getContent();
-				// 转换成字符流
-				InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8");
-				// 缓冲字符流，提供字符、数组和行的高效读取
-				BufferedReader br = new BufferedReader(reader);) {
-			// 行读取
-			String line = null;
-			ExporterMessageType lastMetricType = ExporterMessageType.UNTYPE;
-			ExporterInsert ei = new ExporterInsert();
-			while ((line = br.readLine()) != null) {
-				if (line.startsWith(ExporterParsingUtil.COMMENT_SIGN)) {
-					ExporterHeader eh = ExporterParsingUtil.read(line, null, null, null);
-					lastMetricType = eh.getType();
-				} else {
-					ExporterBody eb = ExporterParsingUtil.readBody(line, lastMetricType);
-					if (eb != null) {
-						ei.addExporterBody(eb, timestamp);
-					}
-					if (ei.getSize() >= 100) {
-						ei.batchInsert(session);
-					}
-				}
-			}
-			ei.batchInsert(session);
-		}
+//		HttpGet http = new HttpGet(uri);
+//		Session session = new Session("172.20.48.111", 6667, "root", "root");
+//		session.open();
+//		Long timestamp = Calendar.getInstance().getTime().getTime();
+//		// 发送请求，获取服务器返回的httpResponse对象
+//		try (CloseableHttpResponse httpResponse = HttpClientBean.execute(http);
+//				// 用输入流获取，字节读取
+//				InputStream inputStream = httpResponse.getEntity().getContent();
+//				// 转换成字符流
+//				InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8");
+//				// 缓冲字符流，提供字符、数组和行的高效读取
+//				BufferedReader br = new BufferedReader(reader);) {
+//			// 行读取
+//			String line = null;
+//			ExporterMessageType lastMetricType = ExporterMessageType.UNTYPE;
+//			ExporterInsert ei = new ExporterInsert();
+//			while ((line = br.readLine()) != null) {
+//				if (line.startsWith(ExporterParsingUtil.COMMENT_SIGN)) {
+//					ExporterHeader eh = ExporterParsingUtil.read(line, null, null, null);
+//					lastMetricType = eh.getType();
+//				} else {
+//					ExporterBody eb = ExporterParsingUtil.readBody(line, lastMetricType);
+//					if (eb != null) {
+//						ei.addExporterBody(eb, timestamp);
+//					}
+//					if (ei.getSize() >= 100) {
+//						ei.batchInsert(session);
+//					}
+//				}
+//			}
+//			ei.batchInsert(session);
+//		}
+		exporterConfig.readMetrics();
 	}
 }
