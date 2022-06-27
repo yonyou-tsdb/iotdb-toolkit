@@ -1,5 +1,11 @@
 package org.apache.iotdb.ui.face;
 
-public interface TriggerFace {
+import org.apache.iotdb.ui.entity.helper.PojoFace;
+
+public interface TriggerFace extends PojoFace {
+
+	void setUser(UserFace newUser);
+
+	void setAlert(AlertFace newAlert);
 
 }

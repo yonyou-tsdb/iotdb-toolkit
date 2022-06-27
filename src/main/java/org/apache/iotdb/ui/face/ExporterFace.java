@@ -1,5 +1,7 @@
 package org.apache.iotdb.ui.face;
 
-public interface ExporterFace {
+import org.apache.iotdb.ui.entity.helper.PojoFace;
 
+public interface ExporterFace extends PojoFace {
+	void setUser(UserFace newUser);
 }
