@@ -6,62 +6,89 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.ibatis.type.JdbcType;
 import org.apache.iotdb.ui.entity.helper.PojoSupport;
 import org.apache.iotdb.ui.face.AlertFace;
 import org.apache.iotdb.ui.face.TriggerFace;
 import org.apache.iotdb.ui.face.UserFace;
+import org.apache.iotdb.ui.handler.AlertStatusHandler;
 import org.apache.iotdb.ui.model.AlertStatus;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
+import indi.mybatis.flying.annotations.FieldMapperAnnotation;
+import indi.mybatis.flying.annotations.TableMapperAnnotation;
+
+@TableMapperAnnotation(tableName = "tb_alert")
 public class Alert extends PojoSupport implements AlertFace {
+
 	/**
 	 * 主键
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "id", jdbcType = JdbcType.BIGINT, isUniqueKey = true)
 	private Long id;
+
 	/**
 	 * 来源相同的alert的code保持不变
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "code", jdbcType = JdbcType.VARCHAR)
 	private String code;
+
 	/**
 	 * 版本，每次部署后再编辑时增加一条新的alert数据，其version自增，status由“已部署”变为“开发中”
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "version", jdbcType = JdbcType.INTEGER)
 	private Integer version;
+
 	/**
 	 * 来源，创建alert时origin等于id，编辑新版本时origin保持不变
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "origin", jdbcType = JdbcType.BIGINT)
 	private Long origin;
+
 	/**
 	 * 创建时间
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "create_time", jdbcType = JdbcType.TIMESTAMP)
 	private Date createTime;
+
 	/**
 	 * 修改时间
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "update_time", jdbcType = JdbcType.TIMESTAMP)
 	private Date updateTime;
+
 	/**
 	 * 状态（0开发中1已部署）
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "status", jdbcType = JdbcType.CHAR, customTypeHandler = AlertStatusHandler.class)
 	private AlertStatus status;
 
+	@FieldMapperAnnotation(dbFieldName = "token", jdbcType = JdbcType.VARCHAR)
 	private String token;
+
 	/**
 	 * 模型
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "rule", jdbcType = JdbcType.VARCHAR)
 	private String rule;
 
 	@JSONField(serialize = false)
 	private Map<Object, TriggerFace> triggerMap;
 
+	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, dbAssociationUniqueKey = "id")
 	private User user;
+
+	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, delegate = true)
+	private Long userId;
 
 	public Map<Object, ? extends TriggerFace> getTriggerMap() {
 		if (triggerMap == null)
@@ -214,6 +241,14 @@ public class Alert extends PojoSupport implements AlertFace {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 }

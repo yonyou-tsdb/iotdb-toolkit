@@ -25,6 +25,16 @@ drop table if exists tb_user;
 
 drop table if exists tb_email_log;
 
+drop table if exists tb_alert;
+
+drop table if exists tb_board;
+
+drop table if exists tb_exporter;
+
+drop table if exists tb_monitor;
+
+drop table if exists tb_trigger;
+
 create table tb_connect
 (
    id                   bigint not null comment '主键',
@@ -70,5 +80,71 @@ create table tb_email_log
    temp_account         varchar(320) comment '用户账号，当此条记录为激活账号记录时才有需要',
    temp_password        varchar(64) comment '用户密码，当此条记录为激活账号记录时才有需要',
    account_id           bigint comment '外键，对应表user的主键；',
+   primary key (id)
+);
+
+create table tb_alert
+(
+   id                   bigint not null comment '主键',
+   code                 varchar(50) comment '来源相同的alert的code保持不变',
+   version              int comment '版本，每次部署后再编辑时增加一条新的alert数据，其version自增，status由“已部署”变为“开发中”',
+   origin               bigint comment '来源，创建alert时origin等于id，编辑新版本时origin保持不变',
+   create_time          datetime comment '创建时间',
+   update_time          datetime comment '修改时间',
+   status               char(1) comment '状态（0开发中1已部署）',
+   token                varchar(50),
+   user_id              bigint,
+   rule                 text comment '模型',
+   primary key (id)
+);
+
+create table tb_board
+(
+   id                   bigint not null comment '主键',
+   name                 varchar(20) comment '名称',
+   setting              varchar(4000) comment '设置',
+   token                char(100),
+   create_time          datetime,
+   update_time          datetime,
+   user_id              bigint,
+   primary key (id)
+);
+
+create table tb_exporter
+(
+   id                   bigint not null comment '主键',
+   end_point            varchar(500) comment 'exporter端点',
+   name                 varchar(100) comment '名称',
+   code                 varchar(500) comment '业务编码',
+   period               int comment '读取周期，单位秒',
+   create_time          datetime,
+   update_time          datetime,
+   user_id              bigint,
+   primary key (id)
+);
+
+create table tb_monitor
+(
+   id                   bigint not null comment '主键',
+   name                 varchar(100) comment '名称',
+   query                varchar(4000) comment '查询sql',
+   setting              varchar(1000),
+   create_time          datetime,
+   update_time          datetime,
+   board_id             bigint,
+   user_id              bigint,
+   primary key (id)
+);
+
+create table tb_trigger
+(
+   id                   bigint not null comment '主键',
+   name                 varchar(200) comment '名称',
+   timeseries           varchar(5000) comment '时间序列',
+   status               char(1) comment '状态（0删除1启用2禁用）',
+   create_time          datetime comment '建立时间',
+   update_time          datetime,
+   user_id              bigint,
+   alert_id             bigint,
    primary key (id)
 );

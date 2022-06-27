@@ -18,13 +18,15 @@
  */
 package org.apache.iotdb.ui;
 
-import javax.sql.DataSource;
+import java.util.Collection;
 
-import org.apache.iotdb.ui.entity.EmailLog;
-import org.apache.iotdb.ui.entity.User;
-import org.apache.iotdb.ui.mapper.EmailLogDao;
-import org.apache.iotdb.ui.mapper.UserDao;
-import org.apache.iotdb.ui.service.EmailLogService;
+import org.apache.iotdb.ui.entity.Alert;
+import org.apache.iotdb.ui.entity.Trigger;
+import org.apache.iotdb.ui.mapper.AlertDao;
+import org.apache.iotdb.ui.mapper.TriggerDao;
+import org.apache.iotdb.ui.model.AlertStatus;
+import org.apache.iotdb.ui.model.TriggerStatus;
+import org.apache.iotdb.ui.service.TriggerService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +38,6 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseOperation;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
@@ -46,56 +47,58 @@ import com.github.springtestdbunit.annotation.ExpectedDatabase;
 import com.github.springtestdbunit.assertion.DatabaseAssertionMode;
 import com.github.springtestdbunit.dataset.ReplacementDataSetLoader;
 
+@SuppressWarnings("unchecked")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class)
 @WebAppConfiguration
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
 		DbUnitTestExecutionListener.class })
 @DbUnitConfiguration(dataSetLoader = ReplacementDataSetLoader.class, databaseConnection = { "dataSource1" })
-public class EmailLogTest {
+public class AlertTest {
 
 	@Autowired
-	private DataSource dataSource1;
+	private AlertDao alertDao;
 
 	@Autowired
-	private EmailLogDao emailLogDao;
+	private TriggerDao triggerDao;
 
 	@Autowired
-	private EmailLogService emailLogService;
-
-	@Autowired
-	private UserDao userDao;
+	private TriggerService triggerService;
 
 	@Test
 	public void test0() {
 		Assert.assertTrue(true);
-		Assert.assertNotNull(dataSource1);
-		Assert.assertNotNull(emailLogDao);
+		Assert.assertNotNull(alertDao);
 	}
 
 	@Test
-	@DatabaseSetup(type = DatabaseOperation.CLEAN_INSERT, value = "/org/apache/iotdb/ui/emailLogTest/test1.xml")
-	@ExpectedDatabase(assertionMode = DatabaseAssertionMode.NON_STRICT_UNORDERED, value = "/org/apache/iotdb/ui/emailLogTest/test1.result.xml")
-	@DatabaseTearDown(type = DatabaseOperation.DELETE_ALL, value = "/org/apache/iotdb/ui/emailLogTest/test1.xml")
+	@DatabaseSetup(type = DatabaseOperation.CLEAN_INSERT, value = "/org/apache/iotdb/ui/alertTest/test1.xml")
+	@ExpectedDatabase(assertionMode = DatabaseAssertionMode.NON_STRICT_UNORDERED, value = "/org/apache/iotdb/ui/alertTest/test1.result.xml")
+	@DatabaseTearDown(type = DatabaseOperation.DELETE_ALL, value = "/org/apache/iotdb/ui/alertTest/test1.xml")
 	public void test1() {
-		EmailLog el = emailLogDao.select(111L);
-		Assert.assertEquals("rp1", el.getTempPassword());
-		Assert.assertEquals("name1", el.getUser().getName());
+		Alert alert = alertDao.select(211L);
+		Assert.assertEquals("code1", alert.getCode());
+		Assert.assertEquals(AlertStatus.DEVELOP, alert.getStatus());
 
-		User user = userDao.select(212L);
-		EmailLog elc = new EmailLog();
-		elc.setTempPassword("rp3");
-		emailLogService.loadUser(user, elc);
-		Object[] list = user.getEmailLog().toArray();
-		Assert.assertEquals(1, list.length);
-		EmailLog emailLog1 = (EmailLog) list[0];
-		Assert.assertEquals(113, emailLog1.getId().longValue());
+		Trigger trigger = triggerDao.select(112L);
+		Assert.assertEquals(TriggerStatus.ENABLE, trigger.getStatus());
+		Assert.assertEquals("code2", trigger.getAlert().getCode());
+		Assert.assertEquals(AlertStatus.DEPLOYED, trigger.getAlert().getStatus());
 
-		EmailLog el3 = new EmailLog();
-		el3.setId(100L);
-		el3.setEmail("aa@aa.aa");
-		emailLogDao.insert(el3);
-		System.out.println(JSONObject.toJSONString(el3));
-		emailLogDao.delete(el3);
+		Trigger t = new Trigger();
+		t.setStatus(TriggerStatus.ENABLE);
+		triggerService.loadAlert(alert, t);
+		Assert.assertEquals(1, alert.getTrigger().size());
+		for (Trigger e : (Collection<Trigger>) alert.getTrigger()) {
+			Assert.assertEquals("name3", e.getName());
+		}
+
+		Alert alert2 = new Alert();
+		alert2.setOrigin(1L);
+		alertDao.insert(alert2);
+		Alert a = new Alert();
+		int c = alertDao.count(a);
+		Assert.assertEquals(3, c);
+		alertDao.delete(alert2);
 	}
 }

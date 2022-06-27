@@ -2,43 +2,63 @@ package org.apache.iotdb.ui.entity;
 
 import java.util.Date;
 
+import org.apache.ibatis.type.JdbcType;
 import org.apache.iotdb.ui.entity.helper.PojoSupport;
 import org.apache.iotdb.ui.face.ExporterFace;
 import org.apache.iotdb.ui.face.UserFace;
 
+import indi.mybatis.flying.annotations.FieldMapperAnnotation;
+import indi.mybatis.flying.annotations.TableMapperAnnotation;
+
+@TableMapperAnnotation(tableName = "tb_exporter")
 public class Exporter extends PojoSupport implements ExporterFace {
 
 	/**
 	 * 主键
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "id", jdbcType = JdbcType.BIGINT, isUniqueKey = true)
 	private Long id;
+
 	/**
 	 * exporter端点
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "end_point", jdbcType = JdbcType.VARCHAR)
 	private String endPoint;
+
 	/**
 	 * 名称
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "name", jdbcType = JdbcType.VARCHAR)
 	private String name;
+
 	/**
 	 * 业务编码
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "code", jdbcType = JdbcType.VARCHAR)
 	private String code;
+
 	/**
 	 * 读取周期，单位秒
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "period", jdbcType = JdbcType.INTEGER)
 	private Integer period;
 
+	@FieldMapperAnnotation(dbFieldName = "create_time", jdbcType = JdbcType.TIMESTAMP)
 	private Date createTime;
 
+	@FieldMapperAnnotation(dbFieldName = "update_time", jdbcType = JdbcType.TIMESTAMP)
 	private Date updateTime;
 
+	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, dbAssociationUniqueKey = "id")
 	private User user;
+
+	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, delegate = true)
+	private Long userId;
 
 	public User getUser() {
 		return user;
@@ -113,6 +133,14 @@ public class Exporter extends PojoSupport implements ExporterFace {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 }

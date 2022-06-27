@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.ibatis.type.JdbcType;
 import org.apache.iotdb.ui.entity.helper.PojoSupport;
 import org.apache.iotdb.ui.face.BoardFace;
 import org.apache.iotdb.ui.face.MonitorFace;
@@ -13,33 +14,50 @@ import org.apache.iotdb.ui.face.UserFace;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
+import indi.mybatis.flying.annotations.FieldMapperAnnotation;
+import indi.mybatis.flying.annotations.TableMapperAnnotation;
+
+@TableMapperAnnotation(tableName = "tb_board")
 public class Board extends PojoSupport implements BoardFace {
+
 	/**
 	 * 主键
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "id", jdbcType = JdbcType.BIGINT, isUniqueKey = true)
 	private Long id;
+
 	/**
 	 * 名称
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "name", jdbcType = JdbcType.VARCHAR)
 	private String name;
+
 	/**
 	 * 设置
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "setting", jdbcType = JdbcType.VARCHAR)
 	private String setting;
 
+	@FieldMapperAnnotation(dbFieldName = "token", jdbcType = JdbcType.VARCHAR)
 	private String token;
 
+	@FieldMapperAnnotation(dbFieldName = "create_time", jdbcType = JdbcType.TIMESTAMP)
 	private Date createTime;
 
+	@FieldMapperAnnotation(dbFieldName = "update_time", jdbcType = JdbcType.TIMESTAMP)
 	private Date updateTime;
 
 	@JSONField(serialize = false)
 	public Map<Object, MonitorFace> monitorMap;
 
+	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, dbAssociationUniqueKey = "id")
 	private User user;
+
+	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, delegate = true)
+	private Long userId;
 
 	public Map<Object, ? extends MonitorFace> getMonitorMap() {
 		if (monitorMap == null)
@@ -168,6 +186,14 @@ public class Board extends PojoSupport implements BoardFace {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 }

@@ -2,43 +2,69 @@ package org.apache.iotdb.ui.entity;
 
 import java.util.Date;
 
+import org.apache.ibatis.type.JdbcType;
 import org.apache.iotdb.ui.entity.helper.PojoSupport;
 import org.apache.iotdb.ui.face.AlertFace;
 import org.apache.iotdb.ui.face.TriggerFace;
 import org.apache.iotdb.ui.face.UserFace;
+import org.apache.iotdb.ui.handler.TriggerStatusHandler;
 import org.apache.iotdb.ui.model.TriggerStatus;
 
+import indi.mybatis.flying.annotations.FieldMapperAnnotation;
+import indi.mybatis.flying.annotations.TableMapperAnnotation;
+
+@TableMapperAnnotation(tableName = "tb_trigger")
 public class Trigger extends PojoSupport implements TriggerFace {
 
 	/**
 	 * 主键
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "id", jdbcType = JdbcType.BIGINT, isUniqueKey = true)
 	private Long id;
+
 	/**
 	 * 名称
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "name", jdbcType = JdbcType.VARCHAR)
 	private String name;
+
 	/**
 	 * 时间序列
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "timeseries", jdbcType = JdbcType.VARCHAR)
 	private String timeseries;
+
 	/**
 	 * 状态（0删除1启用2禁用）
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "status", jdbcType = JdbcType.CHAR, customTypeHandler = TriggerStatusHandler.class)
 	private TriggerStatus status;
+
 	/**
 	 * 建立时间
 	 * 
 	 */
+	@FieldMapperAnnotation(dbFieldName = "create_time", jdbcType = JdbcType.TIMESTAMP)
 	private Date createTime;
+
+	@FieldMapperAnnotation(dbFieldName = "update_time", jdbcType = JdbcType.TIMESTAMP)
 	private Date updateTime;
 
+	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, dbAssociationUniqueKey = "id")
 	private User user;
+
+	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, delegate = true)
+	private Long userId;
+
+	@FieldMapperAnnotation(dbFieldName = "alert_id", jdbcType = JdbcType.BIGINT, dbAssociationUniqueKey = "id")
 	private Alert alert;
+
+	@FieldMapperAnnotation(dbFieldName = "alert_id", jdbcType = JdbcType.BIGINT, delegate = true)
+	private Long alertId;
 
 	public User getUser() {
 		return user;
@@ -123,6 +149,22 @@ public class Trigger extends PojoSupport implements TriggerFace {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Long getAlertId() {
+		return alertId;
+	}
+
+	public void setAlertId(Long alertId) {
+		this.alertId = alertId;
 	}
 
 }
