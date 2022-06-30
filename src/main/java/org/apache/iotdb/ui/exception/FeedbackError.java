@@ -32,7 +32,7 @@ public class FeedbackError {
 
 	public static final String TEST_CONN_FAIL = "CONN-10007";
 
-	public static final String USER_AUTH_FAIL = "USER-10008";
+	public static final String USER_AUTH_FAIL = "USER-10001";
 
 	public static final String TEST_CONN_FAIL_PWD = "CONN-10010";
 
@@ -105,4 +105,10 @@ public class FeedbackError {
 	public static final String ACCOUNT_PASSWORD_ERROR = "ACCOUNT-10009";
 
 	public static final String ACCOUNT_DELETE_ERROR = "ACCOUNT-10010";
+	
+	public static final String EXPORTER_NAME_REPEAT = "EXPORTER-10001";
+	
+	public static final String EXPORTER_ENDPOINT_REPEAT = "EXPORTER-10002";
+	
+	public static final String EXPORTER_CODE_REPEAT = "EXPORTER-10003";
 }

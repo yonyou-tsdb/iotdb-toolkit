@@ -26,6 +26,7 @@ import org.apache.iotdb.ui.condition.EmailLogCondition;
 import org.apache.iotdb.ui.condition.QueryCondition;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.EmailLog;
+import org.apache.iotdb.ui.entity.Exporter;
 import org.apache.iotdb.ui.entity.Query;
 import org.apache.iotdb.ui.entity.User;
 import org.apache.iotdb.ui.exception.BaseException;
@@ -33,6 +34,7 @@ import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.face.ConnectFace;
 import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.EmailLogDao;
+import org.apache.iotdb.ui.mapper.ExporterDao;
 import org.apache.iotdb.ui.mapper.QueryDao;
 import org.apache.iotdb.ui.mapper.UserDao;
 import org.apache.iotdb.ui.model.EmailLogStatus;
@@ -42,6 +44,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.alibaba.fastjson.JSONObject;
 
 @Service
 public class TransactionService {
@@ -60,6 +64,9 @@ public class TransactionService {
 
 	@Autowired
 	private EmailLogDao emailLogDao;
+
+	@Autowired
+	private ExporterDao exporterDao;
 
 	@Transactional(value = "transactionManager1", rollbackFor = {
 			BaseException.class }, readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
@@ -168,6 +175,20 @@ public class TransactionService {
 			elc.setTempAccountEqual(user.getName());
 			emailLogDao.delete(elc);
 		} catch (Exception e) {
+		}
+		return ret;
+	}
+
+	@Transactional(value = "transactionManager1", rollbackFor = {
+			BaseException.class }, readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+	public int addExporterTransactive(Exporter exporter) throws BaseException {
+		int ret = exporterDao.insert(exporter);
+		Exporter e = new Exporter();
+		e.setCode(exporter.getCode());
+		int n = exporterDao.count(e);
+		if (n != 1) {
+			throw new BaseException(FeedbackError.EXPORTER_CODE_REPEAT,
+					MessageUtil.get(FeedbackError.EXPORTER_CODE_REPEAT));
 		}
 		return ret;
 	}

@@ -19,45 +19,109 @@
 package org.apache.iotdb.ui.controller;
 
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.iotdb.ui.condition.ExporterCondition;
+import org.apache.iotdb.ui.entity.Exporter;
+import org.apache.iotdb.ui.entity.User;
+import org.apache.iotdb.ui.exception.BaseException;
+import org.apache.iotdb.ui.mapper.ExporterDao;
 import org.apache.iotdb.ui.model.BaseVO;
-import org.apache.iotdb.ui.service.BuildRmiService;
+import org.apache.iotdb.ui.service.TransactionService;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import indi.mybatis.flying.models.Conditionable;
+import indi.mybatis.flying.pagination.Order;
+import indi.mybatis.flying.pagination.Page;
+import indi.mybatis.flying.pagination.PageParam;
+import indi.mybatis.flying.pagination.SortParam;
 import io.swagger.annotations.Api;
 
 @CrossOrigin
 @RestController
 @Api(value = "Monitor API")
 public class MonitorController {
-	
+
 	@Autowired
-	private BuildRmiService buildRmiService;
-	
+	private ExporterDao exporterDao;
+
 	@Autowired
 	@Qualifier("httpClientBean")
 	private CloseableHttpClient HttpClientBean;
-	
-	@RequestMapping(value = "/api/monitor/buildRmi", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> buildRmi(HttpServletRequest request) throws SQLException {
-		buildRmiService.buildRmi();
+
+	@Autowired
+	private TransactionService transactionService;
+
+	@RequestMapping(value = "/api/monitor/exporter/all", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> exporterAll(HttpServletRequest request, @RequestParam("pageSize") Integer pageSize,
+			@RequestParam("pageNum") Integer pageNum,
+			@RequestParam(value = "nameLike", required = false) String nameLike) throws SQLException {
+		Subject subject = SecurityUtils.getSubject();
+		User user = (User) subject.getSession().getAttribute(UserController.USER);
+		ExporterCondition ec = new ExporterCondition();
+		ec.setUserId(user.getId());
+		ec.setNameLike(nameLike);
+		ec.setLimiter(new PageParam(pageNum, pageSize));
+		ec.setSorter(new SortParam(new Order("id", Conditionable.Sequence.DESC)));
+		List<Exporter> list = exporterDao.selectAll(ec);
+		Page<Exporter> page = new Page<>(list, ec.getLimiter());
+		return BaseVO.success(page);
+	}
+
+	@RequestMapping(value = "/api/monitor/exporter/view", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> exporterView(HttpServletRequest request) throws SQLException {
 		return null;
 	}
 
-	@RequestMapping(value = "/api/monitor/readExporter", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> readExporter(HttpServletRequest request) throws SQLException {
-//		String resStr = RequestUtil.getHttpResponse(apiPath);
-//		CloseableHttpClient httpclient2 = ApplicationContextProvider.getBean("httpClientBean",
-//				CloseableHttpClient.class);
+	@RequestMapping(value = "/api/monitor/exporter/update", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> exporterUpdate(HttpServletRequest request) throws SQLException {
 		return null;
 	}
 
+	@RequestMapping(value = "/api/monitor/exporter/delete", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> exporterDelete(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
+		Subject subject = SecurityUtils.getSubject();
+		User user = (User) subject.getSession().getAttribute(UserController.USER);
+		ExporterCondition e = new ExporterCondition();
+		e.setUserIdEqual(user.getId());
+		e.setIdEqual(id);
+		exporterDao.delete(e);
+		return BaseVO.success(null);
+	}
+
+	@RequestMapping(value = "/api/monitor/exporter/add", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> exporterAdd(HttpServletRequest request, @RequestParam("name") String name,
+			@RequestParam("endpoint") String endpoint, @RequestParam("period") Integer period,
+			@RequestParam("code") String code) throws SQLException {
+		Subject subject = SecurityUtils.getSubject();
+		User user = (User) subject.getSession().getAttribute(UserController.USER);
+		Exporter exporter = new Exporter();
+		exporter.setName(name);
+		exporter.setEndPoint(endpoint);
+		exporter.setPeriod(period);
+		exporter.setCode(code);
+		Date now = Calendar.getInstance().getTime();
+		exporter.setCreateTime(now);
+		exporter.setUpdateTime(now);
+		exporter.setUserId(user.getId());
+		try {
+			transactionService.addExporterTransactive(exporter);
+			return BaseVO.success(name, null);
+		} catch (BaseException e) {
+			return new BaseVO<>(e.getErrorCode(), e.getMessage(), null);
+		}
+	}
 }
