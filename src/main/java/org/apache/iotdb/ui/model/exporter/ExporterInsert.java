@@ -62,9 +62,7 @@ public class ExporterInsert {
 		measurementsList.add(measurements);
 		List<TSDataType> types = new LinkedList<>();
 		typesList.add(types);
-//		deviceIds.add(path + ".\"" + exporterBody.getMetricName() + exporterBody.getLabel().toString().replace(" ", "_")
-//				+ "\"");
-		deviceIds.add(path + "." + exporterBody.buildPath());
+		deviceIds.add(String.format("%s.%s", path, exporterBody.buildPath()));
 		measurements.add("value");
 		types.add(TSDataType.DOUBLE);
 		values.add(exporterBody.getValue());
@@ -111,6 +109,14 @@ public class ExporterInsert {
 
 	public void setTypesList(List<List<TSDataType>> typesList) {
 		this.typesList = typesList;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 }

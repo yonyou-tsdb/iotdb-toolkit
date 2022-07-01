@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.iotdb.ui.condition.EmailLogCondition;
 import org.apache.iotdb.ui.config.EmailConfig;
+import org.apache.iotdb.ui.config.schedule.TimerConfig;
 import org.apache.iotdb.ui.config.shiro.UsernamePasswordIdToken;
-import org.apache.iotdb.ui.config.websocket.TimerConfig;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.EmailLog;
 import org.apache.iotdb.ui.entity.User;
@@ -55,7 +55,6 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

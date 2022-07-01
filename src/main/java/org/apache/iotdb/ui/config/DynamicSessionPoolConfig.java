@@ -21,9 +21,12 @@ package org.apache.iotdb.ui.config;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.iotdb.ui.config.schedule.ExporterTimerBucket;
 import org.apache.iotdb.ui.config.tsdatasource.DynamicSessionPool;
 import org.apache.iotdb.ui.entity.Connect;
+import org.apache.iotdb.ui.entity.Exporter;
 import org.apache.iotdb.ui.mapper.ConnectDao;
+import org.apache.iotdb.ui.mapper.ExporterDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +41,9 @@ public class DynamicSessionPoolConfig {
 
 	@Autowired
 	private ConnectDao connectDao;
+
+	@Autowired
+	private ExporterDao exporterDao;
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(DynamicSessionPoolConfig.class);
 
@@ -61,12 +67,38 @@ public class DynamicSessionPoolConfig {
 		return "done";
 	}
 
+	@Bean("exporterTimerBucket")
+	@DependsOn("postDynamicSessionPool")
+	public ExporterTimerBucket exporterTimerBucket() {
+		LOGGER.error("=========ExporterTimerBucketBegin==========");
+		ExporterTimerBucket exporterTimerBucket = new ExporterTimerBucket();
+		LOGGER.error("=========ExporterTimerBucketEnd==========");
+		return exporterTimerBucket;
+	}
+
+	@Bean("postExporterTimerBucket")
+	@DependsOn("exporterTimerBucket")
+	public String postExporterTimerBucket(ExporterTimerBucket exporterTimerBucket) throws Exception {
+		LOGGER.error("=========PostExporterTimerBucketBegin==========");
+		loadExporterTimerBucket(exporterTimerBucket);
+		LOGGER.error("=========PostExporterTimerBucketEnd==========");
+		return "done";
+	}
+
 	private void loadTenantSessionPool(DynamicSessionPool dynamicSessionPool) throws SQLException {
 		Connect c = new Connect();
 		List<Connect> list = connectDao.selectAll(c);
 		for (Connect e : list) {
 			dynamicSessionPool.addSessionPool(e.getId(), e.getHost(), e.getPort(), e.getUsername(), e.getPassword(),
 					MAX_SIZE);
+		}
+	}
+
+	private void loadExporterTimerBucket(ExporterTimerBucket exporterTimerBucket) throws Exception {
+		Exporter e = new Exporter();
+		List<Exporter> list = exporterDao.selectAll(e);
+		for (Exporter t : list) {
+			exporterTimerBucket.addExporterTimer(t);
 		}
 	}
 }

@@ -17,7 +17,7 @@ public class WebsocketConfiguration {
 	}
 
 	// 用来存放每个客户端对应的WebsocketEndPoint对象
-	protected static Map<String, WebsocketEndPoint> webSocketIdMap = new ConcurrentHashMap<>();
+	public static Map<String, WebsocketEndPoint> webSocketIdMap = new ConcurrentHashMap<>();
 
 	// 静态变量，用来记录当前在线连接数
 	private static AtomicInteger onlineCount = new AtomicInteger(0);

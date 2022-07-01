@@ -65,9 +65,9 @@ public class ExporterBody {
 
 	public String buildPath() {
 		if (label.isEmpty()) {
-			return metricName.replaceAll(" ", "_");
+			return String.format("\"%s\"", metricName);
 		} else {
-			StringBuilder sb = new StringBuilder(metricName.replaceAll(" ", "_"));
+			StringBuilder sb = new StringBuilder("\"").append(metricName).append("\"");
 			for (Map.Entry<String, String> e : label.entrySet()) {
 				sb.append(".\"").append(e.getKey()).append("=").append(e.getValue()).append("\"");
 			}

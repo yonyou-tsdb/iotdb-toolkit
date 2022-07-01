@@ -16,13 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.iotdb.ui.config.websocket;
+package org.apache.iotdb.ui.config.schedule;
 
 import java.util.Collection;
 
 import org.apache.iotdb.ui.config.ContinuousIoTDBSession;
 import org.apache.iotdb.ui.config.ExporterConfig;
 import org.apache.iotdb.ui.config.tsdatasource.SessionDataSetWrapper;
+import org.apache.iotdb.ui.config.websocket.WebsocketConfiguration;
+import org.apache.iotdb.ui.config.websocket.WebsocketEndPoint;
 import org.apache.iotdb.ui.controller.UserController;
 import org.apache.iotdb.ui.model.CaptchaWrapper;
 import org.apache.shiro.session.Session;
@@ -30,19 +32,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 @Configuration
-@DependsOn("exporterConfig")
 @EnableScheduling
 public class TimerConfig {
 
 	@Autowired
 	private ExporterConfig exporterConfig;
 
+	@Autowired
+	private ExporterTimerBucket exporterTimerBucket;
+
 	public static Long cou = System.currentTimeMillis() / 1000;
+
+	public static Long cou1 = System.currentTimeMillis() / 1000;
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(TimerConfig.class);
 
@@ -85,15 +90,21 @@ public class TimerConfig {
 		}
 	}
 
-//	@Scheduled(cron = "0/1 * * * * *")
+	@Scheduled(cron = "0/1 * * * * *")
 	public void pullExporter() {
-		cou++;
-		if (cou % 3 == 0) {
-			try {
-				exporterConfig.readMetrics();
-			} catch (Exception e) {
-				e.printStackTrace();
+		cou1++;
+		exporterTimerBucket.getExporterTimerMap().forEach((k, v) -> {
+			int period = v.getPeriod() >= 5 ? v.getPeriod() : 5;
+			if (cou1 % period == 0) {
+				new Thread(new Runnable() {
+					public void run() {
+						try {
+							exporterConfig.readMetrics(v.getEndPoint(), v.getCode());
+						} catch (Exception e) {
+						}
+					}
+				}).start();
 			}
-		}
+		});
 	}
 }

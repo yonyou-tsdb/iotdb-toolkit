@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.iotdb.session.SessionDataSet;
+import org.apache.iotdb.ui.config.schedule.TimerConfig;
 import org.apache.iotdb.ui.config.tsdatasource.SessionDataSetWrapper;
-import org.apache.iotdb.ui.config.websocket.TimerConfig;
 
 public class ContinuousIoTDBSession {
 
