@@ -27,12 +27,15 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.iotdb.ui.condition.ExporterCondition;
+import org.apache.iotdb.ui.config.schedule.ExporterTimerBucket;
 import org.apache.iotdb.ui.entity.Exporter;
 import org.apache.iotdb.ui.entity.User;
 import org.apache.iotdb.ui.exception.BaseException;
+import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.mapper.ExporterDao;
 import org.apache.iotdb.ui.model.BaseVO;
 import org.apache.iotdb.ui.service.TransactionService;
+import org.apache.iotdb.ui.util.MessageUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +62,9 @@ public class MonitorController {
 	private ExporterDao exporterDao;
 
 	@Autowired
+	private ExporterTimerBucket exporterTimerBucket;
+
+	@Autowired
 	@Qualifier("httpClientBean")
 	private CloseableHttpClient HttpClientBean;
 
@@ -82,13 +88,48 @@ public class MonitorController {
 	}
 
 	@RequestMapping(value = "/api/monitor/exporter/view", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> exporterView(HttpServletRequest request) throws SQLException {
-		return null;
+	public BaseVO<Object> exporterView(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
+		Subject subject = SecurityUtils.getSubject();
+		User user = (User) subject.getSession().getAttribute(UserController.USER);
+		ExporterCondition ec = new ExporterCondition();
+		ec.setId(id);
+		ec.setUserId(user.getId());
+		Exporter exporter = exporterDao.selectOne(ec);
+		if (exporter == null) {
+			return new BaseVO<>(FeedbackError.EXPORTER_GET_FAIL, MessageUtil.get(FeedbackError.EXPORTER_GET_FAIL),
+					null);
+		} else {
+			return BaseVO.success(exporter);
+		}
 	}
 
 	@RequestMapping(value = "/api/monitor/exporter/update", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> exporterUpdate(HttpServletRequest request) throws SQLException {
-		return null;
+	public BaseVO<Object> exporterUpdate(HttpServletRequest request, @RequestParam("id") Long id,
+			@RequestParam("name") String name, @RequestParam("endpoint") String endpoint,
+			@RequestParam("period") Integer period, @RequestParam("code") String code) throws SQLException {
+		Subject subject = SecurityUtils.getSubject();
+		User user = (User) subject.getSession().getAttribute(UserController.USER);
+		ExporterCondition ec = new ExporterCondition();
+		ec.setUserId(user.getId());
+		ec.setId(id);
+		Exporter exporter = exporterDao.selectOne(ec);
+
+		if (exporter == null) {
+			return new BaseVO<>(FeedbackError.EXPORTER_GET_FAIL, MessageUtil.get(FeedbackError.EXPORTER_GET_FAIL),
+					null);
+		}
+		exporter.setName(name);
+		exporter.setEndPoint(endpoint);
+		exporter.setPeriod(period);
+		exporter.setCode(code);
+		exporter.setUpdateTime(Calendar.getInstance().getTime());
+		try {
+			transactionService.editExporterTransactive(exporter);
+			exporterTimerBucket.addExporterTimer(exporter);
+			return BaseVO.success(name, exporter);
+		} catch (BaseException e2) {
+			return new BaseVO<>(e2.getErrorCode(), e2.getMessage(), null);
+		}
 	}
 
 	@RequestMapping(value = "/api/monitor/exporter/delete", method = { RequestMethod.GET, RequestMethod.POST })
@@ -98,8 +139,14 @@ public class MonitorController {
 		ExporterCondition e = new ExporterCondition();
 		e.setUserIdEqual(user.getId());
 		e.setIdEqual(id);
-		exporterDao.delete(e);
-		return BaseVO.success(null);
+		int i = exporterDao.delete(e);
+		if (i == 1) {
+			exporterTimerBucket.removeExporterTimer(id);
+			return BaseVO.success(null);
+		} else {
+			return new BaseVO<>(FeedbackError.EXPORTER_DELETE_FAIL, MessageUtil.get(FeedbackError.EXPORTER_DELETE_FAIL),
+					null);
+		}
 	}
 
 	@RequestMapping(value = "/api/monitor/exporter/add", method = { RequestMethod.GET, RequestMethod.POST })
@@ -119,6 +166,7 @@ public class MonitorController {
 		exporter.setUserId(user.getId());
 		try {
 			transactionService.addExporterTransactive(exporter);
+			exporterTimerBucket.addExporterTimer(exporter);
 			return BaseVO.success(name, null);
 		} catch (BaseException e) {
 			return new BaseVO<>(e.getErrorCode(), e.getMessage(), null);

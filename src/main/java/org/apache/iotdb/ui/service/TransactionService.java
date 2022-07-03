@@ -192,4 +192,18 @@ public class TransactionService {
 		}
 		return ret;
 	}
+
+	@Transactional(value = "transactionManager1", rollbackFor = {
+			BaseException.class }, readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+	public int editExporterTransactive(Exporter exporter) throws BaseException {
+		int ret = exporterDao.update(exporter);
+		Exporter e = new Exporter();
+		e.setCode(exporter.getCode());
+		int n = exporterDao.count(e);
+		if (n != 1) {
+			throw new BaseException(FeedbackError.EXPORTER_CODE_REPEAT,
+					MessageUtil.get(FeedbackError.EXPORTER_CODE_REPEAT));
+		}
+		return ret;
+	}
 }

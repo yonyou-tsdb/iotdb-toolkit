@@ -84,7 +84,7 @@ public class ExporterConfig {
 
 	public void readMetrics(String exporterEndPoint, String exporterCode) throws Exception {
 		HttpGet http = new HttpGet(String.format("http://%s", exporterEndPoint));
-		Session session = new Session("172.20.48.111", 6667, user, user);
+		Session session = new Session("115.28.134.232", 6667, user, user);
 		session.open();
 		Long timestamp = Calendar.getInstance().getTime().getTime();
 		// 发送请求，获取服务器返回的httpResponse对象
