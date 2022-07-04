@@ -1,6 +1,8 @@
 package org.apache.iotdb.ui.entity;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.type.JdbcType;
 import org.apache.iotdb.ui.entity.helper.PojoSupport;
@@ -35,6 +37,20 @@ public class Monitor extends PojoSupport implements MonitorFace {
 	@FieldMapperAnnotation(dbFieldName = "query", jdbcType = JdbcType.VARCHAR)
 	private String query;
 
+	/**
+	 * 刷新周期，单位秒
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "period", jdbcType = JdbcType.INTEGER)
+	private Integer period;
+
+	/**
+	 * 显示顺序
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "display_order", jdbcType = JdbcType.INTEGER)
+	private Integer displayOrder;
+
 	@FieldMapperAnnotation(dbFieldName = "setting", jdbcType = JdbcType.VARCHAR)
 	private String setting;
 
@@ -55,6 +71,8 @@ public class Monitor extends PojoSupport implements MonitorFace {
 
 	@FieldMapperAnnotation(dbFieldName = "board_id", jdbcType = JdbcType.BIGINT, delegate = true)
 	private Long boardId;
+
+	private List<Map<String, Object>> monitorDataList;
 
 	public User getUser() {
 		return user;
@@ -113,6 +131,22 @@ public class Monitor extends PojoSupport implements MonitorFace {
 		this.query = query;
 	}
 
+	public Integer getPeriod() {
+		return period;
+	}
+
+	public void setPeriod(Integer period) {
+		this.period = period;
+	}
+
+	public Integer getDisplayOrder() {
+		return displayOrder;
+	}
+
+	public void setDisplayOrder(Integer displayOrder) {
+		this.displayOrder = displayOrder;
+	}
+
 	public String getSetting() {
 		return setting;
 	}
@@ -155,6 +189,14 @@ public class Monitor extends PojoSupport implements MonitorFace {
 
 	public void setBoardId(Long boardId) {
 		this.boardId = boardId;
+	}
+
+	public List<Map<String, Object>> getMonitorDataList() {
+		return monitorDataList;
+	}
+
+	public void setMonitorDataList(List<Map<String, Object>> monitorDataList) {
+		this.monitorDataList = monitorDataList;
 	}
 
 }

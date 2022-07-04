@@ -84,7 +84,7 @@ public class ExporterConfig {
 
 	public void readMetrics(String exporterEndPoint, String exporterCode) throws Exception {
 		HttpGet http = new HttpGet(String.format("http://%s", exporterEndPoint));
-		Session session = new Session("115.28.134.232", 6667, user, user);
+		Session session = new Session("172.20.48.111", 6667, user, user);
 		session.open();
 		Long timestamp = Calendar.getInstance().getTime().getTime();
 		// 发送请求，获取服务器返回的httpResponse对象
@@ -99,7 +99,7 @@ public class ExporterConfig {
 			String line = null;
 			ExporterMessageType lastMetricType = ExporterMessageType.UNTYPE;
 			ExporterInsert ei = new ExporterInsert();
-			ei.setPath(String.format("root._metric.\"%s\"", exporterCode));
+			ei.setPath(String.format("root._monitor.\"%s\"", exporterCode));
 			while ((line = br.readLine()) != null) {
 				if (line.startsWith(ExporterParsingUtil.COMMENT_SIGN)) {
 					ExporterHeader eh = ExporterParsingUtil.read(line, null, null, null);

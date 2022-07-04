@@ -115,4 +115,12 @@ public class FeedbackError {
 	public static final String EXPORTER_DELETE_FAIL = "EXPORTER-10004";
 
 	public static final String EXPORTER_GET_FAIL = "EXPORTER-10005";
+
+	public static final String BOARD_TOKEN_REPEAT = "BOARD-10003";
+
+	public static final String BOARD_DELETE_FAIL = "BOARD-10004";
+
+	public static final String BOARD_GET_FAIL = "BOARD-10005";
+
+	public static final String MONITOR_GET_FAIL = "MONITOR-10005";
 }

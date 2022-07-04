@@ -69,7 +69,7 @@ public class Board extends PojoSupport implements BoardFace {
 		return getMonitorMap().values();
 	}
 
-	public Iterator<? extends MonitorFace> getIteratorMonitor() {
+	private Iterator<? extends MonitorFace> getIteratorMonitor() {
 		return getMonitor().iterator();
 	}
 

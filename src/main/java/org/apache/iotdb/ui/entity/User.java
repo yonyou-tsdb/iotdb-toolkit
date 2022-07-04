@@ -228,7 +228,7 @@ public class User extends PojoSupport implements UserFace {
 		return getTriggerMap().values();
 	}
 
-	public Iterator<? extends TriggerFace> getIteratorTrigger() {
+	private Iterator<? extends TriggerFace> getIteratorTrigger() {
 		return getTrigger().iterator();
 	}
 
@@ -290,7 +290,7 @@ public class User extends PojoSupport implements UserFace {
 		return getAlertMap().values();
 	}
 
-	public Iterator<? extends AlertFace> getIteratorAlert() {
+	private Iterator<? extends AlertFace> getIteratorAlert() {
 		return getAlert().iterator();
 	}
 
@@ -352,7 +352,7 @@ public class User extends PojoSupport implements UserFace {
 		return getExporterMap().values();
 	}
 
-	public Iterator<? extends ExporterFace> getIteratorExporter() {
+	private Iterator<? extends ExporterFace> getIteratorExporter() {
 		return getExporter().iterator();
 	}
 
@@ -414,7 +414,7 @@ public class User extends PojoSupport implements UserFace {
 		return getMonitorMap().values();
 	}
 
-	public Iterator<? extends MonitorFace> getIteratorMonitor() {
+	private Iterator<? extends MonitorFace> getIteratorMonitor() {
 		return getMonitor().iterator();
 	}
 
@@ -476,7 +476,7 @@ public class User extends PojoSupport implements UserFace {
 		return getBoardMap().values();
 	}
 
-	public Iterator<? extends BoardFace> getIteratorBoard() {
+	private Iterator<? extends BoardFace> getIteratorBoard() {
 		return getBoard().iterator();
 	}
 

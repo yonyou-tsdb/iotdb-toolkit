@@ -100,7 +100,7 @@ public class Alert extends PojoSupport implements AlertFace {
 		return getTriggerMap().values();
 	}
 
-	public Iterator<? extends TriggerFace> getIteratorTrigger() {
+	private Iterator<? extends TriggerFace> getIteratorTrigger() {
 		return getTrigger().iterator();
 	}
 

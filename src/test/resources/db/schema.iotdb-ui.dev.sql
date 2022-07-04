@@ -127,7 +127,9 @@ create table tb_monitor
 (
    id                   bigint not null comment '主键',
    name                 varchar(100) comment '名称',
-   query                varchar(4000) comment '查询sql',
+   query                varchar(10000) comment '查询sql',
+   period				int comment '刷新周期，单位秒',
+   display_order        int comment '显示顺序',
    setting              varchar(1000),
    create_time          datetime,
    update_time          datetime,

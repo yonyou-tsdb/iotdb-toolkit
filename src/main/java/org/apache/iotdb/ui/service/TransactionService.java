@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.iotdb.ui.condition.ConnectCondition;
 import org.apache.iotdb.ui.condition.EmailLogCondition;
 import org.apache.iotdb.ui.condition.QueryCondition;
+import org.apache.iotdb.ui.entity.Board;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.EmailLog;
 import org.apache.iotdb.ui.entity.Exporter;
@@ -32,6 +33,7 @@ import org.apache.iotdb.ui.entity.User;
 import org.apache.iotdb.ui.exception.BaseException;
 import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.face.ConnectFace;
+import org.apache.iotdb.ui.mapper.BoardDao;
 import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.EmailLogDao;
 import org.apache.iotdb.ui.mapper.ExporterDao;
@@ -45,10 +47,11 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.alibaba.fastjson.JSONObject;
-
 @Service
 public class TransactionService {
+
+	@Autowired
+	private BoardDao boardDao;
 
 	@Autowired
 	private ConnectDao connectDao;
@@ -203,6 +206,40 @@ public class TransactionService {
 		if (n != 1) {
 			throw new BaseException(FeedbackError.EXPORTER_CODE_REPEAT,
 					MessageUtil.get(FeedbackError.EXPORTER_CODE_REPEAT));
+		}
+		return ret;
+	}
+
+	@Transactional(value = "transactionManager1", rollbackFor = {
+			BaseException.class }, readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+	public int addBoardTransactive(Board board) throws BaseException {
+		int ret = boardDao.insert(board);
+		if (board.getToken() == null) {
+			return ret;
+		}
+		Board b = new Board();
+		b.setToken(board.getToken());
+		int n = boardDao.count(b);
+		if (n != 1) {
+			throw new BaseException(FeedbackError.BOARD_TOKEN_REPEAT,
+					MessageUtil.get(FeedbackError.BOARD_TOKEN_REPEAT));
+		}
+		return ret;
+	}
+
+	@Transactional(value = "transactionManager1", rollbackFor = {
+			BaseException.class }, readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+	public int editBoardTransactive(Board board) throws BaseException {
+		int ret = boardDao.update(board);
+		if (board.getToken() == null) {
+			return ret;
+		}
+		Board e = new Board();
+		e.setToken(board.getToken());
+		int n = boardDao.count(e);
+		if (n != 1) {
+			throw new BaseException(FeedbackError.BOARD_TOKEN_REPEAT,
+					MessageUtil.get(FeedbackError.BOARD_TOKEN_REPEAT));
 		}
 		return ret;
 	}
