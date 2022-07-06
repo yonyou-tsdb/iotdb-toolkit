@@ -12,7 +12,7 @@
 <dataset>
 	<tb_board id="211" name="name1" />
 	<tb_board id="212" name="name2" />
-	<tb_monitor id="111" setting="setting1" board_id="211" query="query1" />
-	<tb_monitor id="112" setting="setting2" board_id="212" query="query2" />
-	<tb_monitor id="113" setting="setting3" board_id="211" query="query2" />
+	<tb_panel id="111" setting="setting1" board_id="211" query="query1" />
+	<tb_panel id="112" setting="setting2" board_id="212" query="query2" />
+	<tb_panel id="113" setting="setting3" board_id="211" query="query2" />
 </dataset>

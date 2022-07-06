@@ -31,7 +31,7 @@ drop table if exists tb_board;
 
 drop table if exists tb_exporter;
 
-drop table if exists tb_monitor;
+drop table if exists tb_panel;
 
 drop table if exists tb_trigger;
 
@@ -123,7 +123,7 @@ create table tb_exporter
    primary key (id)
 );
 
-create table tb_monitor
+create table tb_panel
 (
    id                   bigint not null comment '主键',
    name                 varchar(100) comment '名称',

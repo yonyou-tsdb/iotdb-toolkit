@@ -4,11 +4,11 @@ import java.util.Collection;
 
 import org.apache.iotdb.ui.entity.Board;
 import org.apache.iotdb.ui.entity.Exporter;
-import org.apache.iotdb.ui.entity.Monitor;
+import org.apache.iotdb.ui.entity.Panel;
 import org.apache.iotdb.ui.mapper.BoardDao;
 import org.apache.iotdb.ui.mapper.ExporterDao;
-import org.apache.iotdb.ui.mapper.MonitorDao;
-import org.apache.iotdb.ui.service.MonitorService;
+import org.apache.iotdb.ui.mapper.PanelDao;
+import org.apache.iotdb.ui.service.PanelService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,15 +45,15 @@ public class BoardTest {
 	private ExporterDao exporterDao;
 
 	@Autowired
-	private MonitorDao monitorDao;
+	private PanelDao panelDao;
 
 	@Autowired
-	private MonitorService monitorService;
+	private PanelService panelService;
 
 	@Test
 	public void test0() {
 		Assert.assertTrue(true);
-		Assert.assertNotNull(monitorService);
+		Assert.assertNotNull(panelService);
 	}
 
 	@Test
@@ -64,15 +64,15 @@ public class BoardTest {
 		Board board = boardDao.select(211L);
 		Assert.assertEquals("name1", board.getName());
 
-		Monitor monitor = monitorDao.select(112L);
-		Assert.assertEquals("setting2", monitor.getSetting());
-		Assert.assertEquals("name2", monitor.getBoard().getName());
+		Panel panel = panelDao.select(112L);
+		Assert.assertEquals("setting2", panel.getSetting());
+		Assert.assertEquals("name2", panel.getBoard().getName());
 
-		Monitor m = new Monitor();
+		Panel m = new Panel();
 		m.setQuery("query2");
-		monitorService.loadBoard(board, m);
-		Assert.assertEquals(1, board.getMonitor().size());
-		for (Monitor e : (Collection<Monitor>) board.getMonitor()) {
+		panelService.loadBoard(board, m);
+		Assert.assertEquals(1, board.getPanel().size());
+		for (Panel e : (Collection<Panel>) board.getPanel()) {
 			Assert.assertEquals("setting3", e.getSetting());
 		}
 

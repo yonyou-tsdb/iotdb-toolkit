@@ -9,7 +9,8 @@ import java.util.Map;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.iotdb.ui.entity.helper.PojoSupport;
 import org.apache.iotdb.ui.face.BoardFace;
-import org.apache.iotdb.ui.face.MonitorFace;
+import org.apache.iotdb.ui.face.PanelFace;
+import org.apache.iotdb.ui.face.PanelFace;
 import org.apache.iotdb.ui.face.UserFace;
 
 import com.alibaba.fastjson.annotation.JSONField;
@@ -51,7 +52,7 @@ public class Board extends PojoSupport implements BoardFace {
 	private Date updateTime;
 
 	@JSONField(serialize = false)
-	public Map<Object, MonitorFace> monitorMap;
+	public Map<Object, PanelFace> panelMap;
 
 	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, dbAssociationUniqueKey = "id")
 	private User user;
@@ -59,64 +60,64 @@ public class Board extends PojoSupport implements BoardFace {
 	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, delegate = true)
 	private Long userId;
 
-	public Map<Object, ? extends MonitorFace> getMonitorMap() {
-		if (monitorMap == null)
-			monitorMap = new LinkedHashMap<Object, MonitorFace>();
-		return monitorMap;
+	public Map<Object, ? extends PanelFace> getPanelMap() {
+		if (panelMap == null)
+			panelMap = new LinkedHashMap<Object, PanelFace>();
+		return panelMap;
 	}
 
-	public Collection<? extends MonitorFace> getMonitor() {
-		return getMonitorMap().values();
+	public Collection<? extends PanelFace> getPanel() {
+		return getPanelMap().values();
 	}
 
-	private Iterator<? extends MonitorFace> getIteratorMonitor() {
-		return getMonitor().iterator();
+	private Iterator<? extends PanelFace> getIteratorPanel() {
+		return getPanel().iterator();
 	}
 
-	public void setMonitor(Collection<? extends MonitorFace> newMonitor) {
-		removeAllMonitor();
-		for (Iterator<? extends MonitorFace> iter = newMonitor.iterator(); iter.hasNext();)
-			addMonitor(iter.next());
+	public void setPanel(Collection<? extends PanelFace> newPanel) {
+		removeAllPanel();
+		for (Iterator<? extends PanelFace> iter = newPanel.iterator(); iter.hasNext();)
+			addPanel(iter.next());
 	}
 
-	public void addMonitor(MonitorFace newMonitor) {
-		if (newMonitor == null)
+	public void addPanel(PanelFace newPanel) {
+		if (newPanel == null)
 			return;
-		if (this.monitorMap == null)
-			this.monitorMap = new LinkedHashMap<Object, MonitorFace>();
-		if (!this.monitorMap.containsKey(newMonitor.getId())) {
-			this.monitorMap.put(newMonitor.getId(), newMonitor);
-			newMonitor.setBoard(this);
+		if (this.panelMap == null)
+			this.panelMap = new LinkedHashMap<Object, PanelFace>();
+		if (!this.panelMap.containsKey(newPanel.getId())) {
+			this.panelMap.put(newPanel.getId(), newPanel);
+			newPanel.setBoard(this);
 		} else {
-			MonitorFace temp = monitorMap.get(newMonitor.getId());
-			if (newMonitor.equals(temp) && temp != newMonitor) {
-				removeMonitor(temp);
-				this.monitorMap.put(newMonitor.getId(), newMonitor);
-				newMonitor.setBoard(this);
+			PanelFace temp = panelMap.get(newPanel.getId());
+			if (newPanel.equals(temp) && temp != newPanel) {
+				removePanel(temp);
+				this.panelMap.put(newPanel.getId(), newPanel);
+				newPanel.setBoard(this);
 			}
 		}
 	}
 
-	public void removeMonitor(MonitorFace oldMonitor) {
-		if (oldMonitor == null)
+	public void removePanel(PanelFace oldPanel) {
+		if (oldPanel == null)
 			return;
-		if (this.monitorMap != null && this.monitorMap.containsKey(oldMonitor.getId())) {
-			MonitorFace temp = monitorMap.get(oldMonitor.getId());
-			if (oldMonitor.equals(temp) && temp != oldMonitor) {
+		if (this.panelMap != null && this.panelMap.containsKey(oldPanel.getId())) {
+			PanelFace temp = panelMap.get(oldPanel.getId());
+			if (oldPanel.equals(temp) && temp != oldPanel) {
 				temp.setBoard(null);
 			}
-			this.monitorMap.remove(oldMonitor.getId());
-			oldMonitor.setBoard(null);
+			this.panelMap.remove(oldPanel.getId());
+			oldPanel.setBoard(null);
 		}
 	}
 
-	public void removeAllMonitor() {
-		if (monitorMap != null) {
-			MonitorFace oldMonitor;
-			for (Iterator<? extends MonitorFace> iter = getIteratorMonitor(); iter.hasNext();) {
-				oldMonitor = iter.next();
+	public void removeAllPanel() {
+		if (panelMap != null) {
+			PanelFace oldPanel;
+			for (Iterator<? extends PanelFace> iter = getIteratorPanel(); iter.hasNext();) {
+				oldPanel = iter.next();
 				iter.remove();
-				oldMonitor.setBoard(null);
+				oldPanel.setBoard(null);
 			}
 		}
 	}

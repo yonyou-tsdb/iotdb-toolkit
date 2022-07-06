@@ -44,7 +44,7 @@ import com.github.springtestdbunit.dataset.ReplacementDataSetLoader;
 		DbUnitTestExecutionListener.class })
 @DbUnitConfiguration(dataSetLoader = ReplacementDataSetLoader.class, databaseConnection = { "dataSource1" })
 @DependsOn("exporterConfig")
-public class MonitorTest {
+public class PanelTest {
 
 	public String uri = "http://localhost/";
 

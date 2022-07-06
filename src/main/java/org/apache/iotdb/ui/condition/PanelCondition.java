@@ -1,6 +1,6 @@
 package org.apache.iotdb.ui.condition;
 
-import org.apache.iotdb.ui.entity.Monitor;
+import org.apache.iotdb.ui.entity.Panel;
 
 import indi.mybatis.flying.annotations.ConditionMapperAnnotation;
 import indi.mybatis.flying.models.Conditionable;
@@ -8,7 +8,7 @@ import indi.mybatis.flying.models.Limitable;
 import indi.mybatis.flying.models.Sortable;
 import indi.mybatis.flying.statics.ConditionType;
 
-public class MonitorCondition extends Monitor implements Conditionable {
+public class PanelCondition extends Panel implements Conditionable {
 
 	private Limitable limiter;
 

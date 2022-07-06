@@ -7,14 +7,14 @@ import java.util.Map;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.iotdb.ui.entity.helper.PojoSupport;
 import org.apache.iotdb.ui.face.BoardFace;
-import org.apache.iotdb.ui.face.MonitorFace;
+import org.apache.iotdb.ui.face.PanelFace;
 import org.apache.iotdb.ui.face.UserFace;
 
 import indi.mybatis.flying.annotations.FieldMapperAnnotation;
 import indi.mybatis.flying.annotations.TableMapperAnnotation;
 
-@TableMapperAnnotation(tableName = "tb_monitor")
-public class Monitor extends PojoSupport implements MonitorFace {
+@TableMapperAnnotation(tableName = "tb_panel")
+public class Panel extends PojoSupport implements PanelFace {
 
 	/**
 	 * 主键
@@ -83,11 +83,11 @@ public class Monitor extends PojoSupport implements MonitorFace {
 			if (this.user != null) {
 				User oldUser = this.user;
 				this.user = null;
-				oldUser.removeMonitor(this);
+				oldUser.removePanel(this);
 			}
 			if (newUser != null) {
 				this.user = (User) newUser;
-				this.user.addMonitor(this);
+				this.user.addPanel(this);
 			}
 		}
 	}
@@ -101,11 +101,11 @@ public class Monitor extends PojoSupport implements MonitorFace {
 			if (this.board != null) {
 				Board oldBoard = this.board;
 				this.board = null;
-				oldBoard.removeMonitor(this);
+				oldBoard.removePanel(this);
 			}
 			if (newBoard != null) {
 				this.board = (Board) newBoard;
-				this.board.addMonitor(this);
+				this.board.addPanel(this);
 			}
 		}
 	}

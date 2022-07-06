@@ -34,19 +34,19 @@ import org.apache.iotdb.session.Session;
 import org.apache.iotdb.session.SessionDataSet;
 import org.apache.iotdb.ui.condition.BoardCondition;
 import org.apache.iotdb.ui.condition.ExporterCondition;
-import org.apache.iotdb.ui.condition.MonitorCondition;
+import org.apache.iotdb.ui.condition.PanelCondition;
 import org.apache.iotdb.ui.config.schedule.ExporterTimerBucket;
 import org.apache.iotdb.ui.entity.Board;
 import org.apache.iotdb.ui.entity.Exporter;
-import org.apache.iotdb.ui.entity.Monitor;
+import org.apache.iotdb.ui.entity.Panel;
 import org.apache.iotdb.ui.entity.User;
 import org.apache.iotdb.ui.exception.BaseException;
 import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.mapper.BoardDao;
 import org.apache.iotdb.ui.mapper.ExporterDao;
-import org.apache.iotdb.ui.mapper.MonitorDao;
+import org.apache.iotdb.ui.mapper.PanelDao;
 import org.apache.iotdb.ui.model.BaseVO;
-import org.apache.iotdb.ui.service.MonitorService;
+import org.apache.iotdb.ui.service.PanelService;
 import org.apache.iotdb.ui.service.TransactionService;
 import org.apache.iotdb.ui.util.MessageUtil;
 import org.apache.shiro.SecurityUtils;
@@ -68,8 +68,8 @@ import io.swagger.annotations.Api;
 
 @CrossOrigin
 @RestController
-@Api(value = "Monitor API")
-public class MonitorController {
+@Api(value = "Panel API")
+public class PanelController {
 
 	@Autowired
 	private BoardDao boardDao;
@@ -85,10 +85,10 @@ public class MonitorController {
 	private CloseableHttpClient HttpClientBean;
 
 	@Autowired
-	private MonitorDao monitorDao;
+	private PanelDao panelDao;
 
 	@Autowired
-	private MonitorService monitorService;
+	private PanelService panelService;
 
 	@Autowired
 	private QueryController queryController;
@@ -227,41 +227,41 @@ public class MonitorController {
 		if (board == null) {
 			return new BaseVO<>(FeedbackError.BOARD_GET_FAIL, MessageUtil.get(FeedbackError.BOARD_GET_FAIL), null);
 		} else {
-			MonitorCondition m = new MonitorCondition();
+			PanelCondition m = new PanelCondition();
 			m.setSorter(new SortParam(new Order("display_order", Conditionable.Sequence.ASC)));
 			m.setUserId(user.getId());
-			monitorService.loadBoard(board, m);
-			for (Monitor e : (Collection<Monitor>) board.getMonitor()) {
-				loadMonitorDataList(e);
+			panelService.loadBoard(board, m);
+			for (Panel e : (Collection<Panel>) board.getPanel()) {
+				loadPanelDataList(e);
 			}
 			return BaseVO.success(board);
 		}
 	}
 
-	private void loadMonitorDataList(Monitor monitor) {
+	private void loadPanelDataList(Panel panel) {
 		Session innerSession = new Session("172.20.48.111", 6667, "root", "root");
 		try {
 			innerSession.open(false, 60_000);
-			SessionDataSet ds = innerSession.executeQueryStatement(monitor.getQuery());
-			monitor.setMonitorDataList(new LinkedList<>());
-			queryController.transformForQuery(monitor.getMonitorDataList(), ds, MONITOR_DATA_PAGE_SIZE);
+			SessionDataSet ds = innerSession.executeQueryStatement(panel.getQuery());
+			panel.setMonitorDataList(new LinkedList<>());
+			queryController.transformForQuery(panel.getMonitorDataList(), ds, MONITOR_DATA_PAGE_SIZE);
 		} catch (IoTDBConnectionException | StatementExecutionException e) {
 		}
 	}
 
-	@RequestMapping(value = "/api/monitor/monitor/reload", method = { RequestMethod.POST })
-	public BaseVO<Object> monitorReload(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
+	@RequestMapping(value = "/api/monitor/panel/reload", method = { RequestMethod.POST })
+	public BaseVO<Object> panelReload(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
-		MonitorCondition mc = new MonitorCondition();
+		PanelCondition mc = new PanelCondition();
 		mc.setId(id);
 		mc.setUserId(user.getId());
-		Monitor monitor = monitorDao.selectOne(mc);
-		if (monitor == null) {
+		Panel panel = panelDao.selectOne(mc);
+		if (panel == null) {
 			return new BaseVO<>(FeedbackError.MONITOR_GET_FAIL, MessageUtil.get(FeedbackError.MONITOR_GET_FAIL), null);
 		} else {
-			loadMonitorDataList(monitor);
-			return BaseVO.success(monitor);
+			loadPanelDataList(panel);
+			return BaseVO.success(panel);
 		}
 	}
 
@@ -310,9 +310,9 @@ public class MonitorController {
 		b.setIdEqual(id);
 		int i = boardDao.delete(b);
 		if (i == 1) {
-			MonitorCondition mc = new MonitorCondition();
+			PanelCondition mc = new PanelCondition();
 			mc.setBoardIdEqual(id);
-			monitorDao.delete(mc);
+			panelDao.delete(mc);
 			return BaseVO.success(null);
 		} else {
 			return new BaseVO<>(FeedbackError.BOARD_DELETE_FAIL, MessageUtil.get(FeedbackError.BOARD_DELETE_FAIL),
@@ -345,39 +345,39 @@ public class MonitorController {
 		}
 	}
 
-	@RequestMapping(value = "/api/monitor/monitor/all", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> monitorAll(HttpServletRequest request, @RequestParam("boardId") Long boardId,
+	@RequestMapping(value = "/api/monitor/panel/all", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> panelAll(HttpServletRequest request, @RequestParam("boardId") Long boardId,
 			@RequestParam("pageSize") Integer pageSize, @RequestParam("pageNum") Integer pageNum,
 			@RequestParam(value = "nameLike", required = false) String nameLike) throws SQLException {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
-		MonitorCondition mc = new MonitorCondition();
+		PanelCondition mc = new PanelCondition();
 		mc.setUserId(user.getId());
 		mc.setBoardId(boardId);
 		mc.setNameLike(nameLike);
 		mc.setLimiter(new PageParam(pageNum, pageSize));
 		mc.setSorter(new SortParam(new Order("id", Conditionable.Sequence.DESC)));
-		List<Monitor> list = monitorDao.selectAll(mc);
-		Page<Monitor> page = new Page<>(list, mc.getLimiter());
+		List<Panel> list = panelDao.selectAll(mc);
+		Page<Panel> page = new Page<>(list, mc.getLimiter());
 		return BaseVO.success(page);
 	}
 
-	@RequestMapping(value = "/api/monitor/monitor/add", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> monitorAdd(HttpServletRequest request, @RequestParam("name") String name,
+	@RequestMapping(value = "/api/monitor/panel/add", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> panelAdd(HttpServletRequest request, @RequestParam("name") String name,
 			@RequestParam("endpoint") String endpoint, @RequestParam("period") Integer period,
 			@RequestParam("code") String code) throws SQLException {
 		return null;
 	}
 
-	@RequestMapping(value = "/api/monitor/monitor/update", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> monitorUpdate(HttpServletRequest request, @RequestParam("id") Long id,
+	@RequestMapping(value = "/api/monitor/panel/update", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> panelUpdate(HttpServletRequest request, @RequestParam("id") Long id,
 			@RequestParam("name") String name, @RequestParam("endpoint") String endpoint,
 			@RequestParam("period") Integer period, @RequestParam("code") String code) throws SQLException {
 		return null;
 	}
 
-	@RequestMapping(value = "/api/monitor/monitor/delete", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> monitorDelete(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
+	@RequestMapping(value = "/api/monitor/panel/delete", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> panelDelete(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
 		return null;
 	}
 }
