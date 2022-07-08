@@ -69,7 +69,7 @@ import io.swagger.annotations.Api;
 @CrossOrigin
 @RestController
 @Api(value = "Panel API")
-public class PanelController {
+public class MonitorController {
 
 	@Autowired
 	private BoardDao boardDao;
@@ -217,7 +217,8 @@ public class PanelController {
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/api/monitor/board/viewMore", method = { RequestMethod.POST })
-	public BaseVO<Object> boardViewMore(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
+	public BaseVO<Object> boardViewMore(HttpServletRequest request, @RequestParam("id") Long id,
+			@RequestParam(value = "panelNameLike", required = false) String panelNameLike) throws SQLException {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		BoardCondition bc = new BoardCondition();
@@ -228,7 +229,9 @@ public class PanelController {
 			return new BaseVO<>(FeedbackError.BOARD_GET_FAIL, MessageUtil.get(FeedbackError.BOARD_GET_FAIL), null);
 		} else {
 			PanelCondition m = new PanelCondition();
+			m.setNameLike(panelNameLike);
 			m.setSorter(new SortParam(new Order("display_order", Conditionable.Sequence.ASC)));
+
 			m.setUserId(user.getId());
 			panelService.loadBoard(board, m);
 			for (Panel e : (Collection<Panel>) board.getPanel()) {
@@ -258,7 +261,7 @@ public class PanelController {
 		mc.setUserId(user.getId());
 		Panel panel = panelDao.selectOne(mc);
 		if (panel == null) {
-			return new BaseVO<>(FeedbackError.MONITOR_GET_FAIL, MessageUtil.get(FeedbackError.MONITOR_GET_FAIL), null);
+			return new BaseVO<>(FeedbackError.PANEL_GET_FAIL, MessageUtil.get(FeedbackError.PANEL_GET_FAIL), null);
 		} else {
 			loadPanelDataList(panel);
 			return BaseVO.success(panel);
@@ -307,7 +310,7 @@ public class PanelController {
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		BoardCondition b = new BoardCondition();
 		b.setUserIdEqual(user.getId());
-		b.setIdEqual(id);
+		b.setId(id);
 		int i = boardDao.delete(b);
 		if (i == 1) {
 			PanelCondition mc = new PanelCondition();
@@ -363,21 +366,78 @@ public class PanelController {
 	}
 
 	@RequestMapping(value = "/api/monitor/panel/add", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> panelAdd(HttpServletRequest request, @RequestParam("name") String name,
-			@RequestParam("endpoint") String endpoint, @RequestParam("period") Integer period,
-			@RequestParam("code") String code) throws SQLException {
-		return null;
+	public BaseVO<Object> panelAdd(HttpServletRequest request, @RequestParam("boardId") Long boardId,
+			@RequestParam("name") String name, @RequestParam("query") String query,
+			@RequestParam("period") Integer period,
+			@RequestParam(value = "displayOrder", required = false) Integer displayOrder) throws SQLException {
+		Subject subject = SecurityUtils.getSubject();
+		User user = (User) subject.getSession().getAttribute(UserController.USER);
+		Panel p = new Panel();
+		p.setBoardId(boardId);
+		int c = panelDao.count(p);
+		if (c > 20) {
+			return new BaseVO<>(FeedbackError.PANEL_REACH_LIMIT, MessageUtil.get(FeedbackError.PANEL_REACH_LIMIT),
+					null);
+		}
+		Panel panel = new Panel();
+		panel.setUserId(user.getId());
+		panel.setBoardId(boardId);
+		panel.setName(name);
+		panel.setQuery(query);
+		panel.setPeriod(period);
+		panel.setDisplayOrder(displayOrder);
+		Date now = Calendar.getInstance().getTime();
+		panel.setCreateTime(now);
+		panel.setUpdateTime(now);
+		try {
+			transactionService.addPanelTransactive(panel);
+			return BaseVO.success(name, null);
+		} catch (BaseException e2) {
+			return new BaseVO<>(e2.getErrorCode(), e2.getMessage(), null);
+		}
 	}
 
 	@RequestMapping(value = "/api/monitor/panel/update", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> panelUpdate(HttpServletRequest request, @RequestParam("id") Long id,
-			@RequestParam("name") String name, @RequestParam("endpoint") String endpoint,
-			@RequestParam("period") Integer period, @RequestParam("code") String code) throws SQLException {
-		return null;
+			@RequestParam("name") String name, @RequestParam("query") String query,
+			@RequestParam("period") Integer period,
+			@RequestParam(value = "displayOrder", required = false) Integer displayOrder) throws SQLException {
+		Subject subject = SecurityUtils.getSubject();
+		User user = (User) subject.getSession().getAttribute(UserController.USER);
+		PanelCondition pc = new PanelCondition();
+		pc.setUserId(user.getId());
+		pc.setId(id);
+		Panel panel = panelDao.selectOne(pc);
+
+		if (panel == null) {
+			return new BaseVO<>(FeedbackError.PANEL_GET_FAIL, MessageUtil.get(FeedbackError.PANEL_GET_FAIL), null);
+		}
+		panel.setName(name);
+		panel.setQuery(query);
+		panel.setPeriod(period);
+		panel.setDisplayOrder(displayOrder);
+		panel.setUpdateTime(Calendar.getInstance().getTime());
+		try {
+			transactionService.editPanelTransactive(panel);
+			return BaseVO.success(name, panel);
+		} catch (BaseException e2) {
+			return new BaseVO<>(e2.getErrorCode(), e2.getMessage(), null);
+		}
 	}
 
 	@RequestMapping(value = "/api/monitor/panel/delete", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> panelDelete(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
-		return null;
+		Subject subject = SecurityUtils.getSubject();
+		User user = (User) subject.getSession().getAttribute(UserController.USER);
+		PanelCondition p = new PanelCondition();
+		p.setUserIdEqual(user.getId());
+		p.setIdEqual(id);
+		int i = panelDao.delete(p);
+		if (i == 1) {
+			return BaseVO.success(null);
+		} else {
+			return new BaseVO<>(FeedbackError.PANEL_DELETE_FAIL, MessageUtil.get(FeedbackError.PANEL_DELETE_FAIL),
+					null);
+		}
 	}
 }

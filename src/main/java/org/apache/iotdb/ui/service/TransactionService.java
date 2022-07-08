@@ -28,6 +28,7 @@ import org.apache.iotdb.ui.entity.Board;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.EmailLog;
 import org.apache.iotdb.ui.entity.Exporter;
+import org.apache.iotdb.ui.entity.Panel;
 import org.apache.iotdb.ui.entity.Query;
 import org.apache.iotdb.ui.entity.User;
 import org.apache.iotdb.ui.exception.BaseException;
@@ -37,6 +38,7 @@ import org.apache.iotdb.ui.mapper.BoardDao;
 import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.EmailLogDao;
 import org.apache.iotdb.ui.mapper.ExporterDao;
+import org.apache.iotdb.ui.mapper.PanelDao;
 import org.apache.iotdb.ui.mapper.QueryDao;
 import org.apache.iotdb.ui.mapper.UserDao;
 import org.apache.iotdb.ui.model.EmailLogStatus;
@@ -64,6 +66,9 @@ public class TransactionService {
 
 	@Autowired
 	private UserDao userDao;
+
+	@Autowired
+	private PanelDao panelDao;
 
 	@Autowired
 	private EmailLogDao emailLogDao;
@@ -240,6 +245,34 @@ public class TransactionService {
 		if (n != 1) {
 			throw new BaseException(FeedbackError.BOARD_TOKEN_REPEAT,
 					MessageUtil.get(FeedbackError.BOARD_TOKEN_REPEAT));
+		}
+		return ret;
+	}
+
+	@Transactional(value = "transactionManager1", rollbackFor = {
+			BaseException.class }, readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+	public int addPanelTransactive(Panel panel) throws BaseException {
+		int ret = panelDao.insert(panel);
+		Panel p = new Panel();
+		p.setBoardId(panel.getBoardId());
+		p.setName(panel.getName());
+		int n = panelDao.count(p);
+		if (n != 1) {
+			throw new BaseException(FeedbackError.PANEL_NAME_REPEAT, MessageUtil.get(FeedbackError.PANEL_NAME_REPEAT));
+		}
+		return ret;
+	}
+
+	@Transactional(value = "transactionManager1", rollbackFor = {
+			BaseException.class }, readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+	public int editPanelTransactive(Panel panel) throws BaseException {
+		int ret = panelDao.update(panel);
+		Panel p = new Panel();
+		p.setBoardId(panel.getBoardId());
+		p.setName(panel.getName());
+		int n = panelDao.count(p);
+		if (n != 1) {
+			throw new BaseException(FeedbackError.PANEL_NAME_REPEAT, MessageUtil.get(FeedbackError.PANEL_NAME_REPEAT));
 		}
 		return ret;
 	}

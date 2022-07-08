@@ -122,5 +122,11 @@ public class FeedbackError {
 
 	public static final String BOARD_GET_FAIL = "BOARD-10005";
 
-	public static final String MONITOR_GET_FAIL = "MONITOR-10005";
+	public static final String PANEL_REACH_LIMIT = "PANEL-10002";
+
+	public static final String PANEL_NAME_REPEAT = "PANEL-10003";
+
+	public static final String PANEL_DELETE_FAIL = "PANEL-10004";
+
+	public static final String PANEL_GET_FAIL = "PANEL-10005";
 }

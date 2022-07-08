@@ -14,6 +14,12 @@ public class PanelCondition extends Panel implements Conditionable {
 
 	private Sortable sorter;
 
+	@ConditionMapperAnnotation(dbFieldName = "id", conditionType = ConditionType.EQUAL)
+	private Long idEqual;
+
+	@ConditionMapperAnnotation(dbFieldName = "user_id", conditionType = ConditionType.EQUAL)
+	private Long userIdEqual;
+
 	@ConditionMapperAnnotation(dbFieldName = "board_id", conditionType = ConditionType.EQUAL)
 	private Long boardIdEqual;
 
@@ -50,6 +56,22 @@ public class PanelCondition extends Panel implements Conditionable {
 
 	public void setBoardIdEqual(Long boardIdEqual) {
 		this.boardIdEqual = boardIdEqual;
+	}
+
+	public Long getIdEqual() {
+		return idEqual;
+	}
+
+	public void setIdEqual(Long idEqual) {
+		this.idEqual = idEqual;
+	}
+
+	public Long getUserIdEqual() {
+		return userIdEqual;
+	}
+
+	public void setUserIdEqual(Long userIdEqual) {
+		this.userIdEqual = userIdEqual;
 	}
 
 }
