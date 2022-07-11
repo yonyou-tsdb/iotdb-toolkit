@@ -72,6 +72,12 @@ iotdbui:
       host: 
       username: 
       password: 
+   exporter:
+      pool:
+         corePoolSize: 25
+         maxPoolSize: 240
+         keepAliveSeconds: 60
+         queueCapacity: 100
    monitor:
       rmi:
          basePath: E:\workspace1\DynamicTrigger

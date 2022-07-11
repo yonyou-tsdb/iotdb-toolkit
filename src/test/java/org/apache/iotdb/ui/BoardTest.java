@@ -2,6 +2,7 @@ package org.apache.iotdb.ui;
 
 import java.util.Collection;
 
+import org.apache.iotdb.ui.config.ExporterThreadPoolConfig;
 import org.apache.iotdb.ui.entity.Board;
 import org.apache.iotdb.ui.entity.Exporter;
 import org.apache.iotdb.ui.entity.Panel;
@@ -13,7 +14,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
@@ -50,10 +53,19 @@ public class BoardTest {
 	@Autowired
 	private PanelService panelService;
 
+	@Autowired
+	private ExporterThreadPoolConfig exporterThreadPoolConfig;
+
+	@Autowired
+	@Qualifier("exporterTaskExecutor")
+	private ThreadPoolTaskExecutor exporterTaskExecutor;
+
 	@Test
 	public void test0() {
 		Assert.assertTrue(true);
 		Assert.assertNotNull(panelService);
+		Assert.assertNotNull(exporterThreadPoolConfig);
+		Assert.assertNotNull(exporterTaskExecutor);
 	}
 
 	@Test

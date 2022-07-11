@@ -31,9 +31,11 @@ import org.apache.shiro.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
 @EnableScheduling
@@ -44,6 +46,10 @@ public class TimerConfig {
 
 	@Autowired
 	private ExporterTimerBucket exporterTimerBucket;
+
+	@Autowired
+	@Qualifier("exporterTaskExecutor")
+	private ThreadPoolTaskExecutor exporterTaskExecutor;
 
 	public static Long cou = System.currentTimeMillis() / 1000;
 
@@ -96,14 +102,14 @@ public class TimerConfig {
 		exporterTimerBucket.getExporterTimerMap().forEach((k, v) -> {
 			int period = v.getPeriod() >= 5 ? v.getPeriod() : 5;
 			if (cou1 % period == 0) {
-				new Thread(new Runnable() {
+				exporterTaskExecutor.execute(new Runnable() {
 					public void run() {
 						try {
 							exporterConfig.readMetrics(v.getEndPoint(), v.getCode());
 						} catch (Exception e) {
 						}
 					}
-				}).start();
+				});
 			}
 		});
 	}
