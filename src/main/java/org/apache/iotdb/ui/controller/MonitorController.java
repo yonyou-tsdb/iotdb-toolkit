@@ -230,8 +230,8 @@ public class MonitorController {
 		} else {
 			PanelCondition m = new PanelCondition();
 			m.setNameLike(panelNameLike);
-			m.setSorter(new SortParam(new Order("display_order", Conditionable.Sequence.ASC)));
-
+			m.setSorter(new SortParam(new Order("display_order", Conditionable.Sequence.ASC),
+					new Order("tb_panel_0.id", Conditionable.Sequence.DESC)));
 			m.setUserId(user.getId());
 			panelService.loadBoard(board, m);
 			for (Panel e : (Collection<Panel>) board.getPanel()) {
@@ -368,8 +368,8 @@ public class MonitorController {
 	@RequestMapping(value = "/api/monitor/panel/add", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> panelAdd(HttpServletRequest request, @RequestParam("boardId") Long boardId,
 			@RequestParam("name") String name, @RequestParam("query") String query,
-			@RequestParam("period") Integer period,
-			@RequestParam(value = "displayOrder", required = false) Integer displayOrder) throws SQLException {
+			@RequestParam("period") Integer period, @RequestParam(value = "displayOrder") Integer displayOrder)
+			throws SQLException {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		Panel p = new Panel();
@@ -400,8 +400,8 @@ public class MonitorController {
 	@RequestMapping(value = "/api/monitor/panel/update", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> panelUpdate(HttpServletRequest request, @RequestParam("id") Long id,
 			@RequestParam("name") String name, @RequestParam("query") String query,
-			@RequestParam("period") Integer period,
-			@RequestParam(value = "displayOrder", required = false) Integer displayOrder) throws SQLException {
+			@RequestParam("period") Integer period, @RequestParam(value = "displayOrder") Integer displayOrder)
+			throws SQLException {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		PanelCondition pc = new PanelCondition();
