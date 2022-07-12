@@ -35,6 +35,7 @@ import org.apache.iotdb.session.SessionDataSet;
 import org.apache.iotdb.ui.condition.BoardCondition;
 import org.apache.iotdb.ui.condition.ExporterCondition;
 import org.apache.iotdb.ui.condition.PanelCondition;
+import org.apache.iotdb.ui.config.MonitorServerConfig;
 import org.apache.iotdb.ui.config.schedule.ExporterTimerBucket;
 import org.apache.iotdb.ui.entity.Board;
 import org.apache.iotdb.ui.entity.Exporter;
@@ -83,6 +84,9 @@ public class MonitorController {
 	@Autowired
 	@Qualifier("httpClientBean")
 	private CloseableHttpClient HttpClientBean;
+
+	@Autowired
+	private MonitorServerConfig monitorServerConfig;
 
 	@Autowired
 	private PanelDao panelDao;
@@ -241,8 +245,30 @@ public class MonitorController {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/api/anonymous/monitor/board/viewMore", method = { RequestMethod.POST })
+	public BaseVO<Object> boardViewMoreAnonymous(HttpServletRequest request, @RequestParam("token") String token,
+			@RequestParam(value = "panelNameLike", required = false) String panelNameLike) throws SQLException {
+		BoardCondition bc = new BoardCondition();
+		bc.setToken(token);
+		Board board = boardDao.selectOne(bc);
+		if (board == null) {
+			return new BaseVO<>(FeedbackError.BOARD_GET_FAIL, MessageUtil.get(FeedbackError.BOARD_GET_FAIL), null);
+		} else {
+			PanelCondition m = new PanelCondition();
+			m.setNameLike(panelNameLike);
+			m.setSorter(new SortParam(new Order("display_order", Conditionable.Sequence.ASC),
+					new Order("tb_panel_0.id", Conditionable.Sequence.DESC)));
+			panelService.loadBoard(board, m);
+			for (Panel e : (Collection<Panel>) board.getPanel()) {
+				loadPanelDataList(e);
+			}
+			return BaseVO.success(board);
+		}
+	}
+
 	private void loadPanelDataList(Panel panel) {
-		Session innerSession = new Session("172.20.48.111", 6667, "root", "root");
+		Session innerSession = new Session(monitorServerConfig.getHost(), 6667, "root", "root");
 		try {
 			innerSession.open(false, 60_000);
 			SessionDataSet ds = innerSession.executeQueryStatement(panel.getQuery());
@@ -260,6 +286,23 @@ public class MonitorController {
 		mc.setId(id);
 		mc.setUserId(user.getId());
 		Panel panel = panelDao.selectOne(mc);
+		if (panel == null) {
+			return new BaseVO<>(FeedbackError.PANEL_GET_FAIL, MessageUtil.get(FeedbackError.PANEL_GET_FAIL), null);
+		} else {
+			loadPanelDataList(panel);
+			return BaseVO.success(panel);
+		}
+	}
+
+	@RequestMapping(value = "/api/anonymous/monitor/panel/reload", method = { RequestMethod.POST })
+	public BaseVO<Object> panelReloadAnonymous(HttpServletRequest request, @RequestParam("id") Long id,
+			@RequestParam("token") String token) throws SQLException {
+		PanelCondition pc = new PanelCondition();
+		pc.setId(id);
+		Board b = new Board();
+		b.setToken(token);
+		pc.setBoard(b);
+		Panel panel = panelDao.selectOne(pc);
 		if (panel == null) {
 			return new BaseVO<>(FeedbackError.PANEL_GET_FAIL, MessageUtil.get(FeedbackError.PANEL_GET_FAIL), null);
 		} else {

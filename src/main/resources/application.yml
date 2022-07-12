@@ -79,6 +79,8 @@ iotdbui:
          keepAliveSeconds: 60
          queueCapacity: 100
    monitor:
+      server:
+         host: 172.20.45.128
       rmi:
          basePath: E:\workspace1\DynamicTrigger
          srcFiles: 
