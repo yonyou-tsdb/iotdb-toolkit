@@ -29,6 +29,19 @@
 		<fastjson.version>1.2.70</fastjson.version>
 		<mybatis.flying.version>1.0.15</mybatis.flying.version>
 	</properties>
+	<repositories>
+		<repository>
+            <id>iUAP-Snapshots</id>
+            <name>iUAP-Snapshots</name>
+            <url>http://maven.yonyou.com/nexus/content/repositories/iUAP-Snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -102,10 +115,10 @@
 			<version>${spring.boot.version}</version>
 		</dependency>
 		<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+			<version>${spring.boot.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
@@ -311,6 +324,36 @@
 			<artifactId>httpclient</artifactId>
 			<version>4.3.2</version>
 		</dependency>
+		<!-- <dependency>
+			<groupId>com.yonyou.iotdb</groupId>
+			<artifactId>utils-core</artifactId>
+			<version>0.13.1-SNAPSHOT</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/utils-core-0.13.1-SNAPSHOT.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.yonyou.iotdb</groupId>
+			<artifactId>utils-tools</artifactId>
+			<version>0.13.1-SNAPSHOT</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/utils-tools-0.13.1-SNAPSHOT.jar</systemPath>
+		</dependency> -->
+		<dependency>
+			<groupId>com.yonyou.iotdb</groupId>
+			<artifactId>utils-core</artifactId>
+			<version>0.13.1.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-core</artifactId>
+			<version>3.4.19</version>
+		</dependency>
+		<!-- <dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-test</artifactId>
+			<version>3.4.19</version>
+		</dependency> -->
+
 	</dependencies>
 	<build>
 		<resources>

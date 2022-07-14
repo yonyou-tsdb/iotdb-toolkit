@@ -69,7 +69,7 @@ import io.swagger.annotations.Api;
 
 @CrossOrigin
 @RestController
-@Api(value = "Panel API")
+@Api(value = "Monitor API")
 public class MonitorController {
 
 	@Autowired
@@ -311,7 +311,7 @@ public class MonitorController {
 		}
 	}
 
-	@RequestMapping(value = "/api/monitor/board/all", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/monitor/board/all", method = { RequestMethod.POST })
 	public BaseVO<Object> boardAll(HttpServletRequest request, @RequestParam("pageSize") Integer pageSize,
 			@RequestParam("pageNum") Integer pageNum,
 			@RequestParam(value = "nameLike", required = false) String nameLike) throws SQLException {
@@ -391,7 +391,7 @@ public class MonitorController {
 		}
 	}
 
-	@RequestMapping(value = "/api/monitor/panel/all", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/monitor/panel/all", method = { RequestMethod.POST })
 	public BaseVO<Object> panelAll(HttpServletRequest request, @RequestParam("boardId") Long boardId,
 			@RequestParam("pageSize") Integer pageSize, @RequestParam("pageNum") Integer pageNum,
 			@RequestParam(value = "nameLike", required = false) String nameLike) throws SQLException {
@@ -408,7 +408,7 @@ public class MonitorController {
 		return BaseVO.success(page);
 	}
 
-	@RequestMapping(value = "/api/monitor/panel/add", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/monitor/panel/add", method = { RequestMethod.POST })
 	public BaseVO<Object> panelAdd(HttpServletRequest request, @RequestParam("boardId") Long boardId,
 			@RequestParam("name") String name, @RequestParam("query") String query,
 			@RequestParam("period") Integer period, @RequestParam(value = "displayOrder") Integer displayOrder)
@@ -440,7 +440,7 @@ public class MonitorController {
 		}
 	}
 
-	@RequestMapping(value = "/api/monitor/panel/update", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/monitor/panel/update", method = { RequestMethod.POST })
 	public BaseVO<Object> panelUpdate(HttpServletRequest request, @RequestParam("id") Long id,
 			@RequestParam("name") String name, @RequestParam("query") String query,
 			@RequestParam("period") Integer period, @RequestParam(value = "displayOrder") Integer displayOrder)
@@ -468,7 +468,7 @@ public class MonitorController {
 		}
 	}
 
-	@RequestMapping(value = "/api/monitor/panel/delete", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/monitor/panel/delete", method = { RequestMethod.POST })
 	public BaseVO<Object> panelDelete(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
