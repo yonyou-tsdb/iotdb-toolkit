@@ -10,7 +10,6 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.iotdb.ui.entity.helper.PojoSupport;
 import org.apache.iotdb.ui.face.BoardFace;
 import org.apache.iotdb.ui.face.PanelFace;
-import org.apache.iotdb.ui.face.PanelFace;
 import org.apache.iotdb.ui.face.UserFace;
 
 import com.alibaba.fastjson.annotation.JSONField;
@@ -52,7 +51,7 @@ public class Board extends PojoSupport implements BoardFace {
 	private Date updateTime;
 
 	@JSONField(serialize = false)
-	public Map<Object, PanelFace> panelMap;
+	private Map<Object, PanelFace> panelMap;
 
 	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, dbAssociationUniqueKey = "id")
 	private User user;

@@ -39,6 +39,7 @@ import com.yonyou.iotdb.utils.core.pipeline.context.model.FileSinkStrategyEnum;
 import com.yonyou.iotdb.utils.core.pipeline.context.model.ImportModel;
 
 import io.swagger.annotations.Api;
+import reactor.core.Disposable;
 
 @CrossOrigin
 @RestController
@@ -58,7 +59,8 @@ public class UtilController {
 		exportModel.setCompressEnum(CompressEnum.CSV);
 		exportModel.setFileFolder("E:\\export_ln4");
 		exportModel.setFileSinkStrategyEnum(FileSinkStrategyEnum.EXTRA_CATALOG);
-		exportModel.setIotdbPath("root.ln.测试");
+		exportModel.setIotdbPath("root._monitor.\"115.28.134.232\".\"jvm_memory_committed_bytes\"");
+//		exportModel.setIotdbPath("root.ln");
 		exportModel.setNeedTimeseriesStructure(true);
 		Session session = new Session("172.20.45.128", "6667", "root", "root");
 		try {
@@ -67,7 +69,13 @@ public class UtilController {
 			e.printStackTrace();
 		}
 		exportModel.setSession(session);
-		exportStarter.start(exportModel);
+		Disposable d = exportStarter.start(exportModel);
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		System.out.println(d.isDisposed());
 		return null;
 	}
 
@@ -76,7 +84,7 @@ public class UtilController {
 		ImportModel importModel = new ImportModel();
 		importModel.setCharSet("utf8");
 		importModel.setCompressEnum(CompressEnum.CSV);
-		importModel.setNeedTimeseriesStructure(true);
+		importModel.setNeedTimeseriesStructure(false);
 		Session session = new Session("172.20.45.128", "6667", "root", "root");
 		try {
 			session.open();
@@ -89,4 +97,15 @@ public class UtilController {
 		return null;
 	}
 
+	@RequestMapping(value = "/api/util/export/progress", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> exportProgress(HttpServletRequest request) throws SQLException {
+		Double[] d = exportStarter.rateOfProcess();
+		return BaseVO.success(d);
+	}
+
+	@RequestMapping(value = "/api/util/import/progress", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> importProgress(HttpServletRequest request) throws SQLException {
+		Double[] d = importStarter.rateOfProcess();
+		return BaseVO.success(d);
+	}
 }

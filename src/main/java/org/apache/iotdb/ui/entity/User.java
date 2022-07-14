@@ -31,6 +31,7 @@ import org.apache.iotdb.ui.face.ConnectFace;
 import org.apache.iotdb.ui.face.EmailLogFace;
 import org.apache.iotdb.ui.face.ExporterFace;
 import org.apache.iotdb.ui.face.PanelFace;
+import org.apache.iotdb.ui.face.TaskFace;
 import org.apache.iotdb.ui.face.TriggerFace;
 import org.apache.iotdb.ui.face.UserFace;
 
@@ -78,19 +79,22 @@ public class User extends PojoSupport implements UserFace {
 	private Map<Object, EmailLogFace> emailLogMap;
 
 	@JSONField(serialize = false)
-	public Map<Object, TriggerFace> triggerMap;
+	private Map<Object, TriggerFace> triggerMap;
 
 	@JSONField(serialize = false)
-	public Map<Object, AlertFace> alertMap;
+	private Map<Object, AlertFace> alertMap;
 
 	@JSONField(serialize = false)
-	public Map<Object, ExporterFace> exporterMap;
+	private Map<Object, ExporterFace> exporterMap;
 
 	@JSONField(serialize = false)
-	public Map<Object, PanelFace> panelMap;
+	private Map<Object, PanelFace> panelMap;
 
 	@JSONField(serialize = false)
-	public Map<Object, BoardFace> boardMap;
+	private Map<Object, BoardFace> boardMap;
+
+	@JSONField(serialize = false)
+	private Map<Object, TaskFace> taskMap;
 
 	public Map<Object, ? extends ConnectFace> getConnectMap() {
 		if (connectMap == null) {
@@ -524,6 +528,68 @@ public class User extends PojoSupport implements UserFace {
 				oldBoard = iter.next();
 				iter.remove();
 				oldBoard.setUser(null);
+			}
+		}
+	}
+
+	public Map<Object, ? extends TaskFace> getTaskMap() {
+		if (taskMap == null)
+			taskMap = new LinkedHashMap<Object, TaskFace>();
+		return taskMap;
+	}
+
+	public Collection<? extends TaskFace> getTask() {
+		return getTaskMap().values();
+	}
+
+	private Iterator<? extends TaskFace> getIteratorTask() {
+		return getTask().iterator();
+	}
+
+	public void setTask(Collection<? extends TaskFace> newTask) {
+		removeAllTask();
+		for (Iterator<? extends TaskFace> iter = newTask.iterator(); iter.hasNext();)
+			addTask(iter.next());
+	}
+
+	public void addTask(TaskFace newTask) {
+		if (newTask == null)
+			return;
+		if (this.taskMap == null)
+			this.taskMap = new LinkedHashMap<Object, TaskFace>();
+		if (!this.taskMap.containsKey(newTask.getId())) {
+			this.taskMap.put(newTask.getId(), newTask);
+			newTask.setUser(this);
+		} else {
+			TaskFace temp = taskMap.get(newTask.getId());
+			if (newTask.equals(temp) && temp != newTask) {
+				removeTask(temp);
+				this.taskMap.put(newTask.getId(), newTask);
+				newTask.setUser(this);
+			}
+		}
+	}
+
+	public void removeTask(TaskFace oldTask) {
+		if (oldTask == null)
+			return;
+		if (this.taskMap != null && this.taskMap.containsKey(oldTask.getId())) {
+			TaskFace temp = taskMap.get(oldTask.getId());
+			if (oldTask.equals(temp) && temp != oldTask) {
+				temp.setUser(null);
+			}
+			this.taskMap.remove(oldTask.getId());
+			oldTask.setUser(null);
+		}
+	}
+
+	public void removeAllTask() {
+		if (taskMap != null) {
+			TaskFace oldTask;
+			for (Iterator<? extends TaskFace> iter = getIteratorTask(); iter.hasNext();) {
+				oldTask = iter.next();
+				iter.remove();
+				oldTask.setUser(null);
 			}
 		}
 	}

@@ -35,6 +35,8 @@ drop table if exists tb_panel;
 
 drop table if exists tb_trigger;
 
+drop table if exists tb_task;
+
 create table tb_connect
 (
    id                   bigint not null comment '主键',
@@ -148,5 +150,20 @@ create table tb_trigger
    update_time          datetime,
    user_id              bigint,
    alert_id             bigint,
+   primary key (id)
+);
+
+create table tb_task
+(
+   id                   bigint not null comment '主键',
+   user_id              bigint,
+   type                 char(1) comment '类型',
+   setting              varchar(5000) comment '参数设置',
+   start_window_from    datetime comment '时间窗口起始时间',
+   start_window_to      datetime comment '时间窗口结束时间',
+   priority             integer comment '优先级',
+   status               char(1) comment '状态（0未开始1进行中2正常结束3异常结束4强制结束）',
+   create_time          datetime,
+   update_time          datetime,
    primary key (id)
 );
