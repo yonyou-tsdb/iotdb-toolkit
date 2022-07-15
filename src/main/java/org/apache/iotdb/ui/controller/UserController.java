@@ -103,7 +103,7 @@ public class UserController {
 		JSONObject json = new JSONObject();
 		User u = new User();
 		u.setName(username);
-		User user = userDao.selectOne(u);
+		User user = userDao.selectOneWithEverything(u);
 		BaseVO<JSONObject> ret = null;
 		try {
 			Subject subject = SecurityUtils.getSubject();
@@ -418,7 +418,7 @@ public class UserController {
 			@RequestParam(value = "password") String password) {
 		Subject subject = SecurityUtils.getSubject();
 		User u = (User) subject.getSession().getAttribute(USER);
-		User user = userDao.select(u.getId());
+		User user = userDao.selectWithEverything(u.getId());
 		if (user == null) {
 			return new BaseVO<>(FeedbackError.GET_USER_FAIL, MessageUtil.get(FeedbackError.GET_USER_FAIL), null);
 		}

@@ -62,7 +62,7 @@ public class User extends PojoSupport implements UserFace {
 	 * 密码
 	 * 
 	 */
-	@FieldMapperAnnotation(dbFieldName = "password", jdbcType = JdbcType.VARCHAR)
+	@FieldMapperAnnotation(dbFieldName = "password", jdbcType = JdbcType.VARCHAR, ignoreTag = { "noPassword" })
 	private String password;
 
 	/**

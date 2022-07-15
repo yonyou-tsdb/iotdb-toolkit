@@ -11,9 +11,11 @@
 	OF ANY KIND, either express or implied. See the License for the specific 
 	language governing permissions and limitations under the License. -->
 <mapper namespace="org.apache.iotdb.ui.mapper.UserDao">
-	<select id="select" resultMap="result">{"action":"select#{?}"}</select>
-	<select id="selectAll" resultMap="result">{"action":"selectAll"}</select>
-	<select id="selectOne" resultMap="result">{"action":"selectOne"}</select>
+	<select id="select" resultMap="result">{"action":"select#{?}", "ignore":"noPassword"}</select>
+	<select id="selectWithEverything" resultMap="result">{"action":"select#{?}"}</select>
+	<select id="selectAll" resultMap="result">{"action":"selectAll", "ignore":"noPassword"}</select>
+	<select id="selectOne" resultMap="result">{"action":"selectOne", "ignore":"noPassword"}</select>
+	<select id="selectOneWithEverything" resultMap="result">{"action":"selectOne"}</select>
 	<select id="count" resultType="int">{"action":"count"}</select>
 	<insert id="insert">{"action":"insert",
 		"keyGenerator":"org.apache.iotdb.ui.config.DistributedSnowflakeKeyGenerator2"}
