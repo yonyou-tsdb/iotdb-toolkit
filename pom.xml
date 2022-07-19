@@ -341,7 +341,7 @@
 		<dependency>
 			<groupId>com.yonyou.iotdb</groupId>
 			<artifactId>utils-core</artifactId>
-			<version>0.13.1.1-SNAPSHOT</version>
+			<version>0.13.1.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>io.projectreactor</groupId>

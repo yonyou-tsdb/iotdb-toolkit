@@ -353,7 +353,7 @@ public class MonitorController {
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		BoardCondition b = new BoardCondition();
 		b.setUserIdEqual(user.getId());
-		b.setId(id);
+		b.setIdEqual(id);
 		int i = boardDao.delete(b);
 		if (i == 1) {
 			PanelCondition mc = new PanelCondition();

@@ -56,10 +56,10 @@ public class UtilController {
 	public BaseVO<Object> exportStart(HttpServletRequest request) throws SQLException {
 		ExportModel exportModel = new ExportModel();
 		exportModel.setCharSet("utf8");
-		exportModel.setCompressEnum(CompressEnum.CSV);
+		exportModel.setCompressEnum(CompressEnum.GZIP);
 		exportModel.setFileFolder("E:\\export_ln4");
 		exportModel.setFileSinkStrategyEnum(FileSinkStrategyEnum.EXTRA_CATALOG);
-		exportModel.setIotdbPath("root._monitor.\"115.28.134.232\".\"jvm_memory_committed_bytes\"");
+		exportModel.setIotdbPath("root._monitor.\"115.28.134.232\".**");
 //		exportModel.setIotdbPath("root.ln");
 		exportModel.setNeedTimeseriesStructure(true);
 		Session session = new Session("172.20.45.128", "6667", "root", "root");

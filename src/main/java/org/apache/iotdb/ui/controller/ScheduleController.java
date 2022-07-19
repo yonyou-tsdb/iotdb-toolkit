@@ -14,6 +14,7 @@ import org.apache.iotdb.ui.model.TaskStatus;
 import org.apache.iotdb.ui.model.TaskType;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.assertj.core.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +34,9 @@ import io.swagger.annotations.Api;
 @Api(value = "Schedule API")
 public class ScheduleController {
 
+	public static final TaskStatus[] c = { TaskStatus.NOT_START, TaskStatus.IN_PROGRESS, TaskStatus.NORMAL_END,
+			TaskStatus.FORCED_END };
+
 	@Autowired
 	private TaskDao taskDao;
 
@@ -40,11 +44,16 @@ public class ScheduleController {
 	public BaseVO<Object> taskAll(HttpServletRequest request, @RequestParam("pageSize") Integer pageSize,
 			@RequestParam("pageNum") Integer pageNum,
 			@RequestParam(value = "taskType", required = false) TaskType taskType,
-			@RequestParam(value = "taskStatus", required = false) TaskStatus taskStatus) throws SQLException {
+			@RequestParam(value = "taskStatus", required = false) List<TaskStatus> taskStatusList) throws SQLException {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		TaskCondition tc = new TaskCondition();
 		tc.setUserId(user.getId());
+		tc.setType(taskType);
+		if (taskStatusList == null || taskStatusList.isEmpty()) {
+			taskStatusList = Lists.list(c);
+		}
+		tc.setStatusIn(taskStatusList);
 		tc.setLimiter(new PageParam(pageNum, pageSize));
 		tc.setSorter(new SortParam(new Order("start_window_from", Conditionable.Sequence.ASC),
 				new Order("id", Conditionable.Sequence.ASC)));
