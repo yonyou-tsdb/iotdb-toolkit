@@ -1,5 +1,6 @@
 package org.apache.iotdb.ui.condition;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.iotdb.ui.entity.Task;
@@ -19,6 +20,12 @@ public class TaskCondition extends Task implements Conditionable {
 
 	@ConditionMapperAnnotation(dbFieldName = "status", conditionType = ConditionType.IN, customTypeHandler = org.apache.iotdb.ui.handler.TaskStatusHandler.class)
 	private List<TaskStatus> statusIn;
+
+	@ConditionMapperAnnotation(dbFieldName = "start_window_to", conditionType = ConditionType.GREATER_OR_EQUAL)
+	private Date startWindowToGreaterOrEqual;
+
+	@ConditionMapperAnnotation(dbFieldName = "start_window_to", conditionType = ConditionType.LESS_THAN)
+	private Date startWindowToLessThan;
 
 	public Limitable getLimiter() {
 		return limiter;
@@ -42,6 +49,22 @@ public class TaskCondition extends Task implements Conditionable {
 
 	public void setStatusIn(List<TaskStatus> statusIn) {
 		this.statusIn = statusIn;
+	}
+
+	public Date getStartWindowToGreaterOrEqual() {
+		return startWindowToGreaterOrEqual;
+	}
+
+	public void setStartWindowToGreaterOrEqual(Date startWindowToGreaterOrEqual) {
+		this.startWindowToGreaterOrEqual = startWindowToGreaterOrEqual;
+	}
+
+	public Date getStartWindowToLessThan() {
+		return startWindowToLessThan;
+	}
+
+	public void setStartWindowToLessThan(Date startWindowToLessThan) {
+		this.startWindowToLessThan = startWindowToLessThan;
 	}
 
 }

@@ -129,4 +129,10 @@ public class FeedbackError {
 	public static final String PANEL_DELETE_FAIL = "PANEL-10004";
 
 	public static final String PANEL_GET_FAIL = "PANEL-10005";
+
+	public static final String TASK_DELETE_FAIL = "TASK-10004";
+
+	public static final String TASK_GET_FAIL = "TASK-10005";
+
+	public static final String TASK_DELETE_FAIL_FOR_ALREADY_START = "TASK-10006";
 }
