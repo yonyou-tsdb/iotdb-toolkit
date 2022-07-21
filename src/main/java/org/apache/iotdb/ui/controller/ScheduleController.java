@@ -9,9 +9,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.iotdb.ui.condition.TaskCondition;
+import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.Task;
 import org.apache.iotdb.ui.entity.User;
 import org.apache.iotdb.ui.exception.FeedbackError;
+import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.TaskDao;
 import org.apache.iotdb.ui.model.BaseVO;
 import org.apache.iotdb.ui.model.TaskStatus;
@@ -46,6 +48,9 @@ public class ScheduleController {
 
 	public static final TaskStatus[] c = { TaskStatus.NOT_START, TaskStatus.IN_PROGRESS, TaskStatus.NORMAL_END,
 			TaskStatus.FORCED_END };
+
+	@Autowired
+	private ConnectDao connectDao;
 
 	@Autowired
 	private TaskDao taskDao;
@@ -114,8 +119,41 @@ public class ScheduleController {
 	}
 
 	@RequestMapping(value = "/api/schedule/task/update", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> taskUpdate(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
-		return null;
+	public BaseVO<Object> taskUpdate(HttpServletRequest request, @RequestParam("id") Long id,
+			@RequestParam(value = "device", required = false) String device,
+			@RequestParam(value = "whereClause", required = false) String whereClause,
+			@RequestParam("compress") CompressEnum compress, @RequestParam("timeWindowStart") Long timeWindowStart,
+			@RequestParam("timeWindowEnd") Long timeWindowEnd, @RequestParam("priority") Integer priority)
+			throws SQLException {
+		Subject subject = SecurityUtils.getSubject();
+		User user = (User) subject.getSession().getAttribute(UserController.USER);
+		Task t = new Task();
+		t.setId(id);
+		t.setUserId(user.getId());
+		Task task = taskDao.selectOne(t);
+		if (task == null) {
+			return new BaseVO<>(FeedbackError.TASK_GET_FAIL, MessageUtil.get(FeedbackError.TASK_GET_FAIL), null);
+		}
+		if (task.getSetting() == null) {
+			task.setSetting(new JSONObject());
+		}
+		if (device != null) {
+			task.getSetting().put("device", device);
+		}
+		if (whereClause != null) {
+			task.getSetting().put("whereClause", whereClause);
+		}
+		task.getSetting().put("compress", compress);
+		Date timeWindowStartFrom = new Date(timeWindowStart);
+		Date timeWindowEndTo = new Date(timeWindowEnd);
+		task.setStartWindowFrom(timeWindowStartFrom);
+		task.setStartWindowTo(timeWindowEndTo);
+		task.setPriority(priority);
+		taskDao.update(task);
+		String info = String.format("%s %s -- %s (%s)", task.getType(),
+				fastDateFormat.format(task.getStartWindowFrom()), fastDateFormat.format(task.getStartWindowTo()),
+				task.getPriority());
+		return BaseVO.success(info, task);
 	}
 
 	@RequestMapping(value = "/api/schedule/task/view", method = { RequestMethod.GET, RequestMethod.POST })
@@ -129,6 +167,18 @@ public class ScheduleController {
 		if (task == null) {
 			return new BaseVO<>(FeedbackError.TASK_GET_FAIL, MessageUtil.get(FeedbackError.TASK_GET_FAIL), null);
 		} else {
+			if (task.getSetting() != null) {
+				Long connectId = task.getSetting().getLong("connectId");
+				if (connectId != null) {
+					Connect connect = connectDao.select(connectId);
+					if (connect != null) {
+						task.getSetting().put("connectDesc",
+								String.format("%s@%s:%s", connect.getUsername(), connect.getHost(), connect.getPort()));
+					}
+				}
+			} else {
+				task.setSetting(new JSONObject());
+			}
 			return BaseVO.success(task);
 		}
 	}
