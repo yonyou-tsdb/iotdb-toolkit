@@ -28,14 +28,16 @@ import org.apache.iotdb.ui.handler.TaskStatusHandler;
 import org.apache.iotdb.ui.handler.TaskTypeHandler;
 import org.apache.iotdb.ui.model.TaskStatus;
 import org.apache.iotdb.ui.model.TaskType;
+import org.apache.iotdb.ui.util.CommonUtils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import indi.mybatis.flying.annotations.FieldMapperAnnotation;
 import indi.mybatis.flying.annotations.TableMapperAnnotation;
 
 @TableMapperAnnotation(tableName = "tb_task")
-public class Task extends PojoSupport implements TaskFace {
+public class Task extends PojoSupport implements TaskFace, Comparable<Task> {
 
 	/**
 	 * 主键
@@ -195,6 +197,25 @@ public class Task extends PojoSupport implements TaskFace {
 
 	public void setUserId(Long userId) {
 		this.userId = userId;
+	}
+
+	@Override
+	public int compareTo(Task t) {
+		int ret = startWindowFrom.compareTo(t.getStartWindowFrom());
+		if (ret == 0) {
+			ret = priority.compareTo(t.getPriority());
+			if (ret == 0) {
+				ret = id.compareTo(t.getId());
+			}
+		}
+		return ret;
+	}
+
+	@JSONField(serialize = false)
+	public String key() {
+		return String.format("%s,%s,%s",
+				CommonUtils.addZeroForNum(startWindowFrom == null ? null : startWindowFrom.getTime()),
+				CommonUtils.addZeroForNum(priority), CommonUtils.addZeroForNum(id));
 	}
 
 }

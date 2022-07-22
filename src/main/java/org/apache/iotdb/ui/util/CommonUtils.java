@@ -27,4 +27,48 @@ public class CommonUtils {
 		int count = (origialLength - newLength) / matched.length();
 		return count;
 	}
+
+	public static String addZeroForNum(Integer num) {
+		return addZeroForNum(num, 10);
+	}
+
+	public static String addZeroForNum(Long num) {
+		return addZeroForNum(num, 19);
+	}
+
+	public static String addZeroForNum(Integer num, int length) {
+		int strLen;
+		String str;
+		if (num == null) {
+			strLen = 4;
+			str = "null";
+		} else {
+			str = num.toString();
+			strLen = str.length();
+		}
+		StringBuilder sb = new StringBuilder();
+		while (strLen < length) {
+			sb.append('0');
+			strLen++;
+		}
+		return sb.append(str).toString();
+	}
+
+	public static String addZeroForNum(Long num, int length) {
+		int strLen;
+		String str;
+		if (num == null) {
+			strLen = 4;
+			str = "null";
+		} else {
+			str = num.toString();
+			strLen = str.length();
+		}
+		StringBuilder sb = new StringBuilder();
+		while (strLen < length) {
+			sb.append('0');
+			strLen++;
+		}
+		return sb.append(str).toString();
+	}
 }

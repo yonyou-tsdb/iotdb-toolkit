@@ -13,7 +13,9 @@
 <mapper namespace="org.apache.iotdb.ui.mapper.TaskDao">
 	<select id="select" resultMap="result">{"action":"select#{?}","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"}, }}</select>
     <select id="selectAll" resultMap="result">{"action":"selectAll","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"},}}</select>
+    <select id="selectAllPure" resultMap="result">{"action":"selectAll"}</select>
     <select id="selectOne" resultMap="result">{"action":"selectOne","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"},}}</select>
+    <select id="selectOnePure" resultMap="result">{"action":"selectOne"}</select>
     <select id="count" resultType="int">{"action":"count"}</select>
     <insert id="insert">{"action":"insert", "keyGenerator":"org.apache.iotdb.ui.config.DistributedSnowflakeKeyGenerator2"}</insert>
     <update id="update">{"action":"update"}</update>

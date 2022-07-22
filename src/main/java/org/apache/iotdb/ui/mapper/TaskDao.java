@@ -11,8 +11,12 @@ public interface TaskDao {
 	public Task select(Long id);
 
 	public List<Task> selectAll(Task t);
+	
+	public List<Task> selectAllPure(Task t);
 
 	public Task selectOne(Task t);
+	
+	public Task selectOnePure(Task t);
 
 	public int update(Task t);
 

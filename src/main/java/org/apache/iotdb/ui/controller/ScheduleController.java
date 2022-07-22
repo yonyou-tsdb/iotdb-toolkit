@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.iotdb.ui.condition.TaskCondition;
+import org.apache.iotdb.ui.config.schedule.TaskTimerBucket;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.Task;
 import org.apache.iotdb.ui.entity.User;
@@ -55,12 +56,16 @@ public class ScheduleController {
 	@Autowired
 	private TaskDao taskDao;
 
+	@Autowired
+	private TaskTimerBucket taskTimerBucket;
+
 	@RequestMapping(value = "/api/schedule/task/all", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> taskAll(HttpServletRequest request, @RequestParam("pageSize") Integer pageSize,
 			@RequestParam("pageNum") Integer pageNum,
 			@RequestParam(value = "timeline", required = false) String timeline,
 			@RequestParam(value = "taskType", required = false) TaskType taskType,
 			@RequestParam(value = "taskStatus", required = false) List<TaskStatus> taskStatusList) throws SQLException {
+		System.out.println(taskTimerBucket.getTaskTimerMap().firstEntry().getValue().getPriority());
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		TaskCondition tc = new TaskCondition();
@@ -78,8 +83,8 @@ public class ScheduleController {
 			tc.setStartWindowToGreaterOrEqual(now);
 		}
 		tc.setLimiter(new PageParam(pageNum, pageSize));
-		tc.setSorter(new SortParam(new Order("start_window_from", Conditionable.Sequence.DESC),
-				new Order("priority", Conditionable.Sequence.DESC), new Order("id", Conditionable.Sequence.DESC)));
+		tc.setSorter(new SortParam(new Order("start_window_from", Conditionable.Sequence.ASC),
+				new Order("priority", Conditionable.Sequence.ASC), new Order("id", Conditionable.Sequence.ASC)));
 		List<Task> list = taskDao.selectAll(tc);
 		Page<Task> page = new Page<>(list, tc.getLimiter());
 		return BaseVO.success(page);
@@ -112,7 +117,10 @@ public class ScheduleController {
 		setting.put("device", device);
 		setting.put("whereClause", whereClause);
 		task.setSetting(setting);
-		taskDao.insert(task);
+		int i = taskDao.insert(task);
+		if (i == 1) {
+			taskTimerBucket.getTaskTimerMap().put(task.key(), task);
+		}
 		String info = String.format("%s %s -- %s (%s)", type, fastDateFormat.format(timeWindowStartFrom),
 				fastDateFormat.format(timeWindowEndTo), priority);
 		return BaseVO.success(info, null);
@@ -134,6 +142,7 @@ public class ScheduleController {
 		if (task == null) {
 			return new BaseVO<>(FeedbackError.TASK_GET_FAIL, MessageUtil.get(FeedbackError.TASK_GET_FAIL), null);
 		}
+		String oldKey = task.key();
 		if (task.getSetting() == null) {
 			task.setSetting(new JSONObject());
 		}
@@ -149,7 +158,11 @@ public class ScheduleController {
 		task.setStartWindowFrom(timeWindowStartFrom);
 		task.setStartWindowTo(timeWindowEndTo);
 		task.setPriority(priority);
-		taskDao.update(task);
+		int i = taskDao.update(task);
+		if (i == 1) {
+			taskTimerBucket.getTaskTimerMap().remove(oldKey);
+			taskTimerBucket.getTaskTimerMap().put(task.key(), task);
+		}
 		String info = String.format("%s %s -- %s (%s)", task.getType(),
 				fastDateFormat.format(task.getStartWindowFrom()), fastDateFormat.format(task.getStartWindowTo()),
 				task.getPriority());
@@ -201,6 +214,8 @@ public class ScheduleController {
 		int c = taskDao.delete(task);
 		if (c != 1) {
 			return new BaseVO<>(FeedbackError.TASK_DELETE_FAIL, MessageUtil.get(FeedbackError.TASK_DELETE_FAIL), null);
+		} else {
+			taskTimerBucket.getTaskTimerMap().remove(task.key());
 		}
 		String info = String.format("%s %s -- %s (%s)", task.getType(),
 				fastDateFormat.format(task.getStartWindowFrom()), fastDateFormat.format(task.getStartWindowTo()),
