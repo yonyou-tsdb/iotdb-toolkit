@@ -29,6 +29,7 @@
         <result property="startWindowTo" column="start_window_to"/>
         <result property="priority" column="priority"/>
         <result property="status" column="status" typeHandler="org.apache.iotdb.ui.handler.TaskStatusHandler"/>
+        <result property="resultRows" column="result_rows"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <association property="user" resultMap="org.apache.iotdb.ui.mapper.UserDao.result" columnPrefix="u__"/>

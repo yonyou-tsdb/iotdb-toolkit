@@ -37,7 +37,7 @@ import indi.mybatis.flying.annotations.FieldMapperAnnotation;
 import indi.mybatis.flying.annotations.TableMapperAnnotation;
 
 @TableMapperAnnotation(tableName = "tb_task")
-public class Task extends PojoSupport implements TaskFace, Comparable<Task> {
+public class Task extends PojoSupport implements TaskFace {
 
 	/**
 	 * 主键
@@ -87,6 +87,13 @@ public class Task extends PojoSupport implements TaskFace, Comparable<Task> {
 	 */
 	@FieldMapperAnnotation(dbFieldName = "status", jdbcType = JdbcType.CHAR, customTypeHandler = TaskStatusHandler.class)
 	private TaskStatus status;
+
+	/**
+	 * 结果行数
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "result_rows", jdbcType = JdbcType.BIGINT)
+	public Long resultRows;
 
 	@FieldMapperAnnotation(dbFieldName = "create_time", jdbcType = JdbcType.TIMESTAMP)
 	private Date createTime;
@@ -171,6 +178,14 @@ public class Task extends PojoSupport implements TaskFace, Comparable<Task> {
 		this.status = status;
 	}
 
+	public Long getResultRows() {
+		return resultRows;
+	}
+
+	public void setResultRows(Long resultRows) {
+		this.resultRows = resultRows;
+	}
+
 	public Date getCreateTime() {
 		return createTime;
 	}
@@ -199,23 +214,10 @@ public class Task extends PojoSupport implements TaskFace, Comparable<Task> {
 		this.userId = userId;
 	}
 
-	@Override
-	public int compareTo(Task t) {
-		int ret = startWindowFrom.compareTo(t.getStartWindowFrom());
-		if (ret == 0) {
-			ret = priority.compareTo(t.getPriority());
-			if (ret == 0) {
-				ret = id.compareTo(t.getId());
-			}
-		}
-		return ret;
-	}
-
 	@JSONField(serialize = false)
 	public String key() {
-		return String.format("%s,%s,%s",
-				CommonUtils.addZeroForNum(startWindowFrom == null ? null : startWindowFrom.getTime()),
-				CommonUtils.addZeroForNum(priority), CommonUtils.addZeroForNum(id));
+		return new StringBuilder(CommonUtils.addZeroForNum(startWindowFrom == null ? null : startWindowFrom.getTime()))
+				.append(CommonUtils.addZeroForNum(priority)).append(CommonUtils.addZeroForNum(id)).toString();
 	}
 
 }

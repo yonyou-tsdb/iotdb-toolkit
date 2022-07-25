@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.iotdb.ui.condition.TaskCondition;
+import org.apache.iotdb.ui.config.TaskWrapper;
 import org.apache.iotdb.ui.config.schedule.TaskTimerBucket;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.Task;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yonyou.iotdb.utils.core.ExportStarter;
 import com.yonyou.iotdb.utils.core.pipeline.context.model.CompressEnum;
 
 import indi.mybatis.flying.models.Conditionable;
@@ -59,13 +61,18 @@ public class ScheduleController {
 	@Autowired
 	private TaskTimerBucket taskTimerBucket;
 
+	@Autowired
+	private TaskWrapper taskWrapper;
+
+	@Autowired
+	private ExportStarter exportStarter;
+
 	@RequestMapping(value = "/api/schedule/task/all", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> taskAll(HttpServletRequest request, @RequestParam("pageSize") Integer pageSize,
 			@RequestParam("pageNum") Integer pageNum,
 			@RequestParam(value = "timeline", required = false) String timeline,
 			@RequestParam(value = "taskType", required = false) TaskType taskType,
 			@RequestParam(value = "taskStatus", required = false) List<TaskStatus> taskStatusList) throws SQLException {
-		System.out.println(taskTimerBucket.getTaskTimerMap().firstEntry().getValue().getPriority());
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		TaskCondition tc = new TaskCondition();
@@ -221,5 +228,12 @@ public class ScheduleController {
 				fastDateFormat.format(task.getStartWindowFrom()), fastDateFormat.format(task.getStartWindowTo()),
 				task.getPriority());
 		return BaseVO.success(info, null);
+	}
+
+	@RequestMapping(value = "/api/schedule/task/process", method = { RequestMethod.GET, RequestMethod.POST })
+	public BaseVO<Object> taskProcess(HttpServletRequest request) throws SQLException {
+		Long process = taskWrapper.getProcess();
+		boolean b = taskWrapper.isFinish();
+		return BaseVO.success(process.toString(), b);
 	}
 }

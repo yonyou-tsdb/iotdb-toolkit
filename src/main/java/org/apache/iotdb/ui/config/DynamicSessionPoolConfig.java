@@ -137,7 +137,6 @@ public class DynamicSessionPoolConfig {
 		e.setStatus(TaskStatus.NOT_START);
 		List<Task> list = taskDao.selectAllPure(e);
 		for (Task t : list) {
-			System.out.println(t.key());
 			taskTimerBucket.getTaskTimerMap().put(t.key(), t);
 		}
 	}

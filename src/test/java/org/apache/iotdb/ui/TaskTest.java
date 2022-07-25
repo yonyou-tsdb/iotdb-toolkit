@@ -45,6 +45,7 @@ public class TaskTest {
 		Assert.assertEquals(TaskType.EXPORT, task.getType());
 		Assert.assertEquals(TaskStatus.NOT_START, task.getStatus());
 		Assert.assertEquals("1", task.getSetting().get("setting"));
+		Assert.assertEquals(123, task.getResultRows().intValue());
 		task.setStatus(TaskStatus.NORMAL_END);
 		task.getSetting().put("setting", "3");
 		taskDao.update(task);

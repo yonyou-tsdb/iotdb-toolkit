@@ -37,4 +37,11 @@ public class UtilConfig {
 		return new ImportStarter();
 	}
 
+	@Bean
+	public TaskWrapper taskWrapper() {
+		TaskWrapper taskWrapper = new TaskWrapper();
+		taskWrapper.setExportStarter(exportStarter());
+		taskWrapper.setImportStarter(importStarter());
+		return taskWrapper;
+	}
 }

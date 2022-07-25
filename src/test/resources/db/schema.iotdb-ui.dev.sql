@@ -163,6 +163,7 @@ create table tb_task
    start_window_to      datetime comment '时间窗口结束时间',
    priority             integer comment '优先级',
    status               char(1) comment '状态（0未开始1进行中2正常结束3异常结束4强制结束）',
+   result_rows          bigint comment '结果行数',
    create_time          datetime,
    update_time          datetime,
    primary key (id)

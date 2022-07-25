@@ -81,6 +81,7 @@ iotdbui:
    monitor:
       server:
          host: 172.20.45.128
+         temp: E:\export_
       rmi:
          basePath: E:\workspace1\DynamicTrigger
          srcFiles: 

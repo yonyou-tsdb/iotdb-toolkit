@@ -43,7 +43,6 @@ public class LoggerDescriptionHandler implements LoggerDescriptionable {
 	}
 
 	public String[] getError() {
-		System.out.println(error);
 		return error;
 	}
 

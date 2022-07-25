@@ -327,14 +327,14 @@
 		<!-- <dependency>
 			<groupId>com.yonyou.iotdb</groupId>
 			<artifactId>utils-core</artifactId>
-			<version>0.13.4-SNAPSHOT</version>
+			<version>0.13.1.8-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/utils-core-0.13.4-SNAPSHOT.jar</systemPath>
+			<systemPath>${project.basedir}/lib/utils-core-0.13.1.8-SNAPSHOT.jar</systemPath>
 		</dependency> -->
 		<dependency>
 			<groupId>com.yonyou.iotdb</groupId>
 			<artifactId>utils-core</artifactId>
-			<version>0.13.1.4-SNAPSHOT</version>
+			<version>0.13.1.8-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>io.projectreactor</groupId>

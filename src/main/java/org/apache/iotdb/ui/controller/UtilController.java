@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.session.Session;
+import org.apache.iotdb.ui.config.TaskWrapper;
 import org.apache.iotdb.ui.model.BaseVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -52,11 +53,15 @@ public class UtilController {
 	@Autowired
 	private ImportStarter importStarter;
 
+	@Autowired
+	private TaskWrapper taskWrapper;
+
 	@RequestMapping(value = "/api/util/export/start", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> exportStart(HttpServletRequest request) throws SQLException {
 		ExportModel exportModel = new ExportModel();
 		exportModel.setCharSet("utf8");
-		exportModel.setCompressEnum(CompressEnum.GZIP);
+//		exportModel.setCompressEnum(CompressEnum.GZIP);
+		exportModel.setCompressEnum(CompressEnum.CSV);
 		exportModel.setFileFolder("E:\\export_ln4");
 		exportModel.setFileSinkStrategyEnum(FileSinkStrategyEnum.EXTRA_CATALOG);
 		exportModel.setIotdbPath("root._monitor.\"115.28.134.232\".**");
@@ -75,7 +80,6 @@ public class UtilController {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.println(d.isDisposed());
 		return null;
 	}
 
@@ -99,13 +103,15 @@ public class UtilController {
 
 	@RequestMapping(value = "/api/util/export/progress", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> exportProgress(HttpServletRequest request) throws SQLException {
-		Double[] d = exportStarter.rateOfProcess();
-		return BaseVO.success(d);
+		Long d = exportStarter.finishedRowNum();
+		boolean b = taskWrapper.isFinish();
+		return BaseVO.success(d.toString(), b);
 	}
 
 	@RequestMapping(value = "/api/util/import/progress", method = { RequestMethod.GET, RequestMethod.POST })
 	public BaseVO<Object> importProgress(HttpServletRequest request) throws SQLException {
-		Double[] d = importStarter.rateOfProcess();
-		return BaseVO.success(d);
+		Long d = importStarter.finishedRowNum();
+		boolean b = taskWrapper.isFinish();
+		return BaseVO.success(d.toString(), b);
 	}
 }
