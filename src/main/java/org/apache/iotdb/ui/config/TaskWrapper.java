@@ -38,12 +38,14 @@ public class TaskWrapper {
 		return 0L;
 	}
 
-	public void start(ExportModel exportModel) {
+	public Disposable start(ExportModel exportModel) {
 		disposable = exportStarter.start(exportModel);
+		return disposable;
 	}
 
-	public void start(ImportModel importModel) {
+	public Disposable start(ImportModel importModel) {
 		disposable = importStarter.start(importModel);
+		return disposable;
 	}
 
 	public Task getTask() {

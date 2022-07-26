@@ -32,10 +32,13 @@ import org.apache.iotdb.ui.config.tsdatasource.SessionDataSetWrapper;
 import org.apache.iotdb.ui.config.websocket.WebsocketConfiguration;
 import org.apache.iotdb.ui.config.websocket.WebsocketEndPoint;
 import org.apache.iotdb.ui.controller.UserController;
+import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.Task;
+import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.TaskDao;
 import org.apache.iotdb.ui.model.CaptchaWrapper;
 import org.apache.iotdb.ui.model.TaskStatus;
+import org.apache.iotdb.ui.model.TaskType;
 import org.apache.shiro.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,10 +52,16 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.yonyou.iotdb.utils.core.pipeline.context.model.CompressEnum;
 import com.yonyou.iotdb.utils.core.pipeline.context.model.ExportModel;
 import com.yonyou.iotdb.utils.core.pipeline.context.model.FileSinkStrategyEnum;
+import com.yonyou.iotdb.utils.core.pipeline.context.model.ImportModel;
+
+import reactor.core.Disposable;
 
 @Configuration
 @EnableScheduling
 public class TimerConfig {
+
+	@Autowired
+	private ConnectDao connectDao;
 
 	@Autowired
 	private ExporterConfig exporterConfig;
@@ -75,8 +84,6 @@ public class TimerConfig {
 	@Autowired
 	@Qualifier("exporterTaskExecutor")
 	private ThreadPoolTaskExecutor exporterTaskExecutor;
-
-	public static Long cou = System.currentTimeMillis() / 1000;
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(TimerConfig.class);
 
@@ -101,33 +108,28 @@ public class TimerConfig {
 		return false;
 	}
 
-	@Scheduled(cron = "0/1 * * * * *")
-	public void couPlus() {
-		cou++;
-	}
-
-	@Scheduled(cron = "0/1 * * * * *")
-	public void sendmsg() {
-		if (cou % 60 == 0) {
-			copyOnWriteArraySet.forEach(c -> {
-				try {
-					Session subjectSession = (Session) c.getWssession().getUserProperties()
-							.get(WebsocketEndPoint.SHIRO_SESSION);
-					subjectSession.touch();
-				} catch (Exception e) {
-					WebsocketConfiguration.webSocketIdMap.remove(c.getWssessionId());
-				}
-			});
-			sessionDataSetWrapperC.removeIf(e -> sessionDataSetWrapperIsNotValid(cou, e));
-			captchaWrapperSet.removeIf(e -> captchaIsNotValid(cou, e));
-		}
+	@Scheduled(cron = "0 0/1 * * * *")
+	public void heartBeat() {
+		Long cou = System.currentTimeMillis() / 1000;
+		copyOnWriteArraySet.forEach(c -> {
+			try {
+				Session subjectSession = (Session) c.getWssession().getUserProperties()
+						.get(WebsocketEndPoint.SHIRO_SESSION);
+				subjectSession.touch();
+			} catch (Exception e) {
+				WebsocketConfiguration.webSocketIdMap.remove(c.getWssessionId());
+			}
+		});
+		sessionDataSetWrapperC.removeIf(e -> sessionDataSetWrapperIsNotValid(cou, e));
+		captchaWrapperSet.removeIf(e -> captchaIsNotValid(cou, e));
 	}
 
 	@Scheduled(cron = "0/1 * * * * *")
 	public void pullExporter() {
+		Long cou1 = System.currentTimeMillis() / 1000;
 		exporterTimerBucket.getExporterTimerMap().forEach((k, v) -> {
 			int period = v.getPeriod() >= 5 ? v.getPeriod() : 5;
-			if (cou % period == 0) {
+			if (cou1 % period == 0) {
 				exporterTaskExecutor.execute(new Runnable() {
 					public void run() {
 						try {
@@ -143,58 +145,94 @@ public class TimerConfig {
 	@Scheduled(cron = "0/1 * * * * *")
 	public void dealTask() {
 		if (taskWrapper.isFinish() && taskWrapper.getTask() != null) {
-			Task task = taskWrapper.getTask();
-			task.setStatus(TaskStatus.NORMAL_END);
-			task.setResultRows(taskWrapper.getProcess());
-			int i = taskDao.update(task);
-			if (i == 1) {
-				taskWrapper.setTask(null);
-				taskTimerBucket.getTaskTimerMap().put(task.key(), task);
-			}
+			normalEndTask();
 		}
-		if (cou % 60 == 0) {
-			Iterator<Entry<String, Task>> it = taskTimerBucket.getTaskTimerMap().entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<String, Task> e = it.next();
-				Task task = e.getValue();
-				TaskStatus t = task.getStatus();
-				if (task.getStartWindowTo().getTime() < cou * 1000 || TaskStatus.NORMAL_END.equals(t)
-						|| TaskStatus.ABEND.equals(t) || TaskStatus.FORCED_END.equals(t)) {
-					it.remove();
-				} else if (TaskStatus.NOT_START.equals(t) && task.getStartWindowFrom().getTime() <= (cou + 1) * 1000) {
-					task.setStatus(TaskStatus.IN_PROGRESS);
-					taskDao.update(task);
-					handleTask(task);
-					break;
-				} else {
-					break;
-				}
+		Iterator<Entry<String, Task>> it = taskTimerBucket.getTaskTimerMap().entrySet().iterator();
+		Long cou1 = System.currentTimeMillis();
+		while (it.hasNext()) {
+			Entry<String, Task> e = it.next();
+			Task task = e.getValue();
+			TaskStatus t = task.getStatus();
+			if (task.getStartWindowTo().getTime() < cou1 || TaskStatus.NORMAL_END.equals(t)
+					|| TaskStatus.ABEND.equals(t) || TaskStatus.FORCED_END.equals(t)) {
+				it.remove();
+			} else if (TaskStatus.NOT_START.equals(t) && task.getStartWindowFrom().getTime() <= (cou1 + 1000)) {
+				task.setStatus(TaskStatus.IN_PROGRESS);
+				taskDao.update(task);
+				handleTask(task);
+				break;
+			} else {
+				break;
 			}
 		}
 	}
 
-	private void handleTask(Task task) {
+	private void normalEndTask() {
+		Task task = taskWrapper.getTask();
+		task.setStatus(TaskStatus.NORMAL_END);
+		task.setResultRows(taskWrapper.getProcess());
+		int i = taskDao.update(task);
+		if (i == 1) {
+			taskWrapper.setTask(null);
+			taskTimerBucket.getTaskTimerMap().put(task.key(), task);
+		}
+	}
+
+	private Disposable handleTask(Task task) {
 		taskWrapper.setTask(task);
-		ExportModel exportModel = new ExportModel();
-		exportModel.setCharSet("utf8");
-		exportModel.setCompressEnum(CompressEnum.GZIP);
-		exportModel
-				.setFileFolder(new StringBuilder(monitorServerConfig.getTemp()).append(UUID.randomUUID()).toString());
-		exportModel.setFileSinkStrategyEnum(FileSinkStrategyEnum.EXTRA_CATALOG);
-		if (CompressEnum.CSV.name().equals(task.getSetting().getString("compress"))) {
-			exportModel.setIotdbPath("root._monitor.\"115.28.134.232\".**");
+		if (TaskType.EXPORT.equals(task.getType())) {
+			ExportModel exportModel = new ExportModel();
+			exportModel.setCharSet("utf8");
+			exportModel.setFileFolder(
+					new StringBuilder(monitorServerConfig.getTemp()).append(UUID.randomUUID()).toString());
+			exportModel.setFileSinkStrategyEnum(FileSinkStrategyEnum.EXTRA_CATALOG);
+			exportModel.setNeedTimeseriesStructure(true);
+			if (task.getSetting() != null) {
+				exportModel.setIotdbPath(task.getSetting().getString("device"));
+				if (task.getSetting().getString("compress") != null) {
+					exportModel.setCompressEnum(CompressEnum.valueOf(task.getSetting().getString("compress")));
+				}
+				if (task.getSetting().getString("whereClause") != null) {
+					exportModel.setWhereClause(task.getSetting().getString("whereClause"));
+				}
+				if (task.getSetting().getLong("connectId") != null) {
+					Connect connect = connectDao.select(task.getSetting().getLong("connectId"));
+					if (connect != null) {
+						org.apache.iotdb.session.Session session = new org.apache.iotdb.session.Session(
+								connect.getHost(), connect.getPort(), connect.getUsername(), connect.getPassword());
+						try {
+							session.open();
+						} catch (IoTDBConnectionException e) {
+						}
+						exportModel.setSession(session);
+					}
+				}
+			}
+			return taskWrapper.start(exportModel);
 		} else {
-			exportModel.setIotdbPath("root._monitor.\"172.20.48.111\".**");
+			ImportModel importModel = new ImportModel();
+			importModel.setCharSet("utf8");
+			importModel.setFileSinkStrategyEnum(FileSinkStrategyEnum.EXTRA_CATALOG);
+			importModel.setNeedTimeseriesStructure(true);
+			if (task.getSetting() != null) {
+				importModel.setFileFolder(task.getSetting().getString("fileFolder"));
+				if (task.getSetting().getString("compress") != null) {
+					importModel.setCompressEnum(CompressEnum.valueOf(task.getSetting().getString("compress")));
+				}
+				if (task.getSetting().getLong("connectId") != null) {
+					Connect connect = connectDao.select(task.getSetting().getLong("connectId"));
+					if (connect != null) {
+						org.apache.iotdb.session.Session session = new org.apache.iotdb.session.Session(
+								connect.getHost(), connect.getPort(), connect.getUsername(), connect.getPassword());
+						try {
+							session.open();
+						} catch (IoTDBConnectionException e) {
+						}
+						importModel.setSession(session);
+					}
+				}
+			}
+			return taskWrapper.start(importModel);
 		}
-		exportModel.setNeedTimeseriesStructure(true);
-		org.apache.iotdb.session.Session session = new org.apache.iotdb.session.Session("172.20.45.128", "6667", "root",
-				"root");
-		try {
-			session.open();
-		} catch (IoTDBConnectionException e) {
-			e.printStackTrace();
-		}
-		exportModel.setSession(session);
-		taskWrapper.start(exportModel);
 	}
 }

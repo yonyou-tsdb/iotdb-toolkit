@@ -327,14 +327,14 @@
 		<!-- <dependency>
 			<groupId>com.yonyou.iotdb</groupId>
 			<artifactId>utils-core</artifactId>
-			<version>0.13.1.8-SNAPSHOT</version>
+			<version>0.13.1.9-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/utils-core-0.13.1.8-SNAPSHOT.jar</systemPath>
+			<systemPath>${project.basedir}/lib/utils-core-0.13.1.9-SNAPSHOT.jar</systemPath>
 		</dependency> -->
 		<dependency>
 			<groupId>com.yonyou.iotdb</groupId>
 			<artifactId>utils-core</artifactId>
-			<version>0.13.1.8-SNAPSHOT</version>
+			<version>0.13.1.9-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>io.projectreactor</groupId>
@@ -406,13 +406,13 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
+			<!-- <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
-			</plugin>
+			</plugin> -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

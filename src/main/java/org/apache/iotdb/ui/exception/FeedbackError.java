@@ -135,4 +135,6 @@ public class FeedbackError {
 	public static final String TASK_GET_FAIL = "TASK-10005";
 
 	public static final String TASK_DELETE_FAIL_FOR_ALREADY_START = "TASK-10006";
+
+	public static final String TASK_EDIT_FAIL_FOR_ALREADY_START = "TASK-10007";
 }

@@ -101,6 +101,7 @@ public class ScheduleController {
 	public BaseVO<Object> taskAdd(HttpServletRequest request, @RequestParam("type") TaskType type,
 			@RequestParam("connectId") Long connectId, @RequestParam(value = "device", required = false) String device,
 			@RequestParam(value = "whereClause", required = false) String whereClause,
+			@RequestParam(value = "fileFolder", required = false) String fileFolder,
 			@RequestParam("compress") CompressEnum compress, @RequestParam("timeWindowStart") Long timeWindowStart,
 			@RequestParam("timeWindowEnd") Long timeWindowEnd, @RequestParam("priority") Integer priority)
 			throws SQLException {
@@ -123,6 +124,7 @@ public class ScheduleController {
 		setting.put("connectId", connectId);
 		setting.put("device", device);
 		setting.put("whereClause", whereClause);
+		setting.put("fileFolder", fileFolder);
 		task.setSetting(setting);
 		int i = taskDao.insert(task);
 		if (i == 1) {
@@ -137,6 +139,7 @@ public class ScheduleController {
 	public BaseVO<Object> taskUpdate(HttpServletRequest request, @RequestParam("id") Long id,
 			@RequestParam(value = "device", required = false) String device,
 			@RequestParam(value = "whereClause", required = false) String whereClause,
+			@RequestParam(value = "fileFolder", required = false) String fileFolder,
 			@RequestParam("compress") CompressEnum compress, @RequestParam("timeWindowStart") Long timeWindowStart,
 			@RequestParam("timeWindowEnd") Long timeWindowEnd, @RequestParam("priority") Integer priority)
 			throws SQLException {
@@ -149,6 +152,10 @@ public class ScheduleController {
 		if (task == null) {
 			return new BaseVO<>(FeedbackError.TASK_GET_FAIL, MessageUtil.get(FeedbackError.TASK_GET_FAIL), null);
 		}
+		if (!TaskStatus.NOT_START.equals(task.getStatus())) {
+			return new BaseVO<>(FeedbackError.TASK_EDIT_FAIL_FOR_ALREADY_START,
+					MessageUtil.get(FeedbackError.TASK_EDIT_FAIL_FOR_ALREADY_START), null);
+		}
 		String oldKey = task.key();
 		if (task.getSetting() == null) {
 			task.setSetting(new JSONObject());
@@ -158,6 +165,9 @@ public class ScheduleController {
 		}
 		if (whereClause != null) {
 			task.getSetting().put("whereClause", whereClause);
+		}
+		if (fileFolder != null) {
+			task.getSetting().put("fileFolder", fileFolder);
 		}
 		task.getSetting().put("compress", compress);
 		Date timeWindowStartFrom = new Date(timeWindowStart);
