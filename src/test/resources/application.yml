@@ -64,7 +64,6 @@ iotdbui:
          queueCapacity: 100
    monitor:
       server:
-         host: 172.20.45.128
       rmi:
          basePath: 
          srcFiles: 
