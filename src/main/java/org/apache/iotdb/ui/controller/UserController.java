@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.iotdb.ui.condition.EmailLogCondition;
 import org.apache.iotdb.ui.config.EmailConfig;
+import org.apache.iotdb.ui.config.schedule.TimerConfig;
 import org.apache.iotdb.ui.config.shiro.UsernamePasswordIdToken;
-import org.apache.iotdb.ui.config.websocket.TimerConfig;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.EmailLog;
 import org.apache.iotdb.ui.entity.User;
@@ -103,7 +103,7 @@ public class UserController {
 		JSONObject json = new JSONObject();
 		User u = new User();
 		u.setName(username);
-		User user = userDao.selectOne(u);
+		User user = userDao.selectOneWithEverything(u);
 		BaseVO<JSONObject> ret = null;
 		try {
 			Subject subject = SecurityUtils.getSubject();
@@ -175,7 +175,7 @@ public class UserController {
 		// 生成随机字串
 		String verifyCode = VerifyCodeUtils.generateVerifyCode(4);
 		// 将token与verifyCode的组合存入缓存
-		CaptchaWrapper cw = new CaptchaWrapper(verifyCode, TimerConfig.cou);
+		CaptchaWrapper cw = new CaptchaWrapper(verifyCode, System.currentTimeMillis() / 1000);
 		captchaMap.put(token, cw);
 		// 生成图片
 		int w = 100, h = 30;
@@ -417,7 +417,7 @@ public class UserController {
 			@RequestParam(value = "password") String password) {
 		Subject subject = SecurityUtils.getSubject();
 		User u = (User) subject.getSession().getAttribute(USER);
-		User user = userDao.select(u.getId());
+		User user = userDao.selectWithEverything(u.getId());
 		if (user == null) {
 			return new BaseVO<>(FeedbackError.GET_USER_FAIL, MessageUtil.get(FeedbackError.GET_USER_FAIL), null);
 		}
