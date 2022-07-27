@@ -32,7 +32,7 @@ public class FeedbackError {
 
 	public static final String TEST_CONN_FAIL = "CONN-10007";
 
-	public static final String USER_AUTH_FAIL = "USER-10008";
+	public static final String USER_AUTH_FAIL = "USER-10001";
 
 	public static final String TEST_CONN_FAIL_PWD = "CONN-10010";
 
@@ -79,9 +79,9 @@ public class FeedbackError {
 	public static final String IMPORT_CSV_FAIL = "CSV-10008";
 
 	public static final String DELETE_USER_FAIL = "USER-10006";
-	
+
 	public static final String DELETE_ACCOUNT_USER_FAIL = "USER-10007";
-	
+
 	public static final String CHANGE_ACCOUNT_USER_PASSWORD_FAIL = "USER-10008";
 
 	public static final String QUERY_EXIST = "QUERY-10001";
@@ -105,4 +105,36 @@ public class FeedbackError {
 	public static final String ACCOUNT_PASSWORD_ERROR = "ACCOUNT-10009";
 
 	public static final String ACCOUNT_DELETE_ERROR = "ACCOUNT-10010";
+
+	public static final String EXPORTER_NAME_REPEAT = "EXPORTER-10001";
+
+	public static final String EXPORTER_ENDPOINT_REPEAT = "EXPORTER-10002";
+
+	public static final String EXPORTER_CODE_REPEAT = "EXPORTER-10003";
+
+	public static final String EXPORTER_DELETE_FAIL = "EXPORTER-10004";
+
+	public static final String EXPORTER_GET_FAIL = "EXPORTER-10005";
+
+	public static final String BOARD_TOKEN_REPEAT = "BOARD-10003";
+
+	public static final String BOARD_DELETE_FAIL = "BOARD-10004";
+
+	public static final String BOARD_GET_FAIL = "BOARD-10005";
+
+	public static final String PANEL_REACH_LIMIT = "PANEL-10002";
+
+	public static final String PANEL_NAME_REPEAT = "PANEL-10003";
+
+	public static final String PANEL_DELETE_FAIL = "PANEL-10004";
+
+	public static final String PANEL_GET_FAIL = "PANEL-10005";
+
+	public static final String TASK_DELETE_FAIL = "TASK-10004";
+
+	public static final String TASK_GET_FAIL = "TASK-10005";
+
+	public static final String TASK_DELETE_FAIL_FOR_ALREADY_START = "TASK-10006";
+
+	public static final String TASK_EDIT_FAIL_FOR_ALREADY_START = "TASK-10007";
 }

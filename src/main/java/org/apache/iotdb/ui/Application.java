@@ -44,6 +44,7 @@ public class Application {
 		SpringApplication.run(Application.class, args);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Bean
 	public HttpMessageConverters fastJsonHttpMessageConverters() {
 
@@ -68,14 +69,14 @@ public class Application {
 		List<MediaType> fastMediaTypes = new ArrayList<>();
 		fastMediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
 		fastJsonConverter.setSupportedMediaTypes(fastMediaTypes);
-		
+
 		// 处理Long型属性序列化后精度问题
 		SerializeConfig serializeConfig = SerializeConfig.globalInstance;
 		serializeConfig.put(BigInteger.class, ToStringSerializer.instance);
 		serializeConfig.put(Long.class, ToStringSerializer.instance);
 		serializeConfig.put(Long.TYPE, ToStringSerializer.instance);
 		fastJsonConfig.setSerializeConfig(serializeConfig);
-		
+
 		fastJsonConverter.setFastJsonConfig(fastJsonConfig);
 
 //		HttpMessageConverter<?> converter = fastJsonConverter;

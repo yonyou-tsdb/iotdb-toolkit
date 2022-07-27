@@ -1,18 +1,38 @@
 package org.apache.iotdb.ui.service;
 
-import com.jcraft.jsch.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Vector;
+
+import org.apache.iotdb.ui.config.MonitorServerConfig;
 import org.apache.iotdb.ui.exception.PlatFormException;
 import org.apache.iotdb.ui.model.BaseVO;
 import org.apache.iotdb.ui.util.MessageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.util.*;
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpATTRS;
 
 @Service
 public class FilePreviewService {
+	
+	@Autowired
+	private MonitorServerConfig monitorServerConfig;
 
     private static final String YML = ".yml";
 
@@ -40,7 +60,7 @@ public class FilePreviewService {
 //                jsch.addIdentity(privateKey);// 设置私钥
 //            }
             session = jsch.getSession("root", ip, 22);
-            session.setPassword("f9Hb9kJURv");
+            session.setPassword(monitorServerConfig.getTemp2());
             Properties config = new Properties();
             //SSH对主机的public_key的检查等级
             config.put("StrictHostKeyChecking", "no");
@@ -92,7 +112,7 @@ public class FilePreviewService {
 //                jsch.addIdentity(privateKey);// 设置私钥
 //            }
             session = jsch.getSession("root", ip, 22);
-            session.setPassword("f9Hb9kJURv");
+            session.setPassword(monitorServerConfig.getTemp2());
             Properties config = new Properties();
             //SSH对主机的public_key的检查等级
             config.put("StrictHostKeyChecking", "no");
@@ -284,7 +304,7 @@ public class FilePreviewService {
 //                jsch.addIdentity(privateKey);// 设置私钥
 //            }
             session = jsch.getSession("root", ip, 22);
-            session.setPassword("f9Hb9kJURv");
+            session.setPassword(monitorServerConfig.getTemp2());
             Properties config = new Properties();
             //SSH对主机的public_key的检查等级
             config.put("StrictHostKeyChecking", "no");

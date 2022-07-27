@@ -25,8 +25,14 @@ import java.util.Map;
 
 import org.apache.ibatis.type.JdbcType;
 import org.apache.iotdb.ui.entity.helper.PojoSupport;
+import org.apache.iotdb.ui.face.AlertFace;
+import org.apache.iotdb.ui.face.BoardFace;
 import org.apache.iotdb.ui.face.ConnectFace;
 import org.apache.iotdb.ui.face.EmailLogFace;
+import org.apache.iotdb.ui.face.ExporterFace;
+import org.apache.iotdb.ui.face.PanelFace;
+import org.apache.iotdb.ui.face.TaskFace;
+import org.apache.iotdb.ui.face.TriggerFace;
 import org.apache.iotdb.ui.face.UserFace;
 
 import com.alibaba.fastjson.JSONObject;
@@ -56,7 +62,7 @@ public class User extends PojoSupport implements UserFace {
 	 * 密码
 	 * 
 	 */
-	@FieldMapperAnnotation(dbFieldName = "password", jdbcType = JdbcType.VARCHAR)
+	@FieldMapperAnnotation(dbFieldName = "password", jdbcType = JdbcType.VARCHAR, ignoreTag = { "noPassword" })
 	private String password;
 
 	/**
@@ -71,6 +77,24 @@ public class User extends PojoSupport implements UserFace {
 
 	@JSONField(serialize = false)
 	private Map<Object, EmailLogFace> emailLogMap;
+
+	@JSONField(serialize = false)
+	private Map<Object, TriggerFace> triggerMap;
+
+	@JSONField(serialize = false)
+	private Map<Object, AlertFace> alertMap;
+
+	@JSONField(serialize = false)
+	private Map<Object, ExporterFace> exporterMap;
+
+	@JSONField(serialize = false)
+	private Map<Object, PanelFace> panelMap;
+
+	@JSONField(serialize = false)
+	private Map<Object, BoardFace> boardMap;
+
+	@JSONField(serialize = false)
+	private Map<Object, TaskFace> taskMap;
 
 	public Map<Object, ? extends ConnectFace> getConnectMap() {
 		if (connectMap == null) {
@@ -194,6 +218,378 @@ public class User extends PojoSupport implements UserFace {
 				oldEmailLog = iter.next();
 				iter.remove();
 				oldEmailLog.setUser(null);
+			}
+		}
+	}
+
+	public Map<Object, ? extends TriggerFace> getTriggerMap() {
+		if (triggerMap == null)
+			triggerMap = new LinkedHashMap<Object, TriggerFace>();
+		return triggerMap;
+	}
+
+	public Collection<? extends TriggerFace> getTrigger() {
+		return getTriggerMap().values();
+	}
+
+	private Iterator<? extends TriggerFace> getIteratorTrigger() {
+		return getTrigger().iterator();
+	}
+
+	public void setTrigger(Collection<? extends TriggerFace> newTrigger) {
+		removeAllTrigger();
+		for (Iterator<? extends TriggerFace> iter = newTrigger.iterator(); iter.hasNext();)
+			addTrigger(iter.next());
+	}
+
+	public void addTrigger(TriggerFace newTrigger) {
+		if (newTrigger == null)
+			return;
+		if (this.triggerMap == null)
+			this.triggerMap = new LinkedHashMap<Object, TriggerFace>();
+		if (!this.triggerMap.containsKey(newTrigger.getId())) {
+			this.triggerMap.put(newTrigger.getId(), newTrigger);
+			newTrigger.setUser(this);
+		} else {
+			TriggerFace temp = triggerMap.get(newTrigger.getId());
+			if (newTrigger.equals(temp) && temp != newTrigger) {
+				removeTrigger(temp);
+				this.triggerMap.put(newTrigger.getId(), newTrigger);
+				newTrigger.setUser(this);
+			}
+		}
+	}
+
+	public void removeTrigger(TriggerFace oldTrigger) {
+		if (oldTrigger == null)
+			return;
+		if (this.triggerMap != null && this.triggerMap.containsKey(oldTrigger.getId())) {
+			TriggerFace temp = triggerMap.get(oldTrigger.getId());
+			if (oldTrigger.equals(temp) && temp != oldTrigger) {
+				temp.setUser(null);
+			}
+			this.triggerMap.remove(oldTrigger.getId());
+			oldTrigger.setUser(null);
+		}
+	}
+
+	public void removeAllTrigger() {
+		if (triggerMap != null) {
+			TriggerFace oldTrigger;
+			for (Iterator<? extends TriggerFace> iter = getIteratorTrigger(); iter.hasNext();) {
+				oldTrigger = iter.next();
+				iter.remove();
+				oldTrigger.setUser(null);
+			}
+		}
+	}
+
+	public Map<Object, ? extends AlertFace> getAlertMap() {
+		if (alertMap == null)
+			alertMap = new LinkedHashMap<Object, AlertFace>();
+		return alertMap;
+	}
+
+	public Collection<? extends AlertFace> getAlert() {
+		return getAlertMap().values();
+	}
+
+	private Iterator<? extends AlertFace> getIteratorAlert() {
+		return getAlert().iterator();
+	}
+
+	public void setAlert(Collection<? extends AlertFace> newAlert) {
+		removeAllAlert();
+		for (Iterator<? extends AlertFace> iter = newAlert.iterator(); iter.hasNext();)
+			addAlert(iter.next());
+	}
+
+	public void addAlert(AlertFace newAlert) {
+		if (newAlert == null)
+			return;
+		if (this.alertMap == null)
+			this.alertMap = new LinkedHashMap<Object, AlertFace>();
+		if (!this.alertMap.containsKey(newAlert.getId())) {
+			this.alertMap.put(newAlert.getId(), newAlert);
+			newAlert.setUser(this);
+		} else {
+			AlertFace temp = alertMap.get(newAlert.getId());
+			if (newAlert.equals(temp) && temp != newAlert) {
+				removeAlert(temp);
+				this.alertMap.put(newAlert.getId(), newAlert);
+				newAlert.setUser(this);
+			}
+		}
+	}
+
+	public void removeAlert(AlertFace oldAlert) {
+		if (oldAlert == null)
+			return;
+		if (this.alertMap != null && this.alertMap.containsKey(oldAlert.getId())) {
+			AlertFace temp = alertMap.get(oldAlert.getId());
+			if (oldAlert.equals(temp) && temp != oldAlert) {
+				temp.setUser(null);
+			}
+			this.alertMap.remove(oldAlert.getId());
+			oldAlert.setUser(null);
+		}
+	}
+
+	public void removeAllAlert() {
+		if (alertMap != null) {
+			AlertFace oldAlert;
+			for (Iterator<? extends AlertFace> iter = getIteratorAlert(); iter.hasNext();) {
+				oldAlert = iter.next();
+				iter.remove();
+				oldAlert.setUser(null);
+			}
+		}
+	}
+
+	public Map<Object, ? extends ExporterFace> getExporterMap() {
+		if (exporterMap == null)
+			exporterMap = new LinkedHashMap<Object, ExporterFace>();
+		return exporterMap;
+	}
+
+	public Collection<? extends ExporterFace> getExporter() {
+		return getExporterMap().values();
+	}
+
+	private Iterator<? extends ExporterFace> getIteratorExporter() {
+		return getExporter().iterator();
+	}
+
+	public void setExporter(Collection<? extends ExporterFace> newExporter) {
+		removeAllExporter();
+		for (Iterator<? extends ExporterFace> iter = newExporter.iterator(); iter.hasNext();)
+			addExporter(iter.next());
+	}
+
+	public void addExporter(ExporterFace newExporter) {
+		if (newExporter == null)
+			return;
+		if (this.exporterMap == null)
+			this.exporterMap = new LinkedHashMap<Object, ExporterFace>();
+		if (!this.exporterMap.containsKey(newExporter.getId())) {
+			this.exporterMap.put(newExporter.getId(), newExporter);
+			newExporter.setUser(this);
+		} else {
+			ExporterFace temp = exporterMap.get(newExporter.getId());
+			if (newExporter.equals(temp) && temp != newExporter) {
+				removeExporter(temp);
+				this.exporterMap.put(newExporter.getId(), newExporter);
+				newExporter.setUser(this);
+			}
+		}
+	}
+
+	public void removeExporter(ExporterFace oldExporter) {
+		if (oldExporter == null)
+			return;
+		if (this.exporterMap != null && this.exporterMap.containsKey(oldExporter.getId())) {
+			ExporterFace temp = exporterMap.get(oldExporter.getId());
+			if (oldExporter.equals(temp) && temp != oldExporter) {
+				temp.setUser(null);
+			}
+			this.exporterMap.remove(oldExporter.getId());
+			oldExporter.setUser(null);
+		}
+	}
+
+	public void removeAllExporter() {
+		if (exporterMap != null) {
+			ExporterFace oldExporter;
+			for (Iterator<? extends ExporterFace> iter = getIteratorExporter(); iter.hasNext();) {
+				oldExporter = iter.next();
+				iter.remove();
+				oldExporter.setUser(null);
+			}
+		}
+	}
+
+	public Map<Object, ? extends PanelFace> getPanelMap() {
+		if (panelMap == null)
+			panelMap = new LinkedHashMap<Object, PanelFace>();
+		return panelMap;
+	}
+
+	public Collection<? extends PanelFace> getPanel() {
+		return getPanelMap().values();
+	}
+
+	private Iterator<? extends PanelFace> getIteratorPanel() {
+		return getPanel().iterator();
+	}
+
+	public void setPanel(Collection<? extends PanelFace> newPanel) {
+		removeAllPanel();
+		for (Iterator<? extends PanelFace> iter = newPanel.iterator(); iter.hasNext();)
+			addPanel(iter.next());
+	}
+
+	public void addPanel(PanelFace newPanel) {
+		if (newPanel == null)
+			return;
+		if (this.panelMap == null)
+			this.panelMap = new LinkedHashMap<Object, PanelFace>();
+		if (!this.panelMap.containsKey(newPanel.getId())) {
+			this.panelMap.put(newPanel.getId(), newPanel);
+			newPanel.setUser(this);
+		} else {
+			PanelFace temp = panelMap.get(newPanel.getId());
+			if (newPanel.equals(temp) && temp != newPanel) {
+				removePanel(temp);
+				this.panelMap.put(newPanel.getId(), newPanel);
+				newPanel.setUser(this);
+			}
+		}
+	}
+
+	public void removePanel(PanelFace oldPanel) {
+		if (oldPanel == null)
+			return;
+		if (this.panelMap != null && this.panelMap.containsKey(oldPanel.getId())) {
+			PanelFace temp = panelMap.get(oldPanel.getId());
+			if (oldPanel.equals(temp) && temp != oldPanel) {
+				temp.setUser(null);
+			}
+			this.panelMap.remove(oldPanel.getId());
+			oldPanel.setUser(null);
+		}
+	}
+
+	public void removeAllPanel() {
+		if (panelMap != null) {
+			PanelFace oldPanel;
+			for (Iterator<? extends PanelFace> iter = getIteratorPanel(); iter.hasNext();) {
+				oldPanel = iter.next();
+				iter.remove();
+				oldPanel.setUser(null);
+			}
+		}
+	}
+
+	public Map<Object, ? extends BoardFace> getBoardMap() {
+		if (boardMap == null)
+			boardMap = new LinkedHashMap<Object, BoardFace>();
+		return boardMap;
+	}
+
+	public Collection<? extends BoardFace> getBoard() {
+		return getBoardMap().values();
+	}
+
+	private Iterator<? extends BoardFace> getIteratorBoard() {
+		return getBoard().iterator();
+	}
+
+	public void setBoard(Collection<? extends BoardFace> newBoard) {
+		removeAllBoard();
+		for (Iterator<? extends BoardFace> iter = newBoard.iterator(); iter.hasNext();)
+			addBoard(iter.next());
+	}
+
+	public void addBoard(BoardFace newBoard) {
+		if (newBoard == null)
+			return;
+		if (this.boardMap == null)
+			this.boardMap = new LinkedHashMap<Object, BoardFace>();
+		if (!this.boardMap.containsKey(newBoard.getId())) {
+			this.boardMap.put(newBoard.getId(), newBoard);
+			newBoard.setUser(this);
+		} else {
+			BoardFace temp = boardMap.get(newBoard.getId());
+			if (newBoard.equals(temp) && temp != newBoard) {
+				removeBoard(temp);
+				this.boardMap.put(newBoard.getId(), newBoard);
+				newBoard.setUser(this);
+			}
+		}
+	}
+
+	public void removeBoard(BoardFace oldBoard) {
+		if (oldBoard == null)
+			return;
+		if (this.boardMap != null && this.boardMap.containsKey(oldBoard.getId())) {
+			BoardFace temp = boardMap.get(oldBoard.getId());
+			if (oldBoard.equals(temp) && temp != oldBoard) {
+				temp.setUser(null);
+			}
+			this.boardMap.remove(oldBoard.getId());
+			oldBoard.setUser(null);
+		}
+	}
+
+	public void removeAllBoard() {
+		if (boardMap != null) {
+			BoardFace oldBoard;
+			for (Iterator<? extends BoardFace> iter = getIteratorBoard(); iter.hasNext();) {
+				oldBoard = iter.next();
+				iter.remove();
+				oldBoard.setUser(null);
+			}
+		}
+	}
+
+	public Map<Object, ? extends TaskFace> getTaskMap() {
+		if (taskMap == null)
+			taskMap = new LinkedHashMap<Object, TaskFace>();
+		return taskMap;
+	}
+
+	public Collection<? extends TaskFace> getTask() {
+		return getTaskMap().values();
+	}
+
+	private Iterator<? extends TaskFace> getIteratorTask() {
+		return getTask().iterator();
+	}
+
+	public void setTask(Collection<? extends TaskFace> newTask) {
+		removeAllTask();
+		for (Iterator<? extends TaskFace> iter = newTask.iterator(); iter.hasNext();)
+			addTask(iter.next());
+	}
+
+	public void addTask(TaskFace newTask) {
+		if (newTask == null)
+			return;
+		if (this.taskMap == null)
+			this.taskMap = new LinkedHashMap<Object, TaskFace>();
+		if (!this.taskMap.containsKey(newTask.getId())) {
+			this.taskMap.put(newTask.getId(), newTask);
+			newTask.setUser(this);
+		} else {
+			TaskFace temp = taskMap.get(newTask.getId());
+			if (newTask.equals(temp) && temp != newTask) {
+				removeTask(temp);
+				this.taskMap.put(newTask.getId(), newTask);
+				newTask.setUser(this);
+			}
+		}
+	}
+
+	public void removeTask(TaskFace oldTask) {
+		if (oldTask == null)
+			return;
+		if (this.taskMap != null && this.taskMap.containsKey(oldTask.getId())) {
+			TaskFace temp = taskMap.get(oldTask.getId());
+			if (oldTask.equals(temp) && temp != oldTask) {
+				temp.setUser(null);
+			}
+			this.taskMap.remove(oldTask.getId());
+			oldTask.setUser(null);
+		}
+	}
+
+	public void removeAllTask() {
+		if (taskMap != null) {
+			TaskFace oldTask;
+			for (Iterator<? extends TaskFace> iter = getIteratorTask(); iter.hasNext();) {
+				oldTask = iter.next();
+				iter.remove();
+				oldTask.setUser(null);
 			}
 		}
 	}

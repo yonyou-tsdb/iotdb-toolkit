@@ -40,7 +40,7 @@ iotdbui:
 
 4.启动后端和前端服务：
 
-- 在项目根目录执行 `java -jar target/iotdb-ui-0.12.5.jar --spring.config.location=application.xml` 以启动，默认使用 8080 端口
+- 在项目根目录执行 `java -jar target/iotdb-ui-0.12.5.jar --spring.config.location=application.yml` 以启动，默认使用 8080 端口
   
 - 使用 nginx 映射 `/front/dist` 中的内容，或者映射在 iotdb-ui 前端项目中手动构建的内容。 例如，下面的配置将前端映射到了 8040 端口，同时将后端转发到 8080 端口:
 

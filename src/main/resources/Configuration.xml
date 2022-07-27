@@ -52,6 +52,7 @@
         <plugin interceptor="indi.mybatis.flying.interceptors.AutoMapperInterceptor">
             <property name="dialect" value="mysql"/>
             <property name="logLevel" value="none"/>
+            <!-- <property name="loggerDescription" value="org.apache.iotdb.ui.model.LoggerDescriptionHandler" /> -->
         </plugin>
     </plugins>
 </configuration>
