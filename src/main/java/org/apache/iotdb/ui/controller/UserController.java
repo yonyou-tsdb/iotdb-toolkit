@@ -175,7 +175,7 @@ public class UserController {
 		// 生成随机字串
 		String verifyCode = VerifyCodeUtils.generateVerifyCode(4);
 		// 将token与verifyCode的组合存入缓存
-		CaptchaWrapper cw = new CaptchaWrapper(verifyCode, TimerConfig.cou);
+		CaptchaWrapper cw = new CaptchaWrapper(verifyCode, System.currentTimeMillis() / 1000);
 		captchaMap.put(token, cw);
 		// 生成图片
 		int w = 100, h = 30;

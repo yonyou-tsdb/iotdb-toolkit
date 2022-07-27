@@ -187,6 +187,7 @@ public class TimerConfig {
 					new StringBuilder(monitorServerConfig.getTemp()).append(UUID.randomUUID()).toString());
 			exportModel.setFileSinkStrategyEnum(FileSinkStrategyEnum.EXTRA_CATALOG);
 			exportModel.setNeedTimeseriesStructure(true);
+			exportModel.setParallelism(2);
 			if (task.getSetting() != null) {
 				exportModel.setIotdbPath(task.getSetting().getString("device"));
 				if (task.getSetting().getString("compress") != null) {
@@ -214,6 +215,7 @@ public class TimerConfig {
 			importModel.setCharSet("utf8");
 			importModel.setFileSinkStrategyEnum(FileSinkStrategyEnum.EXTRA_CATALOG);
 			importModel.setNeedTimeseriesStructure(true);
+			importModel.setParallelism(2);
 			if (task.getSetting() != null) {
 				importModel.setFileFolder(task.getSetting().getString("fileFolder"));
 				if (task.getSetting().getString("compress") != null) {
