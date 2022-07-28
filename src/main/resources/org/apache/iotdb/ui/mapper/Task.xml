@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	you under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<mapper namespace="org.apache.iotdb.ui.mapper.TaskDao">
+	<select id="select" resultMap="result">{"action":"select#{?}","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"}, }}</select>
+    <select id="selectAll" resultMap="result">{"action":"selectAll","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"},}}</select>
+    <select id="selectAllPure" resultMap="result">{"action":"selectAll"}</select>
+    <select id="selectOne" resultMap="result">{"action":"selectOne","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"},}}</select>
+    <select id="selectOnePure" resultMap="result">{"action":"selectOne"}</select>
+    <select id="count" resultType="int">{"action":"count"}</select>
+    <insert id="insert">{"action":"insert", "keyGenerator":"org.apache.iotdb.ui.config.DistributedSnowflakeKeyGenerator2"}</insert>
+    <update id="update">{"action":"update"}</update>
+    <update id="updatePersistent">{"action":"updatePersistent"}</update>
+    <delete id="delete">{"action":"delete"}</delete>
+    <resultMap id="result" type="Task" autoMapping="true">
+        <id property="id" column="id"/>
+        <result property="type" column="type" typeHandler="org.apache.iotdb.ui.handler.TaskTypeHandler"/>
+        <result property="setting" column="setting"/>
+        <result property="startWindowFrom" column="start_window_from"/>
+        <result property="startWindowTo" column="start_window_to"/>
+        <result property="priority" column="priority"/>
+        <result property="status" column="status" typeHandler="org.apache.iotdb.ui.handler.TaskStatusHandler"/>
+        <result property="resultRows" column="result_rows"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="user" resultMap="org.apache.iotdb.ui.mapper.UserDao.result" columnPrefix="u__"/>
+    </resultMap>
+</mapper>

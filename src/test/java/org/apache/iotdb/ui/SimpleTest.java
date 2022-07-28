@@ -32,6 +32,7 @@ import org.apache.iotdb.ui.mapper.QueryDao;
 import org.apache.iotdb.ui.mapper.UserDao;
 import org.apache.iotdb.ui.service.ConnectService;
 import org.apache.iotdb.ui.service.QueryService;
+import org.apache.iotdb.ui.util.CommonUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -153,5 +154,15 @@ public class SimpleTest {
 		qc2.setConnect(c);
 		List<Query> list2 = queryDao.selectAll(qc2);
 		System.out.println(JSONObject.toJSONString(list2));
+	}
+
+	@Test
+	public void testAddZeroForNum() {
+		Integer i1 = Integer.MAX_VALUE;
+		String s1 = CommonUtils.addZeroForNum(i1);
+		System.out.println(s1);
+		Long i2 = Long.MAX_VALUE;
+		String s2 = CommonUtils.addZeroForNum(i2);
+		System.out.println(s2);
 	}
 }

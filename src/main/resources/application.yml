@@ -72,3 +72,19 @@ iotdbui:
       host: 
       username: 
       password: 
+   exporter:
+      pool:
+         corePoolSize: 25
+         maxPoolSize: 240
+         keepAliveSeconds: 60
+         queueCapacity: 100
+   monitor:
+      server:
+      rmi:
+         basePath: E:\workspace1\DynamicTrigger
+         srcFiles: 
+           - \src\cn\poet\bean\
+           - \src\poem\cn\poet\
+         jarReyOnPath: E:\workspace1\DynamicTrigger\lib
+         tempPath: E:\workspace1\DynamicTrigger\temp
+         jarFilePath: E:\workspace1\DynamicTrigger\jar

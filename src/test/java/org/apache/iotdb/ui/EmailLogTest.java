@@ -18,13 +18,10 @@
  */
 package org.apache.iotdb.ui;
 
-import java.util.List;
-
 import javax.sql.DataSource;
 
 import org.apache.iotdb.ui.entity.EmailLog;
 import org.apache.iotdb.ui.entity.User;
-import org.apache.iotdb.ui.face.EmailLogFace;
 import org.apache.iotdb.ui.mapper.EmailLogDao;
 import org.apache.iotdb.ui.mapper.UserDao;
 import org.apache.iotdb.ui.service.EmailLogService;

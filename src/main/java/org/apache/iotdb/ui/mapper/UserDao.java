@@ -22,16 +22,19 @@ import java.util.List;
 
 import org.apache.iotdb.ui.entity.User;
 
-
 public interface UserDao {
-	
+
 	public int insert(User t);
 
 	public User select(Long id);
 
+	public User selectWithEverything(Long id);
+
 	public List<User> selectAll(User t);
 
 	public User selectOne(User t);
+
+	public User selectOneWithEverything(User t);
 
 	public int update(User t);
 

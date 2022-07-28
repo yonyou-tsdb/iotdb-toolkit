@@ -18,8 +18,6 @@
  */
 package org.apache.iotdb.ui.condition;
 
-import java.util.List;
-
 import org.apache.iotdb.ui.entity.Connect;
 
 import indi.mybatis.flying.annotations.ConditionMapperAnnotation;

@@ -19,11 +19,21 @@
 package org.apache.iotdb.ui.config;
 
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.iotdb.ui.condition.TaskCondition;
+import org.apache.iotdb.ui.config.schedule.ExporterTimerBucket;
+import org.apache.iotdb.ui.config.schedule.TaskTimerBucket;
 import org.apache.iotdb.ui.config.tsdatasource.DynamicSessionPool;
 import org.apache.iotdb.ui.entity.Connect;
+import org.apache.iotdb.ui.entity.Exporter;
+import org.apache.iotdb.ui.entity.Task;
 import org.apache.iotdb.ui.mapper.ConnectDao;
+import org.apache.iotdb.ui.mapper.ExporterDao;
+import org.apache.iotdb.ui.mapper.TaskDao;
+import org.apache.iotdb.ui.model.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +48,12 @@ public class DynamicSessionPoolConfig {
 
 	@Autowired
 	private ConnectDao connectDao;
+
+	@Autowired
+	private ExporterDao exporterDao;
+
+	@Autowired
+	private TaskDao taskDao;
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(DynamicSessionPoolConfig.class);
 
@@ -61,12 +77,67 @@ public class DynamicSessionPoolConfig {
 		return "done";
 	}
 
+	@Bean("exporterTimerBucket")
+	@DependsOn("postDynamicSessionPool")
+	public ExporterTimerBucket exporterTimerBucket() {
+		LOGGER.error("=========ExporterTimerBucketBegin==========");
+		ExporterTimerBucket exporterTimerBucket = new ExporterTimerBucket();
+		LOGGER.error("=========ExporterTimerBucketEnd==========");
+		return exporterTimerBucket;
+	}
+
+	@Bean("taskTimerBucket")
+	@DependsOn("postDynamicSessionPool")
+	public TaskTimerBucket taskTimerBucket() {
+		LOGGER.error("=========TaskTimerBucketBegin==========");
+		TaskTimerBucket taskTimerBucket = new TaskTimerBucket();
+		LOGGER.error("=========TaskTimerBucketEnd==========");
+		return taskTimerBucket;
+	}
+
+	@Bean("postExporterTimerBucket")
+	@DependsOn("exporterTimerBucket")
+	public String postExporterTimerBucket(ExporterTimerBucket exporterTimerBucket) throws Exception {
+		LOGGER.error("=========PostExporterTimerBucketBegin==========");
+		loadExporterTimerBucket(exporterTimerBucket);
+		LOGGER.error("=========PostExporterTimerBucketEnd==========");
+		return "done";
+	}
+
+	@Bean("postTaskTimerBucket")
+	@DependsOn("taskTimerBucket")
+	public String postTaskTimerBucket(TaskTimerBucket taskTimerBucket) throws Exception {
+		LOGGER.error("=========PostTaskTimerBucketBegin==========");
+		loadTaskTimerBucket(taskTimerBucket);
+		LOGGER.error("=========PostTaskTimerBucketEnd==========");
+		return "done";
+	}
+
 	private void loadTenantSessionPool(DynamicSessionPool dynamicSessionPool) throws SQLException {
 		Connect c = new Connect();
 		List<Connect> list = connectDao.selectAll(c);
 		for (Connect e : list) {
 			dynamicSessionPool.addSessionPool(e.getId(), e.getHost(), e.getPort(), e.getUsername(), e.getPassword(),
 					MAX_SIZE);
+		}
+	}
+
+	private void loadExporterTimerBucket(ExporterTimerBucket exporterTimerBucket) throws Exception {
+		Exporter e = new Exporter();
+		List<Exporter> list = exporterDao.selectAll(e);
+		for (Exporter t : list) {
+			exporterTimerBucket.addExporterTimer(t);
+		}
+	}
+
+	private void loadTaskTimerBucket(TaskTimerBucket taskTimerBucket) throws Exception {
+		TaskCondition e = new TaskCondition();
+		Date now = Calendar.getInstance().getTime();
+		e.setStartWindowToGreaterOrEqual(now);
+		e.setStatus(TaskStatus.NOT_START);
+		List<Task> list = taskDao.selectAllPure(e);
+		for (Task t : list) {
+			taskTimerBucket.getTaskTimerMap().put(t.key(), t);
 		}
 	}
 }
