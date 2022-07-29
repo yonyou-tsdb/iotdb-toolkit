@@ -10,8 +10,8 @@
 	OF ANY KIND, either express or implied. See the License for the specific 
 	language governing permissions and limitations under the License. -->
 <dataset>
-    <tb_connect username="username1" user_id="211"/>
-    <tb_connect username="username2" user_id="212"/>
+    <tb_connect username="username1" user_id="211" setting='{"setting":"1"}'/>
+    <tb_connect username="username2" user_id="212" setting='{"setting":"2"}'/>
     <tb_connect username="usernamex" user_id="[null]"/>
     <tb_user name="name1"/>
     <tb_user name="name2"/>

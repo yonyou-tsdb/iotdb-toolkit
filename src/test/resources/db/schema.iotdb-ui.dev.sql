@@ -46,6 +46,7 @@ create table tb_connect
    password             varchar(20) comment '数据源密码',
    alias                varchar(100) comment '别名',
    create_time          datetime comment '创建时间',
+   setting              varchar(4000) comment '参数设置',
    user_id              bigint comment '关联user表外键',
    primary key (id)
 );
