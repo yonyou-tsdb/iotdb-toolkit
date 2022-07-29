@@ -95,9 +95,10 @@ public class SimpleTest {
 	@ExpectedDatabase(assertionMode = DatabaseAssertionMode.NON_STRICT_UNORDERED, value = "/org/apache/iotdb/ui/simpleTest/test1.result.xml")
 	@DatabaseTearDown(type = DatabaseOperation.DELETE_ALL, value = "/org/apache/iotdb/ui/simpleTest/test1.xml")
 	public void test1() {
-		Connect connect = connectDao.select(111L);
+		Connect connect = connectDao.selectWithSetting(111L);
 		Assert.assertEquals("username1", connect.getUsername());
 		Assert.assertEquals("name1", connect.getUser().getName());
+		Assert.assertEquals("1", connect.getSetting().getString("setting"));
 		System.out.println("::" + JSONObject.toJSONString(connect));
 
 		List<Connect> list = connectDao.selectAll(new Connect());
