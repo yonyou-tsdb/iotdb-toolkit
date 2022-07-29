@@ -35,7 +35,7 @@ public class FeedbackError {
 	public static final String USER_AUTH_FAIL = "USER-10001";
 
 	public static final String TEST_CONN_FAIL_PWD = "CONN-10010";
-	
+
 	public static final String UPDATE_CONN_SERVER_FAIL = "CONN-10020";
 
 	public static final String INSERT_TS_FAIL = "IOTDB-10002";
@@ -139,4 +139,8 @@ public class FeedbackError {
 	public static final String TASK_DELETE_FAIL_FOR_ALREADY_START = "TASK-10006";
 
 	public static final String TASK_EDIT_FAIL_FOR_ALREADY_START = "TASK-10007";
+
+	public static final String TASK_SHUTDOWN_FAIL = "TASK-10020";
+
+	public static final String TASK_CHECK_PROCESS_FAIL = "TASK-10021";
 }

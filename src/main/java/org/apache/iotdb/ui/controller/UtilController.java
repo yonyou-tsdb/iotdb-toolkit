@@ -100,18 +100,4 @@ public class UtilController {
 		importStarter.start(importModel);
 		return null;
 	}
-
-	@RequestMapping(value = "/api/util/export/progress", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> exportProgress(HttpServletRequest request) throws SQLException {
-		Long d = exportStarter.finishedRowNum();
-		boolean b = taskWrapper.isFinish();
-		return BaseVO.success(d.toString(), b);
-	}
-
-	@RequestMapping(value = "/api/util/import/progress", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> importProgress(HttpServletRequest request) throws SQLException {
-		Long d = importStarter.finishedRowNum();
-		boolean b = taskWrapper.isFinish();
-		return BaseVO.success(d.toString(), b);
-	}
 }

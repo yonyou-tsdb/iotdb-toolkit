@@ -1,6 +1,7 @@
 package org.apache.iotdb.ui.config;
 
 import org.apache.iotdb.ui.entity.Task;
+import org.apache.iotdb.ui.model.TaskStatus;
 import org.apache.iotdb.ui.model.TaskType;
 
 import com.yonyou.iotdb.utils.core.ExportStarter;
@@ -27,8 +28,8 @@ public class TaskWrapper {
 		return false;
 	}
 
-	public Long getProcess() {
-		if (task != null) {
+	public Long getProcess(Long id) {
+		if (task != null && task.getId().equals(id)) {
 			if (TaskType.EXPORT.equals(task.getType())) {
 				return exportStarter.finishedRowNum();
 			} else if (TaskType.IMPORT.equals(task.getType())) {
@@ -36,6 +37,25 @@ public class TaskWrapper {
 			}
 		}
 		return 0L;
+	}
+
+	public boolean shutdown(Long id) {
+		if (task != null && id.equals(task.getId()) && TaskStatus.IN_PROGRESS.equals(task.getStatus())) {
+			if (TaskType.EXPORT.equals(task.getType())) {
+				try {
+					exportStarter.shutDown();
+				} catch (Exception e) {
+				}
+				return true;
+			} else if (TaskType.IMPORT.equals(task.getType())) {
+				try {
+					importStarter.shutDown();
+				} catch (Exception e) {
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public Disposable start(ExportModel exportModel) {

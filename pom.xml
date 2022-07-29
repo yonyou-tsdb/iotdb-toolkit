@@ -356,12 +356,12 @@
 			<version>4.3.2</version>
 		</dependency>
 		<!-- <dependency> <groupId>com.yonyou.iotdb</groupId> <artifactId>utils-core</artifactId> 
-			<version>0.13.1.9-SNAPSHOT</version> <scope>system</scope> <systemPath>${project.basedir}/lib/utils-core-0.13.1.9-SNAPSHOT.jar</systemPath> 
+			<version>0.13.1.12-SNAPSHOT</version> <scope>system</scope> <systemPath>${project.basedir}/lib/utils-core-0.13.1.12-SNAPSHOT.jar</systemPath> 
 			</dependency> -->
 		<dependency>
 			<groupId>com.yonyou.iotdb</groupId>
 			<artifactId>utils-core</artifactId>
-			<version>0.13.1.9-SNAPSHOT</version>
+			<version>0.13.1.12-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>io.projectreactor</groupId>
