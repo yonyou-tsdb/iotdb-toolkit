@@ -35,16 +35,16 @@
 	</properties>
 	<repositories>
 		<repository>
-            <id>iUAP-Snapshots</id>
-            <name>iUAP-Snapshots</name>
-            <url>http://maven.yonyou.com/nexus/content/repositories/iUAP-Snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
+			<id>iUAP-Snapshots</id>
+			<name>iUAP-Snapshots</name>
+			<url>http://maven.yonyou.com/nexus/content/repositories/iUAP-Snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -74,6 +74,12 @@
 			<artifactId>groovy-all</artifactId>
 			<version>${groovy-all.version}</version>
 			<type>pom</type>
+			<exclusions>
+				<exclusion>
+					<groupId>org.testng</groupId>
+					<artifactId>testng</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -349,13 +355,9 @@
 			<artifactId>httpclient</artifactId>
 			<version>4.3.2</version>
 		</dependency>
-		<!-- <dependency>
-			<groupId>com.yonyou.iotdb</groupId>
-			<artifactId>utils-core</artifactId>
-			<version>0.13.1.9-SNAPSHOT</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/utils-core-0.13.1.9-SNAPSHOT.jar</systemPath>
-		</dependency> -->
+		<!-- <dependency> <groupId>com.yonyou.iotdb</groupId> <artifactId>utils-core</artifactId> 
+			<version>0.13.1.9-SNAPSHOT</version> <scope>system</scope> <systemPath>${project.basedir}/lib/utils-core-0.13.1.9-SNAPSHOT.jar</systemPath> 
+			</dependency> -->
 		<dependency>
 			<groupId>com.yonyou.iotdb</groupId>
 			<artifactId>utils-core</artifactId>
@@ -366,11 +368,8 @@
 			<artifactId>reactor-core</artifactId>
 			<version>3.4.19</version>
 		</dependency>
-		<!-- <dependency>
-			<groupId>io.projectreactor</groupId>
-			<artifactId>reactor-test</artifactId>
-			<version>3.4.19</version>
-		</dependency> -->
+		<!-- <dependency> <groupId>io.projectreactor</groupId> <artifactId>reactor-test</artifactId> 
+			<version>3.4.19</version> </dependency> -->
 
 	</dependencies>
 	<build>
@@ -431,14 +430,9 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-
-				<artifactId>maven-war-plugin</artifactId>
-				<configuration>
-					<failOnMissingWebXml>false</failOnMissingWebXml>
-				</configuration>
-			</plugin> -->
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-war-plugin</artifactId> 
+				<configuration> <failOnMissingWebXml>false</failOnMissingWebXml> </configuration> 
+				</plugin> -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

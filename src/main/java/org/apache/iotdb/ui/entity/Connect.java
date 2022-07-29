@@ -30,6 +30,7 @@ import org.apache.iotdb.ui.face.ConnectFace;
 import org.apache.iotdb.ui.face.QueryFace;
 import org.apache.iotdb.ui.face.UserFace;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 
 import indi.mybatis.flying.annotations.FieldMapperAnnotation;
@@ -82,6 +83,13 @@ public class Connect extends PojoSupport implements ConnectFace {
 
 	@FieldMapperAnnotation(dbFieldName = "create_time", jdbcType = JdbcType.TIMESTAMP)
 	private Date createTime;
+
+	/**
+	 * 参数设置
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "setting", jdbcType = JdbcType.VARCHAR, ignoreTag = { "noSetting" })
+	private JSONObject setting;
 
 	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, dbAssociationUniqueKey = "id")
 	private User user;
@@ -236,6 +244,14 @@ public class Connect extends PojoSupport implements ConnectFace {
 
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
+	}
+
+	public JSONObject getSetting() {
+		return setting;
+	}
+
+	public void setSetting(JSONObject setting) {
+		this.setting = setting;
 	}
 
 	public String getUrl() {
