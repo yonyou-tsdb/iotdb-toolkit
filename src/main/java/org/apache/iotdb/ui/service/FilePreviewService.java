@@ -43,6 +43,9 @@ public class FilePreviewService {
     private static final String CONFIG_FILE = "config";
     private static final String LOG_FILE = "log";
 
+    private static final String CONFIG_FILE_TAB = "configTab";
+    private static final String LOG_FILE_TAB = "logTab";
+
     private static final int DEFAULT = 500;
     private static final int MAX_COUNT = 10000;
 
@@ -102,8 +105,6 @@ public class FilePreviewService {
 
     public BaseVO<Object> logFileContent(String fileName, int codeMirrorCount, int logCount, String ip,boolean downMore) {
         InputStream inputStream = null;
-        ChannelSftp sftp = null;
-//        ChannelExec channelExec = null;
         Session session = null;
         try{
 
@@ -127,9 +128,6 @@ public class FilePreviewService {
                             .toString(),
                     null);
         }finally {
-            if(sftp != null){
-                sftp.exit();
-            }
             if(session != null){
                 session.disconnect();
             }
@@ -291,12 +289,10 @@ public class FilePreviewService {
         return contentCmd;
     }
 
-    public BaseVO<Object> getFileNames(String ip) {
+    public BaseVO<Object> getFileNames(String ip,String fileType) {
         ChannelSftp sftp = null;
         Session session = null;
-        Map<String,Object> allFileName = new HashMap<>();
-        List<String> configFileNames = new ArrayList<>();
-        List<String> logFileNames = new ArrayList<>();
+        List<String> fileNames = new ArrayList<>();
         try{
 
             JSch jsch = new JSch();
@@ -313,38 +309,41 @@ public class FilePreviewService {
             Channel channel = session.openChannel("sftp");
             channel.connect();
             sftp = (ChannelSftp) channel;
-            //ls命令获取配置文件名列表
-            Vector vector = sftp.ls("/data/iotdb/apache-iotdb-0.13.0-all-bin/conf");
-            Iterator iterator = vector.iterator();
-            while (iterator.hasNext()) {
-                ChannelSftp.LsEntry configFile = (ChannelSftp.LsEntry) iterator.next();
-                //文件名称
-                String configFileName = configFile.getFilename();
-                //判断文件是否为空
-                SftpATTRS sftpATTRS = sftp.lstat("/data/iotdb/apache-iotdb-0.13.0-all-bin/conf/"+configFileName);
-                long size = sftpATTRS.getSize();
-                if(configFileName != null && size > 0 && (configFileName.endsWith(YML) || configFileName.endsWith(PROPERTIES)) ){
-                    configFileNames.add(configFileName);
-                }
-            }
-            //ls命令获取日志文件名列表
-            vector = sftp.ls("/data/iotdb/apache-iotdb-0.13.0-all-bin/logs");
-            iterator = vector.iterator();
-            while (iterator.hasNext()) {
-                ChannelSftp.LsEntry logFile = (ChannelSftp.LsEntry) iterator.next();
-                //文件名称
-                String logFileName = logFile.getFilename();
-                if(logFileName != null && logFileName.endsWith(LOG)){
+            Vector vector = null;
+            Iterator iterator = null;
+            if(CONFIG_FILE_TAB.equals(fileType)){
+                //ls命令获取配置文件名列表
+                vector = sftp.ls("/data/iotdb/apache-iotdb-0.13.0-all-bin/conf");
+                iterator = vector.iterator();
+                while (iterator.hasNext()) {
+                    ChannelSftp.LsEntry configFile = (ChannelSftp.LsEntry) iterator.next();
+                    //文件名称
+                    String configFileName = configFile.getFilename();
                     //判断文件是否为空
-                    SftpATTRS sftpATTRS = sftp.lstat("/data/iotdb/apache-iotdb-0.13.0-all-bin/logs/"+logFileName);
+                    SftpATTRS sftpATTRS = sftp.lstat("/data/iotdb/apache-iotdb-0.13.0-all-bin/conf/"+configFileName);
                     long size = sftpATTRS.getSize();
-                    if(size > 0){
-                        logFileNames.add(logFileName);
+                    if(configFileName != null && size > 0 && (configFileName.endsWith(YML) || configFileName.endsWith(PROPERTIES)) ){
+                        fileNames.add(configFileName);
+                    }
+                }
+            }else if(LOG_FILE_TAB.equals(fileType)){
+                //ls命令获取日志文件名列表
+                vector = sftp.ls("/data/iotdb/apache-iotdb-0.13.0-all-bin/logs");
+                iterator = vector.iterator();
+                while (iterator.hasNext()) {
+                    ChannelSftp.LsEntry logFile = (ChannelSftp.LsEntry) iterator.next();
+                    //文件名称
+                    String logFileName = logFile.getFilename();
+                    if(logFileName != null && logFileName.endsWith(LOG)){
+                        //判断文件是否为空
+                        SftpATTRS sftpATTRS = sftp.lstat("/data/iotdb/apache-iotdb-0.13.0-all-bin/logs/"+logFileName);
+                        long size = sftpATTRS.getSize();
+                        if(size > 0){
+                            fileNames.add(logFileName);
+                        }
                     }
                 }
             }
-            allFileName.put(CONFIG_FILE,configFileNames);
-            allFileName.put(LOG_FILE,logFileNames);
         }catch (Exception e){
             logger.error("获取服务器文件列表失败！",e);
             return new BaseVO<>(PlatFormException.FILE_PREVIEW_FAIL,
@@ -359,7 +358,7 @@ public class FilePreviewService {
                 session.disconnect();
             }
         }
-        return BaseVO.success(allFileName);
+        return BaseVO.success(fileNames);
     }
 
 }
