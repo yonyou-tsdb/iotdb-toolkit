@@ -27,10 +27,14 @@ public interface ConnectDao {
 	public int insert(Connect t);
 
 	public Connect select(Long id);
+	
+	public Connect selectWithSetting(Long id);
 
 	public List<Connect> selectAll(Connect t);
 
 	public Connect selectOne(Connect t);
+	
+	public Connect selectOneWithSetting(Connect t);
 
 	public int update(Connect t);
 

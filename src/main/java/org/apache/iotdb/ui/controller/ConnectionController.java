@@ -145,11 +145,45 @@ public class ConnectionController {
 		return BaseVO.success("Test Success", null);
 	}
 
+	@RequestMapping(value = "/api/connection/updateServer", method = { RequestMethod.POST })
+	public BaseVO<Object> updateServer(@RequestParam("connectionId") Long id,
+			@RequestParam(value = "serverUsername", required = false) String serverUsername,
+			@RequestParam(value = "serverPassword", required = false) String serverPassword,
+			@RequestParam(value = "serverConfigFilePath", required = false) String serverConfigFilePath,
+			@RequestParam(value = "serverLogFilePath", required = false) String serverLogFilePath) {
+		Subject subject = SecurityUtils.getSubject();
+		User user = (User) subject.getSession().getAttribute(UserController.USER);
+		Connect c = new Connect();
+		c.setId(id);
+		c.setUserId(user.getId());
+		Connect connect = connectDao.selectOneWithSetting(c);
+		if (connect == null) {
+			return new BaseVO<>(FeedbackError.NO_CONN, MessageUtil.get(FeedbackError.NO_CONN), null);
+		}
+		if (connect.getSetting() == null) {
+			connect.setSetting(new JSONObject());
+		}
+		connect.getSetting().put("serverUsername", serverUsername);
+		connect.getSetting().put("serverPassword", serverPassword);
+		connect.getSetting().put("serverConfigFilePath", serverConfigFilePath);
+		connect.getSetting().put("serverLogFilePath", serverLogFilePath);
+		int i = connectDao.update(connect);
+		if (i == 1) {
+			return BaseVO.success(null);
+		}
+		return new BaseVO<>(FeedbackError.UPDATE_CONN_SERVER_FAIL,
+				MessageUtil.get(FeedbackError.UPDATE_CONN_SERVER_FAIL), null);
+	}
+
 	@ApiOperation(value = "/api/connection/addThenReturnLess", notes = "/api/connection/addThenReturnLess")
 	@RequestMapping(value = "/api/connection/addThenReturnLess", method = { RequestMethod.POST })
 	public BaseVO<Object> connectionAddThenReturnLess(@RequestParam("connectionUsername") String username,
 			@RequestParam("connectionPassword") String password, @RequestParam("ip") String ip,
-			@RequestParam("port") Integer port, @RequestParam("connectionName") String connectionName) {
+			@RequestParam("port") Integer port, @RequestParam("connectionName") String connectionName,
+			@RequestParam(value = "serverUsername", required = false) String serverUsername,
+			@RequestParam(value = "serverPassword", required = false) String serverPassword,
+			@RequestParam(value = "serverConfigFilePath", required = false) String serverConfigFilePath,
+			@RequestParam(value = "serverLogFilePath", required = false) String serverLogFilePath) {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		Connect connect = new Connect();
@@ -160,7 +194,12 @@ public class ConnectionController {
 		connect.setHost(ip);
 		connect.setPort(port);
 		connect.setCreateTime(Calendar.getInstance().getTime());
-
+		JSONObject setting = new JSONObject();
+		setting.put("serverUsername", serverUsername);
+		setting.put("serverPassword", serverPassword);
+		setting.put("serverConfigFilePath", serverConfigFilePath);
+		setting.put("serverLogFilePath", serverLogFilePath);
+		connect.setSetting(setting);
 		int i = 0;
 		try {
 			i = transactionService.insertConnectTransactive(connect, user.getId());
@@ -270,7 +309,7 @@ public class ConnectionController {
 				dynamicSessionPool.addSessionPool(connect.getId(), connect.getHost(), connect.getPort(),
 						connect.getUsername(), connect.getPassword(), DynamicSessionPoolConfig.MAX_SIZE);
 
-				return BaseVO.success("Update Connection Success", null);
+				return BaseVO.success(null);
 			} else {
 				return new BaseVO<>(FeedbackError.INSERT_CONN_FAIL, MessageUtil.get(FeedbackError.INSERT_CONN_FAIL),
 						null);
@@ -288,10 +327,13 @@ public class ConnectionController {
 		Connect c = new Connect();
 		c.setUserId(user.getId());
 		c.setId(id);
-		Connect connect = connectDao.selectOne(c);
+		Connect connect = connectDao.selectOneWithSetting(c);
 		if (connect == null) {
 			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
 		} else {
+			if (connect.getSetting() == null) {
+				connect.setSetting(new JSONObject());
+			}
 			return BaseVO.success(connect);
 		}
 	}
