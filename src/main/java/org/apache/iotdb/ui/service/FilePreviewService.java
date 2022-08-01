@@ -34,23 +34,35 @@ public class FilePreviewService {
 	@Autowired
 	private MonitorServerConfig monitorServerConfig;
 
+    protected static final Logger logger = LoggerFactory.getLogger(FilePreviewService.class);
+
+    //文件后缀
     private static final String YML = ".yml";
-
     private static final String PROPERTIES = ".properties";
-
     private static final String LOG = ".log";
 
-    private static final String CONFIG_FILE = "config";
-    private static final String LOG_FILE = "log";
-
+    //标签页类型
     private static final String CONFIG_FILE_TAB = "configTab";
     private static final String LOG_FILE_TAB = "logTab";
 
+    //向上加载行数
     private static final int DEFAULT = 500;
+    //最大限制行数
     private static final int MAX_COUNT = 10000;
 
-    protected static final Logger logger = LoggerFactory.getLogger(FilePreviewService.class);
-
+    //SSH对主机的private_key的检查等级
+    private static final String STRICT_HOST_KEY_CHECKING = "StrictHostKeyChecking";
+    private static final String NO = "no";
+    //Channel类型
+    private static final String SFTP = "sftp";
+    private static final String EXEC = "exec";
+    //编辑器内容
+    private static final String CODEMIRROR = "codeMirror";
+    //编辑器行数
+    private static final String CODEMIRROR_COUNT = "codeMirrorCount";
+    //文件总行数
+    private static final String LOG_COUNT = "logCount";
+    
     public BaseVO<Object> configFileContent(String fileName, String ip) {
         InputStream inputStream = null;
         ChannelSftp sftp = null;
@@ -66,11 +78,11 @@ public class FilePreviewService {
             session.setPassword(monitorServerConfig.getTemp2());
             Properties config = new Properties();
             //SSH对主机的public_key的检查等级
-            config.put("StrictHostKeyChecking", "no");
+            config.put(STRICT_HOST_KEY_CHECKING, NO);
             session.setConfig(config);
             session.connect();
             //读取配置文件
-            Channel channel = session.openChannel("sftp");
+            Channel channel = session.openChannel(SFTP);
             channel.connect();
             sftp = (ChannelSftp) channel;
             inputStream = sftp.get("/data/iotdb/apache-iotdb-0.13.0-all-bin/conf/" + fileName);
@@ -116,7 +128,7 @@ public class FilePreviewService {
             session.setPassword(monitorServerConfig.getTemp2());
             Properties config = new Properties();
             //SSH对主机的public_key的检查等级
-            config.put("StrictHostKeyChecking", "no");
+            config.put(STRICT_HOST_KEY_CHECKING, NO);
             session.setConfig(config);
             session.connect();
             //读取日志文件
@@ -156,7 +168,7 @@ public class FilePreviewService {
 //        BufferedReader errInputStreamReader = null;
         StringBuilder runLog = new StringBuilder();
         Map<String,Object> resultMap = new HashMap<>(5);
-        ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
+        ChannelExec channelExec = (ChannelExec) session.openChannel(EXEC);
         channelExec.setPty(false);
         try{
             //查询指定行数之间的日志
@@ -192,9 +204,9 @@ public class FilePreviewService {
             if(codeMirrorCount > MAX_COUNT){
                 codeMirrorCount = MAX_COUNT;
             }
-            resultMap.put("codeMirror",runLog);
-            resultMap.put("codeMirrorCount",codeMirrorCount);
-            resultMap.put("logCount",newLogCount);
+            resultMap.put(CODEMIRROR,runLog);
+            resultMap.put(CODEMIRROR_COUNT,codeMirrorCount);
+            resultMap.put(LOG_COUNT,newLogCount);
         }catch (Exception e){
             logger.error("执行shell命令查询日志失败！",e);
             return new BaseVO<>(PlatFormException.FILE_CONTENT_FAIL,
@@ -303,10 +315,10 @@ public class FilePreviewService {
             session.setPassword(monitorServerConfig.getTemp2());
             Properties config = new Properties();
             //SSH对主机的public_key的检查等级
-            config.put("StrictHostKeyChecking", "no");
+            config.put(STRICT_HOST_KEY_CHECKING, NO);
             session.setConfig(config);
             session.connect();
-            Channel channel = session.openChannel("sftp");
+            Channel channel = session.openChannel(SFTP);
             channel.connect();
             sftp = (ChannelSftp) channel;
             Vector vector = null;
