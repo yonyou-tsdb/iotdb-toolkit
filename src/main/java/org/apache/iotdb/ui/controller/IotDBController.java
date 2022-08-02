@@ -48,6 +48,8 @@ import org.apache.iotdb.ui.model.Granularity;
 import org.apache.iotdb.ui.model.UserDto;
 import org.apache.iotdb.ui.util.CommonUtils;
 import org.apache.iotdb.ui.util.MessageUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -76,6 +78,8 @@ public class IotDBController {
 	public static final int SHOW_TIMESERIES_BATCH_SIZE = 5000;
 
 	public static final int SHOW_PRIVILEGES_BATCH_SIZE = 5000;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(IotDBController.class);
 
 	@Autowired
 	private QueryController queryController;
@@ -550,7 +554,7 @@ public class IotDBController {
 			json.put("hasMore", hasMore);
 			return BaseVO.success(json.toJSONString(), list0);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("", e);
 			return new BaseVO<>(FeedbackError.GET_TIMESERIES_FAIL,
 					new StringBuilder(MessageUtil.get(FeedbackError.GET_TIMESERIES_FAIL)).append(":")
 							.append(e.getMessage()).toString(),

@@ -24,7 +24,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class File4ComplierUtils {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(File4ComplierUtils.class);
 
 	public static List<File> getSourceFiles(String sourceFilePath) {
 
@@ -32,7 +37,7 @@ public class File4ComplierUtils {
 		try {
 			getSourceFiles(new File(sourceFilePath), sourceFileList);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("", e);
 			sourceFileList = null;
 		}
 		return sourceFileList;
@@ -44,7 +49,7 @@ public class File4ComplierUtils {
 		try {
 			jars = getJarFiles(new File(sourceFilePath), jars);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("", e);
 			jars = "";
 		}
 		return jars;

@@ -11,6 +11,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.iotdb.ui.condition.TaskCondition;
 import org.apache.iotdb.ui.config.TaskWrapper;
 import org.apache.iotdb.ui.config.schedule.TaskTimerBucket;
+import org.apache.iotdb.ui.config.schedule.TimerConfig;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.Task;
 import org.apache.iotdb.ui.entity.User;
@@ -32,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
-import com.yonyou.iotdb.utils.core.ExportStarter;
 import com.yonyou.iotdb.utils.core.pipeline.context.model.CompressEnum;
 
 import indi.mybatis.flying.models.Conditionable;
@@ -49,8 +49,8 @@ public class ScheduleController {
 
 	FastDateFormat fastDateFormat = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
-	public static final TaskStatus[] c = { TaskStatus.NOT_START, TaskStatus.IN_PROGRESS, TaskStatus.NORMAL_END,
-			TaskStatus.FORCED_END };
+	public static final List<TaskStatus> TASK_STATUS_LIST = Lists.list(new TaskStatus[] { TaskStatus.NOT_START,
+			TaskStatus.IN_PROGRESS, TaskStatus.NORMAL_END, TaskStatus.FORCED_END });
 
 	@Autowired
 	private ConnectDao connectDao;
@@ -65,9 +65,9 @@ public class ScheduleController {
 	private TaskWrapper taskWrapper;
 
 	@Autowired
-	private ExportStarter exportStarter;
+	private TimerConfig timerConfig;
 
-	@RequestMapping(value = "/api/schedule/task/all", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/schedule/task/all", method = { RequestMethod.POST })
 	public BaseVO<Object> taskAll(HttpServletRequest request, @RequestParam("pageSize") Integer pageSize,
 			@RequestParam("pageNum") Integer pageNum,
 			@RequestParam(value = "timeline", required = false) String timeline,
@@ -79,7 +79,7 @@ public class ScheduleController {
 		tc.setUserId(user.getId());
 		tc.setType(taskType);
 		if (taskStatusList == null || taskStatusList.isEmpty()) {
-			taskStatusList = Lists.list(c);
+			taskStatusList = TASK_STATUS_LIST;
 		}
 		tc.setStatusIn(taskStatusList);
 		Calendar cal = Calendar.getInstance();
@@ -97,7 +97,7 @@ public class ScheduleController {
 		return BaseVO.success(page);
 	}
 
-	@RequestMapping(value = "/api/schedule/task/add", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/schedule/task/add", method = { RequestMethod.POST })
 	public BaseVO<Object> taskAdd(HttpServletRequest request, @RequestParam("type") TaskType type,
 			@RequestParam("connectId") Long connectId, @RequestParam(value = "device", required = false) String device,
 			@RequestParam(value = "whereClause", required = false) String whereClause,
@@ -135,7 +135,7 @@ public class ScheduleController {
 		return BaseVO.success(info, null);
 	}
 
-	@RequestMapping(value = "/api/schedule/task/update", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/schedule/task/update", method = { RequestMethod.POST })
 	public BaseVO<Object> taskUpdate(HttpServletRequest request, @RequestParam("id") Long id,
 			@RequestParam(value = "device", required = false) String device,
 			@RequestParam(value = "whereClause", required = false) String whereClause,
@@ -186,7 +186,7 @@ public class ScheduleController {
 		return BaseVO.success(info, task);
 	}
 
-	@RequestMapping(value = "/api/schedule/task/view", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/schedule/task/view", method = { RequestMethod.POST })
 	public BaseVO<Object> taskView(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
@@ -213,7 +213,7 @@ public class ScheduleController {
 		}
 	}
 
-	@RequestMapping(value = "/api/schedule/task/delete", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/api/schedule/task/delete", method = { RequestMethod.POST })
 	public BaseVO<Object> taskDelete(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
@@ -240,10 +240,24 @@ public class ScheduleController {
 		return BaseVO.success(info, null);
 	}
 
-	@RequestMapping(value = "/api/schedule/task/process", method = { RequestMethod.GET, RequestMethod.POST })
-	public BaseVO<Object> taskProcess(HttpServletRequest request) throws SQLException {
-		Long process = taskWrapper.getProcess();
+	@RequestMapping(value = "/api/schedule/task/process", method = { RequestMethod.POST })
+	public BaseVO<Object> taskProcess(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
+		Long process = taskWrapper.getProcess(id);
+		if (process == 0) {
+			return new BaseVO<>(FeedbackError.TASK_CHECK_PROCESS_FAIL,
+					MessageUtil.get(FeedbackError.TASK_CHECK_PROCESS_FAIL), null);
+		}
 		boolean b = taskWrapper.isFinish();
 		return BaseVO.success(process.toString(), b);
+	}
+
+	@RequestMapping(value = "/api/schedule/task/shutdown", method = { RequestMethod.POST })
+	public BaseVO<Object> taskShutdown(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
+		boolean b = taskWrapper.shutdown(id);
+		if (b) {
+			timerConfig.endTask(TaskStatus.FORCED_END);
+			return BaseVO.success(null);
+		}
+		return new BaseVO<>(FeedbackError.TASK_SHUTDOWN_FAIL, MessageUtil.get(FeedbackError.TASK_SHUTDOWN_FAIL), null);
 	}
 }

@@ -144,9 +144,6 @@ public class TimerConfig {
 
 	@Scheduled(cron = "0/1 * * * * *")
 	public void dealTask() {
-		if (taskWrapper.isFinish() && taskWrapper.getTask() != null) {
-			normalEndTask();
-		}
 		Iterator<Entry<String, Task>> it = taskTimerBucket.getTaskTimerMap().entrySet().iterator();
 		Long cou1 = System.currentTimeMillis();
 		while (it.hasNext()) {
@@ -167,10 +164,10 @@ public class TimerConfig {
 		}
 	}
 
-	private void normalEndTask() {
+	public void endTask(TaskStatus status) {
 		Task task = taskWrapper.getTask();
-		task.setStatus(TaskStatus.NORMAL_END);
-		task.setResultRows(taskWrapper.getProcess());
+		task.setStatus(status);
+		task.setResultRows(taskWrapper.getProcess(task.getId()));
 		int i = taskDao.update(task);
 		if (i == 1) {
 			taskWrapper.setTask(null);
@@ -209,6 +206,21 @@ public class TimerConfig {
 					}
 				}
 			}
+			exportModel.setConsumer(s -> {
+				switch (s) {
+				case ON_ERROR:
+					if (taskWrapper.getTask() != null) {
+						endTask(TaskStatus.ABEND);
+					}
+					break;
+				case ON_COMPLETE:
+					if (taskWrapper.isFinish() && taskWrapper.getTask() != null) {
+						endTask(TaskStatus.NORMAL_END);
+					}
+					break;
+				default:
+				}
+			});
 			return taskWrapper.start(exportModel);
 		} else {
 			ImportModel importModel = new ImportModel();
@@ -234,6 +246,21 @@ public class TimerConfig {
 					}
 				}
 			}
+			importModel.setConsumer(s -> {
+				switch (s) {
+				case ON_ERROR:
+					if (taskWrapper.getTask() != null) {
+						endTask(TaskStatus.ABEND);
+					}
+					break;
+				case ON_COMPLETE:
+					if (taskWrapper.isFinish() && taskWrapper.getTask() != null) {
+						endTask(TaskStatus.NORMAL_END);
+					}
+					break;
+				default:
+				}
+			});
 			return taskWrapper.start(importModel);
 		}
 	}

@@ -11,8 +11,6 @@ public class MonitorServerConfig {
 
 	private String temp;
 
-	private String temp2;
-
 	public String getHost() {
 		return host;
 	}
@@ -27,14 +25,6 @@ public class MonitorServerConfig {
 
 	public void setTemp(String temp) {
 		this.temp = temp;
-	}
-
-	public String getTemp2() {
-		return temp2;
-	}
-
-	public void setTemp2(String temp2) {
-		this.temp2 = temp2;
 	}
 
 }

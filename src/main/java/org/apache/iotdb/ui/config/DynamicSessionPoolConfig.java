@@ -115,7 +115,7 @@ public class DynamicSessionPoolConfig {
 
 	private void loadTenantSessionPool(DynamicSessionPool dynamicSessionPool) throws SQLException {
 		Connect c = new Connect();
-		List<Connect> list = connectDao.selectAll(c);
+		List<Connect> list = connectDao.selectAllUnsafe(c);
 		for (Connect e : list) {
 			dynamicSessionPool.addSessionPool(e.getId(), e.getHost(), e.getPort(), e.getUsername(), e.getPassword(),
 					MAX_SIZE);

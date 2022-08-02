@@ -156,7 +156,7 @@ public class QueryController {
 				list.add(map);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("", e);
 		} finally {
 			iotDBController.getDetermineSessionPool().closeResultSet(sessionDataSetWrapper);
 		}
@@ -208,7 +208,7 @@ public class QueryController {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("", e);
 		}
 		return ret;
 	}
@@ -249,7 +249,7 @@ public class QueryController {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("", e);
 		}
 		return ret;
 	}

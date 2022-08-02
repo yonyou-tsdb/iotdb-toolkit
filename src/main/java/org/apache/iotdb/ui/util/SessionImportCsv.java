@@ -41,8 +41,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.ibatis.logging.Log;
-import org.apache.ibatis.logging.LogFactory;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.Session;
@@ -59,10 +57,12 @@ import org.apache.thrift.annotation.Nullable;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SessionImportCsv {
 
-	private static final Log logger = LogFactory.getLog(SessionImportCsv.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SessionImportCsv.class);
 
 	private static DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
@@ -91,9 +91,7 @@ public class SessionImportCsv {
 			}
 			writeDataAlignedByTime(csvRecords, session, wssessionId);
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(new StringBuilder("Encounter an error when connecting to server, because ")
-					.append(e.getMessage()).toString());
+			LOGGER.error(new StringBuilder("Encounter an error when connecting to server:").toString(), e);
 			throw e;
 		} finally {
 			if (session != null) {
@@ -126,7 +124,7 @@ public class SessionImportCsv {
 					}
 
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOGGER.error("", e);
 				}
 			}
 		}).start();
@@ -248,7 +246,7 @@ public class SessionImportCsv {
 					}
 					if (cm.getTimes().size() % IMPORT_INSERT_BANCH_SIZE == 0
 							&& cm.getTimes().size() / IMPORT_INSERT_BANCH_SIZE > 0) {
-						logger.warn(new StringBuilder(measurementKey).append(",")
+						LOGGER.warn(new StringBuilder(measurementKey).append(",")
 								.append(cm.getCount() + cm.getTimes().size()).toString());
 						try {
 							session.insertRecordsOfOneDevice(cm.getDeviceId(), cm.getTimes(), cm.getMeasurementsList(),
@@ -278,7 +276,7 @@ public class SessionImportCsv {
 		for (Map.Entry<String, CsvModel> e2 : m.entrySet()) {
 			CsvModel cm = e2.getValue();
 			if (cm.getTimes().size() != 0) {
-				logger.warn(new StringBuilder(e2.getKey()).append(",").append(cm.getCount() + cm.getTimes().size())
+				LOGGER.warn(new StringBuilder(e2.getKey()).append(",").append(cm.getCount() + cm.getTimes().size())
 						.toString());
 				try {
 					session.insertRecordsOfOneDevice(cm.getDeviceId(), cm.getTimes(), cm.getMeasurementsList(),
@@ -360,7 +358,7 @@ public class SessionImportCsv {
 				columnTypeMap.put(it.getString("timeseries"), it.getString("dataType"));
 			}
 		} catch (StatementExecutionException | IoTDBConnectionException e) {
-			e.printStackTrace();
+			LOGGER.error("", e);
 		}
 		return columnTypeMap;
 	}

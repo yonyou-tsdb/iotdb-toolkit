@@ -43,28 +43,29 @@ public class Connect extends PojoSupport implements ConnectFace {
 	 * 主键
 	 * 
 	 */
-	@FieldMapperAnnotation(dbFieldName = "id", jdbcType = JdbcType.BIGINT, isUniqueKey = true)
+	@FieldMapperAnnotation(dbFieldName = "id", jdbcType = JdbcType.BIGINT, isUniqueKey = true, whiteListTag = {
+			"safe" })
 	private Long id;
 
 	/**
 	 * 地址
 	 * 
 	 */
-	@FieldMapperAnnotation(dbFieldName = "host", jdbcType = JdbcType.VARCHAR)
+	@FieldMapperAnnotation(dbFieldName = "host", jdbcType = JdbcType.VARCHAR, whiteListTag = { "safe" })
 	private String host;
 
 	/**
 	 * 端口
 	 * 
 	 */
-	@FieldMapperAnnotation(dbFieldName = "port", jdbcType = JdbcType.INTEGER)
+	@FieldMapperAnnotation(dbFieldName = "port", jdbcType = JdbcType.INTEGER, whiteListTag = { "safe" })
 	private Integer port;
 
 	/**
 	 * 数据源用户名
 	 * 
 	 */
-	@FieldMapperAnnotation(dbFieldName = "username", jdbcType = JdbcType.VARCHAR)
+	@FieldMapperAnnotation(dbFieldName = "username", jdbcType = JdbcType.VARCHAR, whiteListTag = { "safe" })
 	private String username;
 
 	/**
@@ -78,23 +79,26 @@ public class Connect extends PojoSupport implements ConnectFace {
 	 * 别名
 	 * 
 	 */
-	@FieldMapperAnnotation(dbFieldName = "alias", jdbcType = JdbcType.VARCHAR)
+	@FieldMapperAnnotation(dbFieldName = "alias", jdbcType = JdbcType.VARCHAR, whiteListTag = { "safe" })
 	private String alias;
 
-	@FieldMapperAnnotation(dbFieldName = "create_time", jdbcType = JdbcType.TIMESTAMP)
+	@FieldMapperAnnotation(dbFieldName = "create_time", jdbcType = JdbcType.TIMESTAMP, whiteListTag = { "safe" })
 	private Date createTime;
 
 	/**
 	 * 参数设置
 	 * 
 	 */
-	@FieldMapperAnnotation(dbFieldName = "setting", jdbcType = JdbcType.VARCHAR, ignoreTag = { "noSetting" })
+	@FieldMapperAnnotation(dbFieldName = "setting", jdbcType = JdbcType.VARCHAR, ignoreTag = {
+			"noSetting" }, whiteListTag = { "safe" })
 	private JSONObject setting;
 
-	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, dbAssociationUniqueKey = "id")
+	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, dbAssociationUniqueKey = "id", whiteListTag = {
+			"safe" })
 	private User user;
 
-	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, delegate = true)
+	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, delegate = true, whiteListTag = {
+			"safe" })
 	private Long userId;
 
 	@JSONField(serialize = false)

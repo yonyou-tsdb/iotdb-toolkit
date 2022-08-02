@@ -27,11 +27,15 @@ import org.apache.commons.io.FileUtils;
 import org.apache.iotdb.ui.config.MonitorRmiConfig;
 import org.apache.iotdb.ui.util.CompilerUtils;
 import org.apache.iotdb.ui.util.CreateJarUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BuildRmiService {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(BuildRmiService.class);
 
 	@Autowired
 	private MonitorRmiConfig monitorRmiConfig;
@@ -74,7 +78,7 @@ public class BuildRmiService {
 				CompilerUtils.compiler(sourcePath, classPath, monitorRmiConfig.getBasePath(), encoding,
 						monitorRmiConfig.getJarReyOnPath());
 			} catch (Exception e) {
-				e.printStackTrace();
+				LOGGER.error("", e);
 			}
 			System.out.println("编译资源结束");
 			System.out.println("生成jar......");
@@ -84,7 +88,7 @@ public class BuildRmiService {
 			// 删除临时文件
 			ExeSuccess(sourcePath, classPath);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error("", e);
 			deleteTempFile(sourcePath, classPath);
 
 		} finally {
@@ -115,7 +119,7 @@ public class BuildRmiService {
 				FileUtils.deleteDirectory(classFile);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error("", e);
 		}
 
 	}

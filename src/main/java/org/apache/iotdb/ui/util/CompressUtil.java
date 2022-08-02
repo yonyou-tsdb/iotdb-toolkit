@@ -25,10 +25,14 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xerial.snappy.SnappyFramedInputStream;
 import org.xerial.snappy.SnappyFramedOutputStream;
 
 public class CompressUtil {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(CompressUtil.class);
 
 	public static void SnappyCompress(InputStream fi, OutputStream fo) {
 
@@ -45,7 +49,7 @@ public class CompressUtil {
 			}
 			sout.flush();
 		} catch (Throwable ex) {
-			ex.printStackTrace();
+			LOGGER.error("", ex);
 		} finally {
 			if (sout != null) {
 				try {
@@ -78,7 +82,7 @@ public class CompressUtil {
 			}
 			fo.flush();
 		} catch (Throwable ex) {
-			ex.printStackTrace();
+			LOGGER.error("", ex);
 		} finally {
 			if (sin != null) {
 				try {
@@ -110,7 +114,7 @@ public class CompressUtil {
 			}
 			sout.flush();
 		} catch (Throwable ex) {
-			ex.printStackTrace();
+			LOGGER.error("", ex);
 		} finally {
 			if (sout != null) {
 				try {
@@ -143,7 +147,7 @@ public class CompressUtil {
 			}
 			fo.flush();
 		} catch (Throwable ex) {
-			ex.printStackTrace();
+			LOGGER.error("", ex);
 		} finally {
 			if (sin != null) {
 				try {
