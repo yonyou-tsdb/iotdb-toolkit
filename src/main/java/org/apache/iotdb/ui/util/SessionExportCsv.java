@@ -45,12 +45,16 @@ import org.apache.iotdb.ui.model.ExportTimeFormat;
 import org.apache.iotdb.ui.model.JobType;
 import org.apache.iotdb.ui.model.WsMessage;
 import org.apache.thrift.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SessionExportCsv {
 
 	private static Boolean needDataTypePrinted = true;
 
 	public static final int EXPORT_FEEDBACK_BATCH_SIZE = 1_000_000;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SessionExportCsv.class);
 
 	private static PipedInputStream buildCompressInput(SessionDataSet sessionDataSet, ExportTimeFormat timeFormat,
 			ZoneId zoneId, String sessionId) throws IOException {
@@ -110,7 +114,7 @@ public class SessionExportCsv {
 				t3 = ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.of(timeZone))
 						.format(DateTimeFormatter.ofPattern(timeFormat.getValue()));
 			} catch (Exception e) {
-				e.printStackTrace();
+				LOGGER.error("", e);
 			}
 			return t3;
 		}

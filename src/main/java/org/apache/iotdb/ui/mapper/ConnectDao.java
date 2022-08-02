@@ -31,6 +31,8 @@ public interface ConnectDao {
 	public Connect selectWithSetting(Long id);
 
 	public List<Connect> selectAll(Connect t);
+	
+	public List<Connect> selectAllUnsafe(Connect t);
 
 	public Connect selectOne(Connect t);
 	

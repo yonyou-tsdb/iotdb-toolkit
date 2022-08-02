@@ -25,8 +25,12 @@ import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.Session;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExporterInsert {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExporterInsert.class);
 
 	private String path = "root.__metric.\"127.0.0.1:6667\"";
 
@@ -82,9 +86,10 @@ public class ExporterInsert {
 		try {
 			session.insertRecords(deviceIds, timestamps, measurementsList, typesList, valuesList);
 		} catch (IoTDBConnectionException | StatementExecutionException e1) {
-			e1.printStackTrace();
+			LOGGER.error("", e1);
+		} finally {
+			clear();
 		}
-		clear();
 	}
 
 	public List<List<Object>> getValuesList() {

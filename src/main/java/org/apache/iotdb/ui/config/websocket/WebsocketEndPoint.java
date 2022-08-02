@@ -12,12 +12,12 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.iotdb.ui.config.DistributedSnowflakeKeyGenerator2;
 import org.apache.iotdb.ui.model.JobType;
 import org.apache.iotdb.ui.model.UserJob;
 import org.apache.iotdb.ui.model.WsMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +28,7 @@ import com.alibaba.fastjson.JSONObject;
 @Component
 public class WebsocketEndPoint {
 
-	static Log log = LogFactory.getLog(WebsocketEndPoint.class);
+	static final Logger log = LoggerFactory.getLogger(WebsocketEndPoint.class);
 
 	public static final String SHIRO_SESSION = "shiroSession";
 
@@ -83,8 +83,7 @@ public class WebsocketEndPoint {
 
 	@OnError
 	public void onError(Session session, Throwable error) {
-		log.error("websocket" + wssessionId + "发生错误");
-		error.printStackTrace();
+		log.error(new StringBuilder("websocket ").append(wssessionId).append(" error").toString(), error);
 	}
 
 	private void sendMessage(String message) {

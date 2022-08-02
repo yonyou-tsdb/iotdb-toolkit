@@ -11,11 +11,12 @@
 	OF ANY KIND, either express or implied. See the License for the specific 
 	language governing permissions and limitations under the License. -->
 <mapper namespace="org.apache.iotdb.ui.mapper.ConnectDao">
-    <select id="select" resultMap="result">{"action":"select#{?}","ignore":"noSetting","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"}, }}</select>
-    <select id="selectAll" resultMap="result">{"action":"selectAll","ignore":"noSetting","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"},}}</select>
-    <select id="selectOne" resultMap="result">{"action":"selectOne","ignore":"noSetting","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"},}}</select>
-    <select id="selectOneWithSetting" resultMap="result">{"action":"selectOne","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"},}}</select>
-    <select id="selectWithSetting" resultMap="result">{"action":"select#{?}","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"}, }}</select>
+    <select id="select" resultMap="result">{"action":"select#{?}","whiteList":"safe","ignore":"noSetting","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"}, }}</select>
+    <select id="selectAll" resultMap="result">{"action":"selectAll","whiteList":"safe","ignore":"noSetting","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"},}}</select>
+    <select id="selectAllUnsafe" resultMap="result">{"action":"selectAll","ignore":"noSetting","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"},}}</select>
+    <select id="selectOne" resultMap="result">{"action":"selectOne","whiteList":"safe","ignore":"noSetting","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"},}}</select>
+    <select id="selectOneWithSetting" resultMap="result">{"action":"selectOne","whiteList":"safe","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"},}}</select>
+    <select id="selectWithSetting" resultMap="result">{"action":"select#{?}","whiteList":"safe","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"}, }}</select>
     <select id="count" resultType="int">{"action":"count"}</select>
     <insert id="insert">{"action":"insert", "keyGenerator":"org.apache.iotdb.ui.config.DistributedSnowflakeKeyGenerator2"}</insert>
     <update id="update">{"action":"update"}</update>

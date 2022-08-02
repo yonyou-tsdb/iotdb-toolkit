@@ -23,6 +23,8 @@ import org.apache.iotdb.ui.config.ExporterConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -49,6 +51,8 @@ public class PanelTest {
 	public String uri = "http://localhost/";
 
 //	public String uri = "http://172.20.48.111:9091/metrics";
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(PanelTest.class);
 
 	@Autowired
 	@Qualifier("httpClientBean")
@@ -64,7 +68,7 @@ public class PanelTest {
 		try {
 			readMetrics();
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("", e);
 		}
 	}
 
