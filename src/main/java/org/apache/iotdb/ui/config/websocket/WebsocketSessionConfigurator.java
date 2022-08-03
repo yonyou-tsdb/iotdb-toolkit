@@ -8,7 +8,7 @@ import javax.websocket.server.ServerEndpointConfig.Configurator;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
-import org.osgi.service.component.annotations.Component;
+import org.springframework.stereotype.Component;
 
 @Component
 public class WebsocketSessionConfigurator extends Configurator {

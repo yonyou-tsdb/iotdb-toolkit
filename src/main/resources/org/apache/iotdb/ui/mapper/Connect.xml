@@ -12,6 +12,7 @@
 	language governing permissions and limitations under the License. -->
 <mapper namespace="org.apache.iotdb.ui.mapper.ConnectDao">
     <select id="select" resultMap="result">{"action":"select#{?}","whiteList":"safe","ignore":"noSetting","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"}, }}</select>
+    <select id="selectUnsafe" resultMap="result">{"action":"select#{?}","ignore":"noSetting","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"}, }}</select>
     <select id="selectAll" resultMap="result">{"action":"selectAll","whiteList":"safe","ignore":"noSetting","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"},}}</select>
     <select id="selectAllUnsafe" resultMap="result">{"action":"selectAll","ignore":"noSetting","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"},}}</select>
     <select id="selectOne" resultMap="result">{"action":"selectOne","whiteList":"safe","ignore":"noSetting","properties":{ "user":{"id":"org.apache.iotdb.ui.mapper.UserDao.select", "prefix":"u__"},}}</select>

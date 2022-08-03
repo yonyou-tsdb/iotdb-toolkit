@@ -40,6 +40,7 @@ import org.apache.iotdb.ui.model.CaptchaWrapper;
 import org.apache.iotdb.ui.model.TaskStatus;
 import org.apache.iotdb.ui.model.TaskType;
 import org.apache.shiro.session.Session;
+import org.assertj.core.util.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,6 +176,18 @@ public class TimerConfig {
 		}
 	}
 
+	public void forcedEndTask(TaskStatus status, Long taskId) {
+		Task task = taskDao.select(taskId);
+		if (TaskStatus.IN_PROGRESS.equals(task.getStatus())) {
+			task.setStatus(status);
+			task.setResultRows(0L);
+			int i = taskDao.update(task);
+			if (i == 1) {
+				taskTimerBucket.getTaskTimerMap().put(task.key(), task);
+			}
+		}
+	}
+
 	private Disposable handleTask(Task task) {
 		taskWrapper.setTask(task);
 		if (TaskType.EXPORT.equals(task.getType())) {
@@ -193,8 +206,12 @@ public class TimerConfig {
 				if (task.getSetting().getString("whereClause") != null) {
 					exportModel.setWhereClause(task.getSetting().getString("whereClause"));
 				}
+				if (task.getSetting().getString("measurementList") != null) {
+					String[] measurements = task.getSetting().getString("measurementList").split(",");
+					exportModel.setMeasurementList(Lists.list(measurements));
+				}
 				if (task.getSetting().getLong("connectId") != null) {
-					Connect connect = connectDao.select(task.getSetting().getLong("connectId"));
+					Connect connect = connectDao.selectUnsafe(task.getSetting().getLong("connectId"));
 					if (connect != null) {
 						org.apache.iotdb.session.Session session = new org.apache.iotdb.session.Session(
 								connect.getHost(), connect.getPort(), connect.getUsername(), connect.getPassword());
@@ -234,7 +251,7 @@ public class TimerConfig {
 					importModel.setCompressEnum(CompressEnum.valueOf(task.getSetting().getString("compress")));
 				}
 				if (task.getSetting().getLong("connectId") != null) {
-					Connect connect = connectDao.select(task.getSetting().getLong("connectId"));
+					Connect connect = connectDao.selectUnsafe(task.getSetting().getLong("connectId"));
 					if (connect != null) {
 						org.apache.iotdb.session.Session session = new org.apache.iotdb.session.Session(
 								connect.getHost(), connect.getPort(), connect.getUsername(), connect.getPassword());

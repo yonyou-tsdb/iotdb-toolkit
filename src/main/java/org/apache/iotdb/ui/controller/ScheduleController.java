@@ -50,7 +50,7 @@ public class ScheduleController {
 	FastDateFormat fastDateFormat = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
 	public static final List<TaskStatus> TASK_STATUS_LIST = Lists.list(new TaskStatus[] { TaskStatus.NOT_START,
-			TaskStatus.IN_PROGRESS, TaskStatus.NORMAL_END, TaskStatus.FORCED_END });
+			TaskStatus.IN_PROGRESS, TaskStatus.NORMAL_END, TaskStatus.ABEND, TaskStatus.FORCED_END });
 
 	@Autowired
 	private ConnectDao connectDao;
@@ -100,6 +100,7 @@ public class ScheduleController {
 	@RequestMapping(value = "/api/schedule/task/add", method = { RequestMethod.POST })
 	public BaseVO<Object> taskAdd(HttpServletRequest request, @RequestParam("type") TaskType type,
 			@RequestParam("connectId") Long connectId, @RequestParam(value = "device", required = false) String device,
+			@RequestParam(value = "measurementList", required = false) String measurementList,
 			@RequestParam(value = "whereClause", required = false) String whereClause,
 			@RequestParam(value = "fileFolder", required = false) String fileFolder,
 			@RequestParam("compress") CompressEnum compress, @RequestParam("timeWindowStart") Long timeWindowStart,
@@ -123,6 +124,7 @@ public class ScheduleController {
 		setting.put("compress", compress);
 		setting.put("connectId", connectId);
 		setting.put("device", device);
+		setting.put("measurementList", measurementList);
 		setting.put("whereClause", whereClause);
 		setting.put("fileFolder", fileFolder);
 		task.setSetting(setting);
@@ -138,6 +140,7 @@ public class ScheduleController {
 	@RequestMapping(value = "/api/schedule/task/update", method = { RequestMethod.POST })
 	public BaseVO<Object> taskUpdate(HttpServletRequest request, @RequestParam("id") Long id,
 			@RequestParam(value = "device", required = false) String device,
+			@RequestParam(value = "measurementList", required = false) String measurementList,
 			@RequestParam(value = "whereClause", required = false) String whereClause,
 			@RequestParam(value = "fileFolder", required = false) String fileFolder,
 			@RequestParam("compress") CompressEnum compress, @RequestParam("timeWindowStart") Long timeWindowStart,
@@ -168,6 +171,9 @@ public class ScheduleController {
 		}
 		if (fileFolder != null) {
 			task.getSetting().put("fileFolder", fileFolder);
+		}
+		if (measurementList != null) {
+			task.getSetting().put("measurementList", measurementList);
 		}
 		task.getSetting().put("compress", compress);
 		Date timeWindowStartFrom = new Date(timeWindowStart);
@@ -243,7 +249,7 @@ public class ScheduleController {
 	@RequestMapping(value = "/api/schedule/task/process", method = { RequestMethod.POST })
 	public BaseVO<Object> taskProcess(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
 		Long process = taskWrapper.getProcess(id);
-		if (process == 0) {
+		if (process == null) {
 			return new BaseVO<>(FeedbackError.TASK_CHECK_PROCESS_FAIL,
 					MessageUtil.get(FeedbackError.TASK_CHECK_PROCESS_FAIL), null);
 		}
@@ -257,7 +263,10 @@ public class ScheduleController {
 		if (b) {
 			timerConfig.endTask(TaskStatus.FORCED_END);
 			return BaseVO.success(null);
+		} else {
+			timerConfig.forcedEndTask(TaskStatus.FORCED_END, id);
+			return new BaseVO<>(FeedbackError.TASK_SHUTDOWN_FAIL, MessageUtil.get(FeedbackError.TASK_SHUTDOWN_FAIL),
+					null);
 		}
-		return new BaseVO<>(FeedbackError.TASK_SHUTDOWN_FAIL, MessageUtil.get(FeedbackError.TASK_SHUTDOWN_FAIL), null);
 	}
 }

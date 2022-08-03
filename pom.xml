@@ -301,13 +301,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.iotdb</groupId>
-			<artifactId>iotdb-jdbc</artifactId>
-			<version>0.12.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.iotdb</groupId>
 			<artifactId>iotdb-session</artifactId>
-			<version>0.12.2</version>
+			<version>0.13.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -356,12 +351,18 @@
 			<version>4.3.2</version>
 		</dependency>
 		<!-- <dependency> <groupId>com.yonyou.iotdb</groupId> <artifactId>utils-core</artifactId> 
-			<version>0.13.1.12-SNAPSHOT</version> <scope>system</scope> <systemPath>${project.basedir}/lib/utils-core-0.13.1.12-SNAPSHOT.jar</systemPath> 
+			<version>0.13.1.13-SNAPSHOT</version> <scope>system</scope> <systemPath>${project.basedir}/lib/utils-core-0.13.1.13-SNAPSHOT.jar</systemPath> 
 			</dependency> -->
 		<dependency>
 			<groupId>com.yonyou.iotdb</groupId>
 			<artifactId>utils-core</artifactId>
-			<version>0.13.1.12-SNAPSHOT</version>
+			<version>0.13.1.16-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.iotdb</groupId>
+					<artifactId>iotdb-session</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>io.projectreactor</groupId>
