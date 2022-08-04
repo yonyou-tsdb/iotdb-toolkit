@@ -151,8 +151,7 @@ public class TimerConfig {
 			Entry<String, Task> e = it.next();
 			Task task = e.getValue();
 			TaskStatus t = task.getStatus();
-			if (task.getStartWindowTo().getTime() < cou1 || TaskStatus.NORMAL_END.equals(t)
-					|| TaskStatus.ABEND.equals(t) || TaskStatus.FORCED_END.equals(t)) {
+			if (TaskStatus.NORMAL_END.equals(t) || TaskStatus.ABEND.equals(t) || TaskStatus.FORCED_END.equals(t)) {
 				it.remove();
 			} else if (TaskStatus.NOT_START.equals(t) && task.getStartWindowFrom().getTime() <= (cou1 + 1000)) {
 				task.setStatus(TaskStatus.IN_PROGRESS);
@@ -203,19 +202,20 @@ public class TimerConfig {
 			exportModel.setNeedTimeseriesStructure(true);
 			exportModel.setParallelism(2);
 			if (task.getSetting() != null) {
-				exportModel.setIotdbPath(task.getSetting().getString("device"));
-				if (task.getSetting().getString("compress") != null) {
-					exportModel.setCompressEnum(CompressEnum.valueOf(task.getSetting().getString("compress")));
+				exportModel.setIotdbPath(task.getSetting().getString(Task.SETTING_DEVICE));
+				if (task.getSetting().getString(Task.SETTING_COMPRESS) != null) {
+					exportModel
+							.setCompressEnum(CompressEnum.valueOf(task.getSetting().getString(Task.SETTING_COMPRESS)));
 				}
-				if (task.getSetting().getString("whereClause") != null) {
-					exportModel.setWhereClause(task.getSetting().getString("whereClause"));
+				if (task.getSetting().getString(Task.SETTING_WHERECLAUSE) != null) {
+					exportModel.setWhereClause(task.getSetting().getString(Task.SETTING_WHERECLAUSE));
 				}
-				if (task.getSetting().getString("measurementList") != null) {
-					String[] measurements = task.getSetting().getString("measurementList").split(",");
+				if (task.getSetting().getString(Task.SETTING_MEASUREMENTLIST) != null) {
+					String[] measurements = task.getSetting().getString(Task.SETTING_MEASUREMENTLIST).split(",");
 					exportModel.setMeasurementList(Lists.list(measurements));
 				}
-				if (task.getSetting().getLong("connectId") != null) {
-					Connect connect = connectDao.selectUnsafe(task.getSetting().getLong("connectId"));
+				if (task.getSetting().getLong(Task.SETTING_CONNECTID) != null) {
+					Connect connect = connectDao.selectUnsafe(task.getSetting().getLong(Task.SETTING_CONNECTID));
 					if (connect != null) {
 						org.apache.iotdb.session.Session session = new org.apache.iotdb.session.Session(
 								connect.getHost(), connect.getPort(), connect.getUsername(), connect.getPassword());
@@ -252,12 +252,13 @@ public class TimerConfig {
 			importModel.setNeedTimeseriesStructure(true);
 			importModel.setParallelism(2);
 			if (task.getSetting() != null) {
-				importModel.setFileFolder(task.getSetting().getString("fileFolder"));
-				if (task.getSetting().getString("compress") != null) {
-					importModel.setCompressEnum(CompressEnum.valueOf(task.getSetting().getString("compress")));
+				importModel.setFileFolder(task.getSetting().getString(Task.SETTING_FILEFOLDER));
+				if (task.getSetting().getString(Task.SETTING_COMPRESS) != null) {
+					importModel
+							.setCompressEnum(CompressEnum.valueOf(task.getSetting().getString(Task.SETTING_COMPRESS)));
 				}
-				if (task.getSetting().getLong("connectId") != null) {
-					Connect connect = connectDao.selectUnsafe(task.getSetting().getLong("connectId"));
+				if (task.getSetting().getLong(Task.SETTING_CONNECTID) != null) {
+					Connect connect = connectDao.selectUnsafe(task.getSetting().getLong(Task.SETTING_CONNECTID));
 					if (connect != null) {
 						org.apache.iotdb.session.Session session = new org.apache.iotdb.session.Session(
 								connect.getHost(), connect.getPort(), connect.getUsername(), connect.getPassword());

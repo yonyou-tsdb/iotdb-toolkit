@@ -1,12 +1,12 @@
 package org.apache.iotdb.ui.controller;
 
 import org.apache.iotdb.ui.entity.Connect;
+import org.apache.iotdb.ui.entity.Task;
 import org.apache.iotdb.ui.entity.User;
 import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.model.BaseVO;
 import org.apache.iotdb.ui.service.FilePreviewService;
-import org.apache.iotdb.ui.util.MessageUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +38,10 @@ public class FilePreviewController {
 
 	@ApiOperation(value = "/api/file/preview/getSelectNode", notes = "获取所选节点ip")
 	@RequestMapping(value = "/getSelectNode", method = { RequestMethod.POST })
-	public BaseVO<Object> getSelectNode(@RequestParam(value = "connectId") Long id) {
+	public BaseVO<Object> getSelectNode(@RequestParam(value = Task.SETTING_CONNECTID) Long id) {
 		Connect connect = connectDao.selectWithSetting(id);
 		if (connect == null) {
-			return new BaseVO<>(FeedbackError.NO_CONN, MessageUtil.get(FeedbackError.NO_CONN), null);
+			return new BaseVO<>(FeedbackError.NO_CONN, null);
 		} else {
 			return BaseVO.success(connect.getHost());
 		}
@@ -50,7 +50,7 @@ public class FilePreviewController {
 	@ApiOperation(value = "/api/file/preview/configFileContent", notes = "预览路径下所有配置文件")
 	@RequestMapping(value = "/configFileContent", method = { RequestMethod.POST })
 	public BaseVO<Object> configFileContent(@RequestParam("fileName") String fileName, @RequestParam("ip") String ip,
-			@RequestParam(value = "connectId") Long id) {
+			@RequestParam(value = Task.SETTING_CONNECTID) Long id) {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		Connect c = new Connect();
@@ -58,7 +58,7 @@ public class FilePreviewController {
 		c.setId(id);
 		Connect connect = connectDao.selectOneWithSetting(c);
 		if (connect == null) {
-			return new BaseVO<>(FeedbackError.NO_CONN, MessageUtil.get(FeedbackError.NO_CONN), null);
+			return new BaseVO<>(FeedbackError.NO_CONN, null);
 		} else {
 			return filePreviewService.configFileContent(fileName, ip, connect);
 		}
@@ -70,7 +70,7 @@ public class FilePreviewController {
 			@RequestParam(value = "codeMirrorCount", defaultValue = "0") int codeMirrorCount,
 			@RequestParam(value = "logCount", defaultValue = "0") int logCount, @RequestParam("ip") String ip,
 			@RequestParam(value = "downMore", defaultValue = "true") boolean downMore,
-			@RequestParam(value = "connectId") Long id) {
+			@RequestParam(value = Task.SETTING_CONNECTID) Long id) {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		Connect c = new Connect();
@@ -78,7 +78,7 @@ public class FilePreviewController {
 		c.setId(id);
 		Connect connect = connectDao.selectOneWithSetting(c);
 		if (connect == null) {
-			return new BaseVO<>(FeedbackError.NO_CONN, MessageUtil.get(FeedbackError.NO_CONN), null);
+			return new BaseVO<>(FeedbackError.NO_CONN, null);
 		} else {
 			return filePreviewService.logFileContent(fileName, codeMirrorCount, logCount, ip, downMore, connect);
 		}
@@ -87,7 +87,7 @@ public class FilePreviewController {
 	@ApiOperation(value = "/api/file/preview/getFileNames", notes = "读取路径下所有配置和日志文件列表")
 	@RequestMapping(value = "/getFileNames", method = { RequestMethod.POST })
 	public BaseVO<Object> getFileNames(@RequestParam("ip") String ip, @RequestParam("fileType") String fileType,
-			@RequestParam(value = "connectId") Long id) {
+			@RequestParam(value = Task.SETTING_CONNECTID) Long id) {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		Connect c = new Connect();
@@ -95,7 +95,7 @@ public class FilePreviewController {
 		c.setId(id);
 		Connect connect = connectDao.selectOneWithSetting(c);
 		if (connect == null) {
-			return new BaseVO<>(FeedbackError.NO_CONN, MessageUtil.get(FeedbackError.NO_CONN), null);
+			return new BaseVO<>(FeedbackError.NO_CONN, null);
 		} else {
 			return filePreviewService.getFileNames(ip, fileType, connect);
 		}

@@ -86,7 +86,7 @@ public class ExporterConfig {
 	}
 
 	public void readMetrics(String exporterEndPoint, String exporterCode) throws Exception {
-		HttpGet http = new HttpGet(String.format("http://%s", exporterEndPoint));
+		HttpGet http = new HttpGet(new StringBuilder("http://").append(exporterEndPoint).toString());
 		Session session = new Session(monitorServerConfig.getHost(), 6667, user, user);
 		session.open();
 		Long timestamp = LocalDateTime.now().toDate().getTime();
@@ -102,7 +102,7 @@ public class ExporterConfig {
 			String line = null;
 			ExporterMessageType lastMetricType = ExporterMessageType.UNTYPE;
 			ExporterInsert ei = new ExporterInsert();
-			ei.setPath(String.format("root._monitor.\"%s\"", exporterCode));
+			ei.setPath(new StringBuilder("root._monitor.\"").append(exporterCode).append("\"").toString());
 			while ((line = br.readLine()) != null) {
 				if (line.startsWith(ExporterParsingUtil.COMMENT_SIGN)) {
 					ExporterHeader eh = ExporterParsingUtil.read(line, null, null, null);

@@ -46,6 +46,7 @@ import org.apache.iotdb.ui.config.tsdatasource.DynamicDataSourceAspect;
 import org.apache.iotdb.ui.config.tsdatasource.DynamicSessionPool;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.Query;
+import org.apache.iotdb.ui.entity.Task;
 import org.apache.iotdb.ui.entity.User;
 import org.apache.iotdb.ui.exception.BaseException;
 import org.apache.iotdb.ui.exception.FeedbackError;
@@ -321,7 +322,7 @@ public class QueryController {
 						null);
 			}
 		} else {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, null);
 		}
 	}
 
@@ -347,7 +348,7 @@ public class QueryController {
 			@RequestParam(value = "timestamp") Long timestamp, @RequestParam(value = "point") String point,
 			@RequestParam(value = "value") String value) {
 		if (point.indexOf('.') < 0) {
-			return new BaseVO<>(FeedbackError.NO_SUPPORT_SQL, MessageUtil.get(FeedbackError.NO_SUPPORT_SQL), null);
+			return new BaseVO<>(FeedbackError.NO_SUPPORT_SQL, null);
 		}
 		String physical = point.substring(point.lastIndexOf('.') + 1, point.length());
 		String entity = point.substring(0, point.lastIndexOf('.'));
@@ -396,7 +397,8 @@ public class QueryController {
 						null);
 			}
 		}
-		sql = String.format("select %s from %s where time=%d", physical, entity, timestamp);
+		sql = new StringBuilder("select ").append(physical).append(" from ").append(entity).append(" where time=")
+				.append(timestamp).toString();
 		SessionDataSetWrapper sdsw = null;
 		try {
 			sdsw = iotDBController.getDetermineSessionPool().executeQueryStatement(sql);
@@ -419,8 +421,7 @@ public class QueryController {
 			@RequestParam(value = "tabToken") String tabToken) {
 		SessionDataSet ds = ContinuousIoTDBSession.getContinuousDataSet(queryToken);
 		if (ds == null) {
-			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, MessageUtil.get(FeedbackError.NO_SESSION_DATASET),
-					null);
+			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, null);
 		}
 		List<Map<String, Object>> list = new LinkedList<>();
 		boolean hasMore = transformForQuery(list, ds, PAGE_SIZE);
@@ -456,7 +457,7 @@ public class QueryController {
 			Page<Query> page = new Page<>(list, qc.getLimiter());
 			return BaseVO.success(page);
 		} else {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, null);
 		}
 	}
 
@@ -484,7 +485,7 @@ public class QueryController {
 			Page<Query> page = new Page<>(list, qc.getLimiter());
 			return BaseVO.success(page);
 		} else {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, null);
 		}
 	}
 
@@ -511,7 +512,7 @@ public class QueryController {
 			}
 			return BaseVO.success(null);
 		} else {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, null);
 		}
 	}
 
@@ -519,7 +520,7 @@ public class QueryController {
 	public BaseVO<Object> queryExportCsvWithTenant(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "sqls") String sqls, @RequestParam(value = "timeformat") String timeformat,
 			@RequestParam(value = "timeZone") String timeZone, @RequestParam(value = "targetFile") String targetFile,
-			@RequestParam(value = "compress", required = false) String compress) throws IOException {
+			@RequestParam(value = Task.SETTING_COMPRESS, required = false) String compress) throws IOException {
 		Long connectId = DynamicDataSourceAspect.getTenantCode(request);
 		String sessionId = IpUtils.getCookieValue(request, "JSESSIONID");
 		boolean bb = false;
@@ -556,14 +557,14 @@ public class QueryController {
 			}
 			return BaseVO.success(null);
 		} else {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, null);
 		}
 	}
 
 	@RequestMapping(value = "/api/query/importCsv", method = { RequestMethod.POST })
 	public BaseVO<Object> queryImportCsvWithTenant(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "Filedata") MultipartFile file, @RequestParam(value = "timeZone") String timeZone,
-			@RequestParam(value = "compress", required = false) String compress) throws IOException {
+			@RequestParam(value = Task.SETTING_COMPRESS, required = false) String compress) throws IOException {
 		Long connectId = DynamicDataSourceAspect.getTenantCode(request);
 		String sessionId = IpUtils.getCookieValue(request, "JSESSIONID");
 		boolean bb = false;
@@ -593,7 +594,7 @@ public class QueryController {
 			}
 			return BaseVO.success(null);
 		} else {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, null);
 		}
 	}
 }

@@ -145,7 +145,7 @@ public class IotDBController {
 			@RequestParam(value = "token") String token) throws SQLException {
 		String sql = new StringBuilder("list user privileges ").append(user).toString();
 		if (!sql.matches(REG)) {
-			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, MessageUtil.get(FeedbackError.WRONG_DB_PARAM), null);
+			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, null);
 		}
 		try {
 
@@ -208,8 +208,7 @@ public class IotDBController {
 		SessionDataSet ds = dsw == null ? null : dsw.getSessionDataSet();
 		int times = dsw == null ? 0 : dsw.increaseTimes();
 		if (ds == null) {
-			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, MessageUtil.get(FeedbackError.NO_SESSION_DATASET),
-					null);
+			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, null);
 		}
 		List<Map<String, Object>> list = new LinkedList<>();
 		boolean hasMore = queryController.transform(list, ds, SHOW_PRIVILEGES_BATCH_SIZE);
@@ -247,7 +246,7 @@ public class IotDBController {
 			@RequestParam(value = "auth", required = false) String auths, @RequestParam(value = "range") String ranges)
 			throws Exception {
 		if (!(user.matches(REG) && (auths == null || auths.matches(REG)) && ranges.matches(REG))) {
-			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, MessageUtil.get(FeedbackError.WRONG_DB_PARAM), null);
+			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, null);
 		}
 		List<String> sqlList = new ArrayList<>();
 		List<String> sqlList2 = new ArrayList<>();
@@ -376,7 +375,7 @@ public class IotDBController {
 	public BaseVO<Object> editUserWithTenant(HttpServletRequest request, @RequestParam("user") String user,
 			@RequestParam(value = "password") String password) throws SQLException {
 		if (!(user.matches(REG) && password.matches(REG))) {
-			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, MessageUtil.get(FeedbackError.WRONG_DB_PARAM), null);
+			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, null);
 		}
 		try {
 			getDetermineSessionPool().executeNonQueryStatement(new StringBuilder("alter user ").append(user)
@@ -394,7 +393,7 @@ public class IotDBController {
 	public BaseVO<Object> deleteUserWithTenant(HttpServletRequest request, @RequestParam("user") String user)
 			throws SQLException {
 		if (!(user.matches(REG))) {
-			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, MessageUtil.get(FeedbackError.WRONG_DB_PARAM), null);
+			return new BaseVO<>(FeedbackError.WRONG_DB_PARAM, null);
 		}
 		try {
 			getDetermineSessionPool().executeNonQueryStatement(new StringBuilder("drop user ").append(user).toString());
@@ -450,8 +449,7 @@ public class IotDBController {
 		SessionDataSet ds = dsw == null ? null : dsw.getSessionDataSet();
 		int times = dsw == null ? 0 : dsw.increaseTimes();
 		if (ds == null) {
-			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, MessageUtil.get(FeedbackError.NO_SESSION_DATASET),
-					null);
+			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, null);
 		}
 		int j = times * SHOW_SG_BATCH_SIZE;
 		List<Map<String, Object>> list = new LinkedList<>();
@@ -587,8 +585,7 @@ public class IotDBController {
 		SessionDataSet ds = dsw == null ? null : dsw.getSessionDataSet();
 		int times = dsw == null ? 0 : dsw.increaseTimes();
 		if (ds == null) {
-			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, MessageUtil.get(FeedbackError.NO_SESSION_DATASET),
-					null);
+			return new BaseVO<>(FeedbackError.NO_SESSION_DATASET, null);
 		}
 		List<Map<String, Object>> list = new LinkedList<>();
 		boolean hasMore = queryController.transform(list, ds, SHOW_TIMESERIES_BATCH_SIZE);

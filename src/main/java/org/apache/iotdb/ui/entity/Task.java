@@ -39,6 +39,18 @@ import indi.mybatis.flying.annotations.TableMapperAnnotation;
 @TableMapperAnnotation(tableName = "tb_task")
 public class Task extends PojoSupport implements TaskFace {
 
+	public static final String SETTING_MEASUREMENTLIST = "measurementList";
+
+	public static final String SETTING_WHERECLAUSE = "whereClause";
+
+	public static final String SETTING_COMPRESS = "compress";
+
+	public static final String SETTING_CONNECTID = "connectId";
+
+	public static final String SETTING_DEVICE = "device";
+
+	public static final String SETTING_FILEFOLDER = "fileFolder";
+
 	/**
 	 * 主键
 	 * 

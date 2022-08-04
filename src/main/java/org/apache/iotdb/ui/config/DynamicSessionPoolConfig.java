@@ -132,8 +132,6 @@ public class DynamicSessionPoolConfig {
 
 	private void loadTaskTimerBucket(TaskTimerBucket taskTimerBucket) throws Exception {
 		TaskCondition e = new TaskCondition();
-		Date now = LocalDateTime.now().toDate();
-		e.setStartWindowToGreaterOrEqual(now);
 		e.setStatus(TaskStatus.NOT_START);
 		List<Task> list = taskDao.selectAllPure(e);
 		for (Task t : list) {

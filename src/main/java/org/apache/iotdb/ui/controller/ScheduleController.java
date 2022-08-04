@@ -21,7 +21,6 @@ import org.apache.iotdb.ui.mapper.TaskDao;
 import org.apache.iotdb.ui.model.BaseVO;
 import org.apache.iotdb.ui.model.TaskStatus;
 import org.apache.iotdb.ui.model.TaskType;
-import org.apache.iotdb.ui.util.MessageUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.assertj.core.util.Lists;
@@ -71,7 +70,6 @@ public class ScheduleController {
 	@RequestMapping(value = "/api/schedule/task/all", method = { RequestMethod.POST })
 	public BaseVO<Object> taskAll(HttpServletRequest request, @RequestParam("pageSize") Integer pageSize,
 			@RequestParam("pageNum") Integer pageNum,
-			@RequestParam(value = "timeline", required = false) String timeline,
 			@RequestParam(value = "taskType", required = false) TaskType taskType,
 			@RequestParam(value = "taskStatus", required = false) List<TaskStatus> taskStatusList) throws SQLException {
 		Subject subject = SecurityUtils.getSubject();
@@ -84,11 +82,6 @@ public class ScheduleController {
 		}
 		tc.setStatusIn(taskStatusList);
 		Date now = LocalDateTime.now().toDate();
-		if ("history".equals(timeline)) {
-			tc.setStartWindowToLessThan(now);
-		} else {
-			tc.setStartWindowToGreaterOrEqual(now);
-		}
 		tc.setLimiter(new PageParam(pageNum, pageSize));
 		tc.setSorter(new SortParam(new Order("start_window_from", Conditionable.Sequence.ASC),
 				new Order("priority", Conditionable.Sequence.ASC), new Order("id", Conditionable.Sequence.ASC)));
@@ -99,23 +92,24 @@ public class ScheduleController {
 
 	@RequestMapping(value = "/api/schedule/task/add", method = { RequestMethod.POST })
 	public BaseVO<Object> taskAdd(HttpServletRequest request, @RequestParam("type") TaskType type,
-			@RequestParam("connectId") Long connectId, @RequestParam(value = "device", required = false) String device,
-			@RequestParam(value = "measurementList", required = false) String measurementList,
-			@RequestParam(value = "whereClause", required = false) String whereClause,
-			@RequestParam(value = "fileFolder", required = false) String fileFolder,
-			@RequestParam("compress") CompressEnum compress, @RequestParam("timeWindowStart") Long timeWindowStart,
-			@RequestParam("timeWindowEnd") Long timeWindowEnd, @RequestParam("priority") Integer priority)
+			@RequestParam(Task.SETTING_CONNECTID) Long connectId,
+			@RequestParam(value = Task.SETTING_DEVICE, required = false) String device,
+			@RequestParam(value = Task.SETTING_MEASUREMENTLIST, required = false) String measurementList,
+			@RequestParam(value = Task.SETTING_WHERECLAUSE, required = false) String whereClause,
+			@RequestParam(value = Task.SETTING_FILEFOLDER, required = false) String fileFolder,
+			@RequestParam(Task.SETTING_COMPRESS) CompressEnum compress,
+			@RequestParam("timeWindowStart") Long timeWindowStart, @RequestParam("priority") Integer priority)
 			throws SQLException {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		Date timeWindowStartFrom = new Date(timeWindowStart);
-		Date timeWindowEndTo = new Date(timeWindowEnd);
+//		Date timeWindowEndTo = new Date(timeWindowEnd);
 		Task task = new Task();
 		task.setName(new StringBuilder(type.name()).append('-').append(DistributedSnowflakeKeyGenerator2.getId())
 				.append('-').append(compress).toString());
 		task.setUserId(user.getId());
 		task.setStartWindowFrom(timeWindowStartFrom);
-		task.setStartWindowTo(timeWindowEndTo);
+//		task.setStartWindowTo(timeWindowEndTo);
 		task.setType(type);
 		task.setStatus(TaskStatus.NOT_START);
 		task.setPriority(priority);
@@ -123,31 +117,30 @@ public class ScheduleController {
 		task.setCreateTime(now);
 		task.setUpdateTime(now);
 		JSONObject setting = new JSONObject();
-		setting.put("compress", compress);
-		setting.put("connectId", connectId);
-		setting.put("device", device);
-		setting.put("measurementList", measurementList);
-		setting.put("whereClause", whereClause);
-		setting.put("fileFolder", fileFolder);
+		setting.put(Task.SETTING_COMPRESS, compress);
+		setting.put(Task.SETTING_CONNECTID, connectId);
+		setting.put(Task.SETTING_DEVICE, device);
+		setting.put(Task.SETTING_MEASUREMENTLIST, measurementList);
+		setting.put(Task.SETTING_WHERECLAUSE, whereClause);
+		setting.put(Task.SETTING_FILEFOLDER, fileFolder);
 		task.setSetting(setting);
 		int i = taskDao.insert(task);
 		if (i == 1) {
 			taskTimerBucket.getTaskTimerMap().put(task.key(), task);
 		}
-		String info = String.format("%s %s -- %s (%s)", type, fastDateFormat.format(timeWindowStartFrom),
-				fastDateFormat.format(timeWindowEndTo), priority);
+		String info = String.format("%s %s (%s)", type, fastDateFormat.format(timeWindowStartFrom), priority);
 		return BaseVO.success(info, null);
 	}
 
 	@RequestMapping(value = "/api/schedule/task/update", method = { RequestMethod.POST })
 	public BaseVO<Object> taskUpdate(HttpServletRequest request, @RequestParam("id") Long id,
-			@RequestParam(value = "device", required = false) String device,
-			@RequestParam(value = "measurementList", required = false) String measurementList,
-			@RequestParam(value = "whereClause", required = false) String whereClause,
-			@RequestParam(value = "fileFolder", required = false) String fileFolder,
-			@RequestParam("compress") CompressEnum compress, @RequestParam("timeWindowStart") Long timeWindowStart,
-			@RequestParam("timeWindowEnd") Long timeWindowEnd, @RequestParam("priority") Integer priority)
-			throws SQLException {
+			@RequestParam(value = Task.SETTING_DEVICE, required = false) String device,
+			@RequestParam(value = Task.SETTING_MEASUREMENTLIST, required = false) String measurementList,
+			@RequestParam(value = Task.SETTING_WHERECLAUSE, required = false) String whereClause,
+			@RequestParam(value = Task.SETTING_FILEFOLDER, required = false) String fileFolder,
+			@RequestParam(Task.SETTING_COMPRESS) CompressEnum compress,
+			@RequestParam("timeWindowStart") Long timeWindowStart, @RequestParam("timeWindowEnd") Long timeWindowEnd,
+			@RequestParam("priority") Integer priority) throws SQLException {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		Task t = new Task();
@@ -155,29 +148,28 @@ public class ScheduleController {
 		t.setUserId(user.getId());
 		Task task = taskDao.selectOne(t);
 		if (task == null) {
-			return new BaseVO<>(FeedbackError.TASK_GET_FAIL, MessageUtil.get(FeedbackError.TASK_GET_FAIL), null);
+			return new BaseVO<>(FeedbackError.TASK_GET_FAIL, null);
 		}
 		if (!TaskStatus.NOT_START.equals(task.getStatus())) {
-			return new BaseVO<>(FeedbackError.TASK_EDIT_FAIL_FOR_ALREADY_START,
-					MessageUtil.get(FeedbackError.TASK_EDIT_FAIL_FOR_ALREADY_START), null);
+			return new BaseVO<>(FeedbackError.TASK_EDIT_FAIL_FOR_ALREADY_START, null);
 		}
 		String oldKey = task.key();
 		if (task.getSetting() == null) {
 			task.setSetting(new JSONObject());
 		}
 		if (device != null) {
-			task.getSetting().put("device", device);
+			task.getSetting().put(Task.SETTING_DEVICE, device);
 		}
 		if (whereClause != null) {
-			task.getSetting().put("whereClause", whereClause);
+			task.getSetting().put(Task.SETTING_WHERECLAUSE, whereClause);
 		}
 		if (fileFolder != null) {
-			task.getSetting().put("fileFolder", fileFolder);
+			task.getSetting().put(Task.SETTING_FILEFOLDER, fileFolder);
 		}
 		if (measurementList != null) {
-			task.getSetting().put("measurementList", measurementList);
+			task.getSetting().put(Task.SETTING_MEASUREMENTLIST, measurementList);
 		}
-		task.getSetting().put("compress", compress);
+		task.getSetting().put(Task.SETTING_COMPRESS, compress);
 		Date timeWindowStartFrom = new Date(timeWindowStart);
 		Date timeWindowEndTo = new Date(timeWindowEnd);
 		task.setStartWindowFrom(timeWindowStartFrom);
@@ -188,8 +180,7 @@ public class ScheduleController {
 			taskTimerBucket.getTaskTimerMap().remove(oldKey);
 			taskTimerBucket.getTaskTimerMap().put(task.key(), task);
 		}
-		String info = String.format("%s %s -- %s (%s)", task.getType(),
-				fastDateFormat.format(task.getStartWindowFrom()), fastDateFormat.format(task.getStartWindowTo()),
+		String info = String.format("%s %s (%s)", task.getType(), fastDateFormat.format(task.getStartWindowFrom()),
 				task.getPriority());
 		return BaseVO.success(info, task);
 	}
@@ -203,10 +194,10 @@ public class ScheduleController {
 		t.setUserId(user.getId());
 		Task task = taskDao.selectOne(t);
 		if (task == null) {
-			return new BaseVO<>(FeedbackError.TASK_GET_FAIL, MessageUtil.get(FeedbackError.TASK_GET_FAIL), null);
+			return new BaseVO<>(FeedbackError.TASK_GET_FAIL, null);
 		} else {
 			if (task.getSetting() != null) {
-				Long connectId = task.getSetting().getLong("connectId");
+				Long connectId = task.getSetting().getLong(Task.SETTING_CONNECTID);
 				if (connectId != null) {
 					Connect connect = connectDao.select(connectId);
 					if (connect != null) {
@@ -230,20 +221,18 @@ public class ScheduleController {
 		t.setUserId(user.getId());
 		Task task = taskDao.selectOne(t);
 		if (task == null) {
-			return new BaseVO<>(FeedbackError.TASK_GET_FAIL, MessageUtil.get(FeedbackError.TASK_GET_FAIL), null);
+			return new BaseVO<>(FeedbackError.TASK_GET_FAIL, null);
 		}
 		if (!TaskStatus.NOT_START.equals(task.getStatus())) {
-			return new BaseVO<>(FeedbackError.TASK_DELETE_FAIL_FOR_ALREADY_START,
-					MessageUtil.get(FeedbackError.TASK_DELETE_FAIL_FOR_ALREADY_START), null);
+			return new BaseVO<>(FeedbackError.TASK_DELETE_FAIL_FOR_ALREADY_START, null);
 		}
 		int c = taskDao.delete(task);
 		if (c != 1) {
-			return new BaseVO<>(FeedbackError.TASK_DELETE_FAIL, MessageUtil.get(FeedbackError.TASK_DELETE_FAIL), null);
+			return new BaseVO<>(FeedbackError.TASK_DELETE_FAIL, null);
 		} else {
 			taskTimerBucket.getTaskTimerMap().remove(task.key());
 		}
-		String info = String.format("%s %s -- %s (%s)", task.getType(),
-				fastDateFormat.format(task.getStartWindowFrom()), fastDateFormat.format(task.getStartWindowTo()),
+		String info = String.format("%s %s (%s)", task.getType(), fastDateFormat.format(task.getStartWindowFrom()),
 				task.getPriority());
 		return BaseVO.success(info, null);
 	}
@@ -252,8 +241,7 @@ public class ScheduleController {
 	public BaseVO<Object> taskProcess(HttpServletRequest request, @RequestParam("id") Long id) throws SQLException {
 		Long process = taskWrapper.getProcess(id);
 		if (process == null) {
-			return new BaseVO<>(FeedbackError.TASK_CHECK_PROCESS_FAIL,
-					MessageUtil.get(FeedbackError.TASK_CHECK_PROCESS_FAIL), null);
+			return new BaseVO<>(FeedbackError.TASK_CHECK_PROCESS_FAIL, null);
 		}
 		boolean b = taskWrapper.isFinish();
 		return BaseVO.success(process.toString(), b);
@@ -267,8 +255,7 @@ public class ScheduleController {
 			return BaseVO.success(null);
 		} else {
 			timerConfig.forcedEndTask(TaskStatus.FORCED_END, id);
-			return new BaseVO<>(FeedbackError.TASK_SHUTDOWN_FAIL, MessageUtil.get(FeedbackError.TASK_SHUTDOWN_FAIL),
-					null);
+			return new BaseVO<>(FeedbackError.TASK_SHUTDOWN_FAIL, null);
 		}
 	}
 }

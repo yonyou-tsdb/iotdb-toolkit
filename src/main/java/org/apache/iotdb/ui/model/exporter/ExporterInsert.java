@@ -66,7 +66,7 @@ public class ExporterInsert {
 		measurementsList.add(measurements);
 		List<TSDataType> types = new LinkedList<>();
 		typesList.add(types);
-		deviceIds.add(String.format("%s.%s", path, exporterBody.buildPath()));
+		deviceIds.add(new StringBuilder(path).append('.').append(exporterBody.buildPath()).toString());
 		measurements.add("value");
 		types.add(TSDataType.DOUBLE);
 		values.add(exporterBody.getValue());
