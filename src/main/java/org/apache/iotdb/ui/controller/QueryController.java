@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -62,6 +61,7 @@ import org.apache.iotdb.ui.util.SessionExportCsv;
 import org.apache.iotdb.ui.util.SessionImportCsv;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -503,7 +503,7 @@ public class QueryController {
 			query.setConnectId(connectId);
 			query.setName(name);
 			query.setSqls(sqls);
-			query.setCreateTime(Calendar.getInstance().getTime());
+			query.setCreateTime(LocalDateTime.now().toDate());
 			try {
 				transactionService.insertQueryTransactive(query, connectId);
 			} catch (BaseException e) {
@@ -536,7 +536,7 @@ public class QueryController {
 			}
 			ExportTimeFormat exportTimeFormat = ExportTimeFormat.forValue(timeformat);
 			CompressMode compressMode = CompressMode.forValue(compress);
-			Connect connect = connectDao.select(connectId);
+			Connect connect = connectDao.selectUnsafe(connectId);
 			Session session = new Session(connect.getHost(), connect.getPort(), connect.getUsername(),
 					connect.getPassword());
 			String respHeaderContent = new StringBuilder("attachment;filename=")
@@ -578,7 +578,7 @@ public class QueryController {
 				timeZone = new StringBuilder("+").append(timeZone).toString();
 			}
 			CompressMode compressMode = CompressMode.forValue(compress);
-			Connect connect = connectDao.select(connectId);
+			Connect connect = connectDao.selectUnsafe(connectId);
 			if (!file.isEmpty()) {
 				try {
 					SessionImportCsv.importFromTargetPath(connect.getHost(), connect.getPort(), connect.getUsername(),

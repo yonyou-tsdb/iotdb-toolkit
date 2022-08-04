@@ -20,7 +20,6 @@ package org.apache.iotdb.ui.controller;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.Calendar;
 import java.util.List;
 
 import org.apache.iotdb.session.Session;
@@ -39,6 +38,7 @@ import org.apache.iotdb.ui.service.TransactionService;
 import org.apache.iotdb.ui.util.MessageUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -193,7 +193,7 @@ public class ConnectionController {
 		connect.setPassword(password);
 		connect.setHost(ip);
 		connect.setPort(port);
-		connect.setCreateTime(Calendar.getInstance().getTime());
+		connect.setCreateTime(LocalDateTime.now().toDate());
 		JSONObject setting = new JSONObject();
 		setting.put("serverUsername", serverUsername);
 		setting.put("serverPassword", serverPassword);

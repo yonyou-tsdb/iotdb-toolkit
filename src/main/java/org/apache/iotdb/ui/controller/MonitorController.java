@@ -19,7 +19,6 @@
 package org.apache.iotdb.ui.controller;
 
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
@@ -52,6 +51,7 @@ import org.apache.iotdb.ui.service.TransactionService;
 import org.apache.iotdb.ui.util.MessageUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -153,7 +153,7 @@ public class MonitorController {
 		exporter.setEndPoint(endpoint);
 		exporter.setPeriod(period);
 		exporter.setCode(code);
-		exporter.setUpdateTime(Calendar.getInstance().getTime());
+		exporter.setUpdateTime(LocalDateTime.now().toDate());
 		try {
 			transactionService.editExporterTransactive(exporter);
 			exporterTimerBucket.addExporterTimer(exporter);
@@ -191,7 +191,7 @@ public class MonitorController {
 		exporter.setEndPoint(endpoint);
 		exporter.setPeriod(period);
 		exporter.setCode(code);
-		Date now = Calendar.getInstance().getTime();
+		Date now = LocalDateTime.now().toDate();
 		exporter.setCreateTime(now);
 		exporter.setUpdateTime(now);
 		exporter.setUserId(user.getId());
@@ -336,7 +336,7 @@ public class MonitorController {
 		board.setName(name);
 		board.setToken(token);
 		board.setUserId(user.getId());
-		Date now = Calendar.getInstance().getTime();
+		Date now = LocalDateTime.now().toDate();
 		board.setCreateTime(now);
 		board.setUpdateTime(now);
 		try {
@@ -382,7 +382,7 @@ public class MonitorController {
 		}
 		board.setName(name);
 		board.setToken(token);
-		board.setUpdateTime(Calendar.getInstance().getTime());
+		board.setUpdateTime(LocalDateTime.now().toDate());
 		try {
 			transactionService.editBoardTransactive(board);
 			return BaseVO.success(name, board);
@@ -429,7 +429,7 @@ public class MonitorController {
 		panel.setQuery(query);
 		panel.setPeriod(period);
 		panel.setDisplayOrder(displayOrder);
-		Date now = Calendar.getInstance().getTime();
+		Date now = LocalDateTime.now().toDate();
 		panel.setCreateTime(now);
 		panel.setUpdateTime(now);
 		try {
@@ -459,7 +459,7 @@ public class MonitorController {
 		panel.setQuery(query);
 		panel.setPeriod(period);
 		panel.setDisplayOrder(displayOrder);
-		panel.setUpdateTime(Calendar.getInstance().getTime());
+		panel.setUpdateTime(LocalDateTime.now().toDate());
 		try {
 			transactionService.editPanelTransactive(panel);
 			return BaseVO.success(name, panel);

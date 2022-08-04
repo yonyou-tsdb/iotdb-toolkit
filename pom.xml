@@ -356,7 +356,7 @@
 		<dependency>
 			<groupId>com.yonyou.iotdb</groupId>
 			<artifactId>utils-core</artifactId>
-			<version>0.13.1.16-SNAPSHOT</version>
+			<version>0.13.1.18-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.iotdb</groupId>

@@ -19,7 +19,6 @@
 package org.apache.iotdb.ui.controller;
 
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.iotdb.ui.condition.EmailLogCondition;
 import org.apache.iotdb.ui.config.EmailConfig;
-import org.apache.iotdb.ui.config.schedule.TimerConfig;
 import org.apache.iotdb.ui.config.shiro.UsernamePasswordIdToken;
 import org.apache.iotdb.ui.entity.Connect;
 import org.apache.iotdb.ui.entity.EmailLog;
@@ -52,6 +50,7 @@ import org.apache.iotdb.ui.util.VerifyCodeUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -214,7 +213,7 @@ public class UserController {
 			captchaMap.remove(token);
 		}
 		// 每0.5秒内只能发送一次邮件
-		Date now = Calendar.getInstance().getTime();
+		Date now = LocalDateTime.now().toDate();
 		Date timeLimitationAgo = new Date(now.getTime() - 500);
 
 		EmailLogCondition elc = new EmailLogCondition();
@@ -259,7 +258,7 @@ public class UserController {
 	public void activateAccount(HttpServletRequest request, HttpServletResponse response,
 			@PathVariable("elId") Long elId, @PathVariable("token") String token) throws IOException {
 		EmailLog emailLog = emailLogDao.select(elId);
-		Date now = Calendar.getInstance().getTime();
+		Date now = LocalDateTime.now().toDate();
 		if (emailLog != null && token.equals(emailLog.getToken()) && emailLog.getAvailable()
 				&& now.getTime() < emailLog.getDueTime().getTime()) {
 			// 开始激活
@@ -305,7 +304,7 @@ public class UserController {
 
 		captchaMap.remove(token);
 		// 每0.5秒内只能发送一次邮件
-		Date now = Calendar.getInstance().getTime();
+		Date now = LocalDateTime.now().toDate();
 		Date timeLimitationAgo = new Date(now.getTime() - 500);
 
 		EmailLogCondition elc = new EmailLogCondition();
@@ -365,7 +364,7 @@ public class UserController {
 	public void resetPassword(HttpServletRequest request, HttpServletResponse response, @PathVariable("elId") Long elId,
 			@PathVariable("token") String token) throws IOException {
 		EmailLog emailLog = emailLogDao.select(elId);
-		Date now = Calendar.getInstance().getTime();
+		Date now = LocalDateTime.now().toDate();
 		if (emailLog != null && token.equals(emailLog.getToken()) && emailLog.getAvailable()
 				&& now.getTime() < emailLog.getDueTime().getTime()) {
 			String url = String.format("http://%s/user/reset-password/?username=%s&id=%s&token=%s",
@@ -391,7 +390,7 @@ public class UserController {
 			return new BaseVO<>(FeedbackError.ACCOUNT_RESET_EMAILLOG_ERROR,
 					MessageUtil.get(FeedbackError.ACCOUNT_RESET_EMAILLOG_ERROR), null);
 		}
-		emailLog.setResetTime(Calendar.getInstance().getTime());
+		emailLog.setResetTime(LocalDateTime.now().toDate());
 		emailLog.setAvailable(false);
 		emailLogDao.update(emailLog);
 

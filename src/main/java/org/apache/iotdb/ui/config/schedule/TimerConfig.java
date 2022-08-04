@@ -21,7 +21,6 @@ package org.apache.iotdb.ui.config.schedule;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.ui.config.ContinuousIoTDBSession;
@@ -41,6 +40,7 @@ import org.apache.iotdb.ui.model.TaskStatus;
 import org.apache.iotdb.ui.model.TaskType;
 import org.apache.shiro.session.Session;
 import org.assertj.core.util.Lists;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,6 +156,7 @@ public class TimerConfig {
 				it.remove();
 			} else if (TaskStatus.NOT_START.equals(t) && task.getStartWindowFrom().getTime() <= (cou1 + 1000)) {
 				task.setStatus(TaskStatus.IN_PROGRESS);
+				task.setStartTime(LocalDateTime.now().toDate());
 				taskDao.update(task);
 				handleTask(task);
 				break;
@@ -169,6 +170,9 @@ public class TimerConfig {
 		Task task = taskWrapper.getTask();
 		task.setStatus(status);
 		task.setResultRows(taskWrapper.getProcess(task.getId()));
+		task.setEndTime(LocalDateTime.now().toDate());
+		Long cost = (task.getEndTime().getTime() - task.getStartTime().getTime()) / 1000;
+		task.setTimeCost(cost.intValue());
 		int i = taskDao.update(task);
 		if (i == 1) {
 			taskWrapper.setTask(null);
@@ -181,6 +185,8 @@ public class TimerConfig {
 		if (TaskStatus.IN_PROGRESS.equals(task.getStatus())) {
 			task.setStatus(status);
 			task.setResultRows(0L);
+			Long cost = (task.getEndTime().getTime() - task.getStartTime().getTime()) / 1000;
+			task.setTimeCost(cost.intValue());
 			int i = taskDao.update(task);
 			if (i == 1) {
 				taskTimerBucket.getTaskTimerMap().put(task.key(), task);
@@ -193,8 +199,6 @@ public class TimerConfig {
 		if (TaskType.EXPORT.equals(task.getType())) {
 			ExportModel exportModel = new ExportModel();
 			exportModel.setCharSet("utf8");
-			exportModel.setFileFolder(
-					new StringBuilder(monitorServerConfig.getTemp()).append(UUID.randomUUID()).toString());
 			exportModel.setFileSinkStrategyEnum(FileSinkStrategyEnum.EXTRA_CATALOG);
 			exportModel.setNeedTimeseriesStructure(true);
 			exportModel.setParallelism(2);
@@ -223,6 +227,8 @@ public class TimerConfig {
 					}
 				}
 			}
+			exportModel
+					.setFileFolder(new StringBuilder(monitorServerConfig.getTemp()).append(task.getName()).toString());
 			exportModel.setConsumer(s -> {
 				switch (s) {
 				case ON_ERROR:

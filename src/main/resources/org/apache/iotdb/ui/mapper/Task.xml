@@ -32,6 +32,10 @@
         <result property="resultRows" column="result_rows"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
+        <result property="name" column="name"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="timeCost" column="time_cost"/>
         <association property="user" resultMap="org.apache.iotdb.ui.mapper.UserDao.result" columnPrefix="u__"/>
     </resultMap>
 </mapper>

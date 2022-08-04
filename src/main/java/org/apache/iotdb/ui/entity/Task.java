@@ -93,13 +93,41 @@ public class Task extends PojoSupport implements TaskFace {
 	 * 
 	 */
 	@FieldMapperAnnotation(dbFieldName = "result_rows", jdbcType = JdbcType.BIGINT)
-	public Long resultRows;
+	private Long resultRows;
 
 	@FieldMapperAnnotation(dbFieldName = "create_time", jdbcType = JdbcType.TIMESTAMP)
 	private Date createTime;
 
 	@FieldMapperAnnotation(dbFieldName = "update_time", jdbcType = JdbcType.TIMESTAMP)
 	private Date updateTime;
+
+	/**
+	 * 名称
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "name", jdbcType = JdbcType.VARCHAR)
+	private String name;
+
+	/**
+	 * 任务开始时间
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "start_time", jdbcType = JdbcType.TIMESTAMP)
+	private Date startTime;
+
+	/**
+	 * 任务结束时间
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "end_time", jdbcType = JdbcType.TIMESTAMP)
+	private Date endTime;
+
+	/**
+	 * 任务用时（秒）
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "time_cost", jdbcType = JdbcType.INTEGER)
+	private Integer timeCost;
 
 	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, dbAssociationUniqueKey = "id")
 	private User user;
@@ -200,6 +228,38 @@ public class Task extends PojoSupport implements TaskFace {
 
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	public Integer getTimeCost() {
+		return timeCost;
+	}
+
+	public void setTimeCost(Integer timeCost) {
+		this.timeCost = timeCost;
 	}
 
 	public void setId(Long id) {

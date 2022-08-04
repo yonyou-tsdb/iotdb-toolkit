@@ -19,7 +19,6 @@
 package org.apache.iotdb.ui.config;
 
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -34,6 +33,7 @@ import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.ExporterDao;
 import org.apache.iotdb.ui.mapper.TaskDao;
 import org.apache.iotdb.ui.model.TaskStatus;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,7 +132,7 @@ public class DynamicSessionPoolConfig {
 
 	private void loadTaskTimerBucket(TaskTimerBucket taskTimerBucket) throws Exception {
 		TaskCondition e = new TaskCondition();
-		Date now = Calendar.getInstance().getTime();
+		Date now = LocalDateTime.now().toDate();
 		e.setStartWindowToGreaterOrEqual(now);
 		e.setStatus(TaskStatus.NOT_START);
 		List<Task> list = taskDao.selectAllPure(e);

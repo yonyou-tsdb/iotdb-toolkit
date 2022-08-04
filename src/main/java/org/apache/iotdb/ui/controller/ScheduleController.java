@@ -1,7 +1,6 @@
 package org.apache.iotdb.ui.controller;
 
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -9,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.iotdb.ui.condition.TaskCondition;
+import org.apache.iotdb.ui.config.DistributedSnowflakeKeyGenerator2;
 import org.apache.iotdb.ui.config.TaskWrapper;
 import org.apache.iotdb.ui.config.schedule.TaskTimerBucket;
 import org.apache.iotdb.ui.config.schedule.TimerConfig;
@@ -25,6 +25,7 @@ import org.apache.iotdb.ui.util.MessageUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.assertj.core.util.Lists;
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -82,8 +83,7 @@ public class ScheduleController {
 			taskStatusList = TASK_STATUS_LIST;
 		}
 		tc.setStatusIn(taskStatusList);
-		Calendar cal = Calendar.getInstance();
-		Date now = cal.getTime();
+		Date now = LocalDateTime.now().toDate();
 		if ("history".equals(timeline)) {
 			tc.setStartWindowToLessThan(now);
 		} else {
@@ -111,13 +111,15 @@ public class ScheduleController {
 		Date timeWindowStartFrom = new Date(timeWindowStart);
 		Date timeWindowEndTo = new Date(timeWindowEnd);
 		Task task = new Task();
+		task.setName(new StringBuilder(type.name()).append('-').append(DistributedSnowflakeKeyGenerator2.getId())
+				.append('-').append(compress).toString());
 		task.setUserId(user.getId());
 		task.setStartWindowFrom(timeWindowStartFrom);
 		task.setStartWindowTo(timeWindowEndTo);
 		task.setType(type);
 		task.setStatus(TaskStatus.NOT_START);
 		task.setPriority(priority);
-		Date now = Calendar.getInstance().getTime();
+		Date now = LocalDateTime.now().toDate();
 		task.setCreateTime(now);
 		task.setUpdateTime(now);
 		JSONObject setting = new JSONObject();

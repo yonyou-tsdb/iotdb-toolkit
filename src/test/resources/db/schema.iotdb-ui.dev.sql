@@ -167,5 +167,9 @@ create table tb_task
    result_rows          bigint comment '结果行数',
    create_time          datetime,
    update_time          datetime,
+   name                 varchar(100) comment '名称',
+   start_time           datetime comment '任务开始时间',
+   end_time             datetime comment '任务结束时间',
+   time_cost            integer comment '任务用时（秒）',
    primary key (id)
 );
