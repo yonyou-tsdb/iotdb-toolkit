@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.iotdb.ui.condition.TaskCondition;
 import org.apache.iotdb.ui.config.DistributedSnowflakeKeyGenerator2;
+import org.apache.iotdb.ui.config.DynamicTask;
 import org.apache.iotdb.ui.config.TaskWrapper;
 import org.apache.iotdb.ui.config.schedule.TaskTimerBucket;
 import org.apache.iotdb.ui.config.schedule.TimerConfig;
@@ -67,6 +68,9 @@ public class ScheduleController {
 	@Autowired
 	private TimerConfig timerConfig;
 
+	@Autowired
+	private DynamicTask dynamicTask;
+
 	@RequestMapping(value = "/api/schedule/task/all", method = { RequestMethod.POST })
 	public BaseVO<Object> taskAll(HttpServletRequest request, @RequestParam("pageSize") Integer pageSize,
 			@RequestParam("pageNum") Integer pageNum,
@@ -83,8 +87,8 @@ public class ScheduleController {
 		tc.setStatusIn(taskStatusList);
 		Date now = LocalDateTime.now().toDate();
 		tc.setLimiter(new PageParam(pageNum, pageSize));
-		tc.setSorter(new SortParam(new Order("start_window_from", Conditionable.Sequence.ASC),
-				new Order("priority", Conditionable.Sequence.ASC), new Order("id", Conditionable.Sequence.ASC)));
+		tc.setSorter(new SortParam(new Order("start_window_from", Conditionable.Sequence.DESC),
+				new Order("priority", Conditionable.Sequence.DESC), new Order("id", Conditionable.Sequence.DESC)));
 		List<Task> list = taskDao.selectAll(tc);
 		Page<Task> page = new Page<>(list, tc.getLimiter());
 		return BaseVO.success(page);
