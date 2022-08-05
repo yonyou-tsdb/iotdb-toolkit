@@ -60,7 +60,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class HttpClientConfig {
 
-	private static Logger logger = LoggerFactory.getLogger(HttpClientConfig.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(HttpClientConfig.class);
 
 	@Value("${iotdbui.httpClient.connectTimeout:20000}")
 	private int connectTimeout;
@@ -170,7 +170,7 @@ public class HttpClientConfig {
 						try {
 							return Long.parseLong(value) * 1000;
 						} catch (NumberFormatException e) {
-							logger.error(e.getMessage());
+							LOGGER.error(e.getMessage());
 						}
 					}
 				}

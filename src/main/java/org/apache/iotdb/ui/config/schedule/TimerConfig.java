@@ -194,7 +194,6 @@ public class TimerConfig {
 	}
 
 	private Disposable handleTask(Task task) {
-		System.out.println(Thread.currentThread().getName());
 		taskWrapper.setTask(task);
 		if (TaskType.EXPORT.equals(task.getType())) {
 			ExportModel exportModel = new ExportModel();
