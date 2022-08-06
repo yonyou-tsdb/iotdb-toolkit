@@ -39,19 +39,18 @@ public class DynamicTaskTest {
 //		taskConstant.setCron("0/5 * * * * ?");
 //		taskConstant.setTaskId("test1");
 //		taskConstant.setRule("每隔5秒执行");
-//		taskConstantMap.put("test1", taskConstant);
+//		dynamicTask.addTask(taskConstant);
 
 //		DynamicTask.TaskConstant taskConstant1 = new DynamicTask.TaskConstant();
 //		taskConstant1.setCron("0/8 * * * * ?");
 //		taskConstant1.setTaskId("test2");
 //		taskConstant1.setRule("每隔8秒执行");
-//		taskConstans.add(taskConstant1);
+//		dynamicTask.addTask(taskConstant1);
 //
 		DynamicTask.TaskConstant taskConstant2 = new DynamicTask.TaskConstant();
 		taskConstant2.setCron("0/15 * * * * ?");
 		taskConstant2.setTaskId("test3");
 		taskConstant2.setRule("每隔15秒执行");
-//		taskConstantMap.put("test3", taskConstant2);
 		dynamicTask.addTask(taskConstant2);
 		System.out.println(taskConstantMap.size());
 		TimeUnit.SECONDS.sleep(20);

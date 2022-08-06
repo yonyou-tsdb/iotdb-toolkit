@@ -20,6 +20,7 @@ import org.apache.iotdb.ui.exception.FeedbackError;
 import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.TaskDao;
 import org.apache.iotdb.ui.model.BaseVO;
+import org.apache.iotdb.ui.model.TaskFlag;
 import org.apache.iotdb.ui.model.TaskStatus;
 import org.apache.iotdb.ui.model.TaskType;
 import org.apache.shiro.SecurityUtils;
@@ -101,9 +102,9 @@ public class ScheduleController {
 			@RequestParam(value = Task.SETTING_MEASUREMENTLIST, required = false) String measurementList,
 			@RequestParam(value = Task.SETTING_WHERECLAUSE, required = false) String whereClause,
 			@RequestParam(value = Task.SETTING_FILEFOLDER, required = false) String fileFolder,
-			@RequestParam(Task.SETTING_COMPRESS) CompressEnum compress,
-			@RequestParam("timeWindowStart") Long timeWindowStart, @RequestParam("priority") Integer priority)
-			throws SQLException {
+			@RequestParam(Task.SETTING_COMPRESS) CompressEnum compress, @RequestParam("flag") TaskFlag flag,
+			@RequestParam("expression") String expression, @RequestParam("timeWindowStart") Long timeWindowStart,
+			@RequestParam("priority") Integer priority) throws SQLException {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		Date timeWindowStartFrom = new Date(timeWindowStart);
@@ -117,6 +118,8 @@ public class ScheduleController {
 		task.setType(type);
 		task.setStatus(TaskStatus.NOT_START);
 		task.setPriority(priority);
+		task.setFlag(flag);
+		task.setExpression(expression);
 		Date now = LocalDateTime.now().toDate();
 		task.setCreateTime(now);
 		task.setUpdateTime(now);
@@ -130,7 +133,15 @@ public class ScheduleController {
 		task.setSetting(setting);
 		int i = taskDao.insert(task);
 		if (i == 1) {
-			taskTimerBucket.getTaskTimerMap().put(task.key(), task);
+			if (TaskFlag.ONE_TIME.equals(task.getFlag())) {
+				taskTimerBucket.getTaskTimerMap().put(task.key(), task);
+			} else if (TaskFlag.LONG_TERM.equals(task.getFlag())) {
+				// 增加定时任务
+				DynamicTask.TaskConstant taskConstant1 = new DynamicTask.TaskConstant();
+				taskConstant1.setCron(task.getExpression());
+				taskConstant1.setTaskId(task.getId().toString());
+				dynamicTask.addTask(taskConstant1);
+			}
 		}
 		String info = String.format("%s %s (%s)", type, fastDateFormat.format(timeWindowStartFrom), priority);
 		return BaseVO.success(info, null);
@@ -143,7 +154,7 @@ public class ScheduleController {
 			@RequestParam(value = Task.SETTING_WHERECLAUSE, required = false) String whereClause,
 			@RequestParam(value = Task.SETTING_FILEFOLDER, required = false) String fileFolder,
 			@RequestParam(Task.SETTING_COMPRESS) CompressEnum compress,
-			@RequestParam("timeWindowStart") Long timeWindowStart, @RequestParam("timeWindowEnd") Long timeWindowEnd,
+			@RequestParam("timeWindowStart") Long timeWindowStart, @RequestParam("expression") String expression,
 			@RequestParam("priority") Integer priority) throws SQLException {
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
@@ -175,14 +186,21 @@ public class ScheduleController {
 		}
 		task.getSetting().put(Task.SETTING_COMPRESS, compress);
 		Date timeWindowStartFrom = new Date(timeWindowStart);
-		Date timeWindowEndTo = new Date(timeWindowEnd);
 		task.setStartWindowFrom(timeWindowStartFrom);
-		task.setStartWindowTo(timeWindowEndTo);
+		task.setExpression(expression);
 		task.setPriority(priority);
 		int i = taskDao.update(task);
 		if (i == 1) {
-			taskTimerBucket.getTaskTimerMap().remove(oldKey);
-			taskTimerBucket.getTaskTimerMap().put(task.key(), task);
+			if (TaskFlag.ONE_TIME.equals(task.getFlag())) {
+				taskTimerBucket.getTaskTimerMap().remove(oldKey);
+				taskTimerBucket.getTaskTimerMap().put(task.key(), task);
+			} else if (TaskFlag.LONG_TERM.equals(task.getFlag())) {
+				// 修改定时任务
+				DynamicTask.TaskConstant taskConstant1 = new DynamicTask.TaskConstant();
+				taskConstant1.setCron(task.getExpression());
+				taskConstant1.setTaskId(task.getId().toString());
+				dynamicTask.updateTask(taskConstant1.getTaskId(), taskConstant1);
+			}
 		}
 		String info = String.format("%s %s (%s)", task.getType(), fastDateFormat.format(task.getStartWindowFrom()),
 				task.getPriority());
@@ -234,7 +252,12 @@ public class ScheduleController {
 		if (c != 1) {
 			return new BaseVO<>(FeedbackError.TASK_DELETE_FAIL, null);
 		} else {
-			taskTimerBucket.getTaskTimerMap().remove(task.key());
+			if (TaskFlag.ONE_TIME.equals(task.getFlag())) {
+				taskTimerBucket.getTaskTimerMap().remove(task.key());
+			} else if (TaskFlag.LONG_TERM.equals(task.getFlag())) {
+				// 删除定时任务
+				dynamicTask.deleteTask(task.getId().toString());
+			}
 		}
 		String info = String.format("%s %s (%s)", task.getType(), fastDateFormat.format(task.getStartWindowFrom()),
 				task.getPriority());

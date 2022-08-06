@@ -24,8 +24,10 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.iotdb.ui.entity.helper.PojoSupport;
 import org.apache.iotdb.ui.face.TaskFace;
 import org.apache.iotdb.ui.face.UserFace;
+import org.apache.iotdb.ui.handler.TaskFlagHandler;
 import org.apache.iotdb.ui.handler.TaskStatusHandler;
 import org.apache.iotdb.ui.handler.TaskTypeHandler;
+import org.apache.iotdb.ui.model.TaskFlag;
 import org.apache.iotdb.ui.model.TaskStatus;
 import org.apache.iotdb.ui.model.TaskType;
 import org.apache.iotdb.ui.util.CommonUtils;
@@ -78,13 +80,6 @@ public class Task extends PojoSupport implements TaskFace {
 	 */
 	@FieldMapperAnnotation(dbFieldName = "start_window_from", jdbcType = JdbcType.TIMESTAMP)
 	private Date startWindowFrom;
-
-	/**
-	 * 时间窗口结束时间
-	 * 
-	 */
-	@FieldMapperAnnotation(dbFieldName = "start_window_to", jdbcType = JdbcType.TIMESTAMP)
-	private Date startWindowTo;
 
 	/**
 	 * 优先级
@@ -141,6 +136,27 @@ public class Task extends PojoSupport implements TaskFace {
 	@FieldMapperAnnotation(dbFieldName = "time_cost", jdbcType = JdbcType.INTEGER)
 	private Integer timeCost;
 
+	/**
+	 * 长期（l）或一次性（o）
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "flag", jdbcType = JdbcType.CHAR, customTypeHandler = TaskFlagHandler.class)
+	private TaskFlag flag;
+
+	/**
+	 * 长期任务使用的cron表达式
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "expression", jdbcType = JdbcType.VARCHAR)
+	private String expression;
+
+	/**
+	 * 当长期任务触发条件生成一次性任务时，记录长期任务的主键
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "long_term_task_id", jdbcType = JdbcType.VARCHAR)
+	private Long longTermTaskId;
+
 	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, dbAssociationUniqueKey = "id")
 	private User user;
 
@@ -192,14 +208,6 @@ public class Task extends PojoSupport implements TaskFace {
 
 	public void setStartWindowFrom(Date startWindowFrom) {
 		this.startWindowFrom = startWindowFrom;
-	}
-
-	public Date getStartWindowTo() {
-		return startWindowTo;
-	}
-
-	public void setStartWindowTo(Date startWindowTo) {
-		this.startWindowTo = startWindowTo;
 	}
 
 	public Integer getPriority() {
@@ -272,6 +280,30 @@ public class Task extends PojoSupport implements TaskFace {
 
 	public void setTimeCost(Integer timeCost) {
 		this.timeCost = timeCost;
+	}
+
+	public TaskFlag getFlag() {
+		return flag;
+	}
+
+	public void setFlag(TaskFlag flag) {
+		this.flag = flag;
+	}
+
+	public String getExpression() {
+		return expression;
+	}
+
+	public void setExpression(String expression) {
+		this.expression = expression;
+	}
+
+	public Long getLongTermTaskId() {
+		return longTermTaskId;
+	}
+
+	public void setLongTermTaskId(Long longTermTaskId) {
+		this.longTermTaskId = longTermTaskId;
 	}
 
 	public void setId(Long id) {

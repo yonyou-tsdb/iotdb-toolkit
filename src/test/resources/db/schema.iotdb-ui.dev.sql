@@ -161,7 +161,6 @@ create table tb_task
    type                 char(1) comment '类型',
    setting              varchar(5000) comment '参数设置',
    start_window_from    datetime comment '时间窗口起始时间',
-   start_window_to      datetime comment '时间窗口结束时间',
    priority             integer comment '优先级',
    status               char(1) comment '状态（0未开始1进行中2正常结束3异常结束4强制结束）',
    result_rows          bigint comment '结果行数',
@@ -171,5 +170,8 @@ create table tb_task
    start_time           datetime comment '任务开始时间',
    end_time             datetime comment '任务结束时间',
    time_cost            integer comment '任务用时（秒）',
+   flag                 char(1) comment '长期（l）或一次性（o）',
+   expression           varchar(100) comment '长期任务使用的cron表达式',
+   long_term_task_id    bigint comment '当长期任务触发条件生成一次性任务时，记录长期任务的主键',
    primary key (id)
 );

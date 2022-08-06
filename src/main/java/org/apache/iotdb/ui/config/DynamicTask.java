@@ -18,6 +18,7 @@
  */
 package org.apache.iotdb.ui.config;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,9 +31,15 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.iotdb.ui.condition.TaskCondition;
+import org.apache.iotdb.ui.entity.Task;
+import org.apache.iotdb.ui.mapper.TaskDao;
+import org.apache.iotdb.ui.model.TaskFlag;
+import org.apache.iotdb.ui.model.TaskStatus;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.CronTask;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
@@ -42,6 +49,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DynamicTask implements SchedulingConfigurer {
+
+	@Autowired
+	private TaskDao taskDao;
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(DynamicTask.class);
 
@@ -53,16 +63,22 @@ public class DynamicTask implements SchedulingConfigurer {
 	private static final ExecutorService es = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
 			new SynchronousQueue<>());
 
-	private volatile ScheduledTaskRegistrar registrar;
+	private ScheduledTaskRegistrar registrar;
 	private ConcurrentHashMap<String, TaskConstant> taskConstantMap = new ConcurrentHashMap<>();
 
 	@Override
 	public void configureTasks(ScheduledTaskRegistrar registrar) {
-		DynamicTask.TaskConstant taskConstant = new DynamicTask.TaskConstant();
-		taskConstant.setCron("a");
-		taskConstant.setTaskId("test1");
-		taskConstant.setRule("每隔5秒执行");
-		taskConstantMap.put("test1", taskConstant);
+		// 处理定时任务
+		TaskCondition e2 = new TaskCondition();
+		e2.setStatus(TaskStatus.NOT_START);
+		e2.setFlag(TaskFlag.LONG_TERM);
+		List<Task> list2 = taskDao.selectAllPure(e2);
+		for (Task t : list2) {
+			DynamicTask.TaskConstant taskConstant = new DynamicTask.TaskConstant();
+			taskConstant.setCron(t.getExpression());
+			taskConstant.setTaskId(t.getId().toString());
+			taskConstantMap.put(t.getId().toString(), taskConstant);
+		}
 		this.registrar = registrar;
 		this.registrar.addTriggerTask(() -> {
 			this.initTasks(taskConstantMap);

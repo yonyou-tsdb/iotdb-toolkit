@@ -10,6 +10,10 @@
 	OF ANY KIND, either express or implied. See the License for the specific 
 	language governing permissions and limitations under the License. -->
 <dataset>
-	<tb_task id="111" type="e" status="0" setting='{"setting":"1"}' result_rows='123' name='asd' time_cost='1001' />
-	<tb_task id="112" type="i" status="1" setting='{"setting":"2"}' result_rows='234' name='qwe' time_cost='1002' />
+	<tb_task id="111" type="e" status="0" setting='{"setting":"1"}'
+		result_rows='123' name='asd' time_cost='1001' flag='l'
+		expression='0/1 * * * * *' long_term_task_id='234' />
+	<tb_task id="112" type="i" status="1" setting='{"setting":"2"}'
+		result_rows='234' name='qwe' time_cost='1002' flag='o'
+		expression='[null]' long_term_task_id='345' />
 </dataset>

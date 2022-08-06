@@ -19,7 +19,6 @@
 package org.apache.iotdb.ui.config;
 
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.iotdb.ui.condition.TaskCondition;
@@ -32,8 +31,8 @@ import org.apache.iotdb.ui.entity.Task;
 import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.ExporterDao;
 import org.apache.iotdb.ui.mapper.TaskDao;
+import org.apache.iotdb.ui.model.TaskFlag;
 import org.apache.iotdb.ui.model.TaskStatus;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,9 +53,6 @@ public class DynamicSessionPoolConfig {
 
 	@Autowired
 	private TaskDao taskDao;
-	
-	@Autowired
-	private DynamicTask dynamicTask;
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(DynamicSessionPoolConfig.class);
 
@@ -134,24 +130,13 @@ public class DynamicSessionPoolConfig {
 	}
 
 	private void loadTaskTimerBucket(TaskTimerBucket taskTimerBucket) throws Exception {
+		// 处理一次性任务
 		TaskCondition e = new TaskCondition();
 		e.setStatus(TaskStatus.NOT_START);
+		e.setFlag(TaskFlag.ONE_TIME);
 		List<Task> list = taskDao.selectAllPure(e);
 		for (Task t : list) {
 			taskTimerBucket.getTaskTimerMap().put(t.key(), t);
 		}
-		
-//		List<DynamicTask.TaskConstant> taskConstans = dynamicTask.getTaskConstants();
-//		DynamicTask.TaskConstant taskConstant = new DynamicTask.TaskConstant();
-//		taskConstant.setCron("0/5 * * * * ?");
-//		taskConstant.setTaskId("test1");
-//		taskConstant.setRule("每隔5秒执行");
-//		taskConstans.add(taskConstant);
-//		
-//		DynamicTask.TaskConstant taskConstant1 = new DynamicTask.TaskConstant();
-//		taskConstant1.setCron("0/8 * * * * ?");
-//		taskConstant1.setTaskId("test2");
-//		taskConstant1.setRule("每隔8秒执行");
-//		taskConstans.add(taskConstant1);
 	}
 }
