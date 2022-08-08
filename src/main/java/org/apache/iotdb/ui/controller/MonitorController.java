@@ -19,7 +19,6 @@
 package org.apache.iotdb.ui.controller;
 
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
@@ -49,9 +48,9 @@ import org.apache.iotdb.ui.mapper.PanelDao;
 import org.apache.iotdb.ui.model.BaseVO;
 import org.apache.iotdb.ui.service.PanelService;
 import org.apache.iotdb.ui.service.TransactionService;
-import org.apache.iotdb.ui.util.MessageUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -127,8 +126,7 @@ public class MonitorController {
 		ec.setUserId(user.getId());
 		Exporter exporter = exporterDao.selectOne(ec);
 		if (exporter == null) {
-			return new BaseVO<>(FeedbackError.EXPORTER_GET_FAIL, MessageUtil.get(FeedbackError.EXPORTER_GET_FAIL),
-					null);
+			return new BaseVO<>(FeedbackError.EXPORTER_GET_FAIL, null);
 		} else {
 			return BaseVO.success(exporter);
 		}
@@ -146,14 +144,13 @@ public class MonitorController {
 		Exporter exporter = exporterDao.selectOne(ec);
 
 		if (exporter == null) {
-			return new BaseVO<>(FeedbackError.EXPORTER_GET_FAIL, MessageUtil.get(FeedbackError.EXPORTER_GET_FAIL),
-					null);
+			return new BaseVO<>(FeedbackError.EXPORTER_GET_FAIL, null);
 		}
 		exporter.setName(name);
 		exporter.setEndPoint(endpoint);
 		exporter.setPeriod(period);
 		exporter.setCode(code);
-		exporter.setUpdateTime(Calendar.getInstance().getTime());
+		exporter.setUpdateTime(LocalDateTime.now().toDate());
 		try {
 			transactionService.editExporterTransactive(exporter);
 			exporterTimerBucket.addExporterTimer(exporter);
@@ -175,8 +172,7 @@ public class MonitorController {
 			exporterTimerBucket.removeExporterTimer(id);
 			return BaseVO.success(null);
 		} else {
-			return new BaseVO<>(FeedbackError.EXPORTER_DELETE_FAIL, MessageUtil.get(FeedbackError.EXPORTER_DELETE_FAIL),
-					null);
+			return new BaseVO<>(FeedbackError.EXPORTER_DELETE_FAIL, null);
 		}
 	}
 
@@ -191,7 +187,7 @@ public class MonitorController {
 		exporter.setEndPoint(endpoint);
 		exporter.setPeriod(period);
 		exporter.setCode(code);
-		Date now = Calendar.getInstance().getTime();
+		Date now = LocalDateTime.now().toDate();
 		exporter.setCreateTime(now);
 		exporter.setUpdateTime(now);
 		exporter.setUserId(user.getId());
@@ -213,7 +209,7 @@ public class MonitorController {
 		bc.setUserId(user.getId());
 		Board board = boardDao.selectOne(bc);
 		if (board == null) {
-			return new BaseVO<>(FeedbackError.BOARD_GET_FAIL, MessageUtil.get(FeedbackError.BOARD_GET_FAIL), null);
+			return new BaseVO<>(FeedbackError.BOARD_GET_FAIL, null);
 		} else {
 			return BaseVO.success(board);
 		}
@@ -230,7 +226,7 @@ public class MonitorController {
 		bc.setUserId(user.getId());
 		Board board = boardDao.selectOne(bc);
 		if (board == null) {
-			return new BaseVO<>(FeedbackError.BOARD_GET_FAIL, MessageUtil.get(FeedbackError.BOARD_GET_FAIL), null);
+			return new BaseVO<>(FeedbackError.BOARD_GET_FAIL, null);
 		} else {
 			PanelCondition m = new PanelCondition();
 			m.setNameLike(panelNameLike);
@@ -253,7 +249,7 @@ public class MonitorController {
 		bc.setToken(token);
 		Board board = boardDao.selectOne(bc);
 		if (board == null) {
-			return new BaseVO<>(FeedbackError.BOARD_GET_FAIL, MessageUtil.get(FeedbackError.BOARD_GET_FAIL), null);
+			return new BaseVO<>(FeedbackError.BOARD_GET_FAIL, null);
 		} else {
 			PanelCondition m = new PanelCondition();
 			m.setNameLike(panelNameLike);
@@ -287,7 +283,7 @@ public class MonitorController {
 		mc.setUserId(user.getId());
 		Panel panel = panelDao.selectOne(mc);
 		if (panel == null) {
-			return new BaseVO<>(FeedbackError.PANEL_GET_FAIL, MessageUtil.get(FeedbackError.PANEL_GET_FAIL), null);
+			return new BaseVO<>(FeedbackError.PANEL_GET_FAIL, null);
 		} else {
 			loadPanelDataList(panel);
 			return BaseVO.success(panel);
@@ -304,7 +300,7 @@ public class MonitorController {
 		pc.setBoard(b);
 		Panel panel = panelDao.selectOne(pc);
 		if (panel == null) {
-			return new BaseVO<>(FeedbackError.PANEL_GET_FAIL, MessageUtil.get(FeedbackError.PANEL_GET_FAIL), null);
+			return new BaseVO<>(FeedbackError.PANEL_GET_FAIL, null);
 		} else {
 			loadPanelDataList(panel);
 			return BaseVO.success(panel);
@@ -336,7 +332,7 @@ public class MonitorController {
 		board.setName(name);
 		board.setToken(token);
 		board.setUserId(user.getId());
-		Date now = Calendar.getInstance().getTime();
+		Date now = LocalDateTime.now().toDate();
 		board.setCreateTime(now);
 		board.setUpdateTime(now);
 		try {
@@ -361,8 +357,7 @@ public class MonitorController {
 			panelDao.delete(mc);
 			return BaseVO.success(null);
 		} else {
-			return new BaseVO<>(FeedbackError.BOARD_DELETE_FAIL, MessageUtil.get(FeedbackError.BOARD_DELETE_FAIL),
-					null);
+			return new BaseVO<>(FeedbackError.BOARD_DELETE_FAIL, null);
 		}
 	}
 
@@ -378,16 +373,16 @@ public class MonitorController {
 		Board board = boardDao.selectOne(bc);
 
 		if (board == null) {
-			return new BaseVO<>(FeedbackError.BOARD_GET_FAIL, MessageUtil.get(FeedbackError.BOARD_GET_FAIL), null);
+			return new BaseVO<>(FeedbackError.BOARD_GET_FAIL, null);
 		}
 		board.setName(name);
 		board.setToken(token);
-		board.setUpdateTime(Calendar.getInstance().getTime());
+		board.setUpdateTime(LocalDateTime.now().toDate());
 		try {
 			transactionService.editBoardTransactive(board);
 			return BaseVO.success(name, board);
-		} catch (BaseException e2) {
-			return new BaseVO<>(e2.getErrorCode(), e2.getMessage(), null);
+		} catch (BaseException e) {
+			return new BaseVO<>(e.getErrorCode(), e.getMessage(), null);
 		}
 	}
 
@@ -419,8 +414,7 @@ public class MonitorController {
 		p.setBoardId(boardId);
 		int c = panelDao.count(p);
 		if (c > 20) {
-			return new BaseVO<>(FeedbackError.PANEL_REACH_LIMIT, MessageUtil.get(FeedbackError.PANEL_REACH_LIMIT),
-					null);
+			return new BaseVO<>(FeedbackError.PANEL_REACH_LIMIT, null);
 		}
 		Panel panel = new Panel();
 		panel.setUserId(user.getId());
@@ -429,14 +423,14 @@ public class MonitorController {
 		panel.setQuery(query);
 		panel.setPeriod(period);
 		panel.setDisplayOrder(displayOrder);
-		Date now = Calendar.getInstance().getTime();
+		Date now = LocalDateTime.now().toDate();
 		panel.setCreateTime(now);
 		panel.setUpdateTime(now);
 		try {
 			transactionService.addPanelTransactive(panel);
 			return BaseVO.success(name, null);
-		} catch (BaseException e2) {
-			return new BaseVO<>(e2.getErrorCode(), e2.getMessage(), null);
+		} catch (BaseException e) {
+			return new BaseVO<>(e.getErrorCode(), e.getMessage(), null);
 		}
 	}
 
@@ -453,13 +447,13 @@ public class MonitorController {
 		Panel panel = panelDao.selectOne(pc);
 
 		if (panel == null) {
-			return new BaseVO<>(FeedbackError.PANEL_GET_FAIL, MessageUtil.get(FeedbackError.PANEL_GET_FAIL), null);
+			return new BaseVO<>(FeedbackError.PANEL_GET_FAIL, null);
 		}
 		panel.setName(name);
 		panel.setQuery(query);
 		panel.setPeriod(period);
 		panel.setDisplayOrder(displayOrder);
-		panel.setUpdateTime(Calendar.getInstance().getTime());
+		panel.setUpdateTime(LocalDateTime.now().toDate());
 		try {
 			transactionService.editPanelTransactive(panel);
 			return BaseVO.success(name, panel);
@@ -479,8 +473,7 @@ public class MonitorController {
 		if (i == 1) {
 			return BaseVO.success(null);
 		} else {
-			return new BaseVO<>(FeedbackError.PANEL_DELETE_FAIL, MessageUtil.get(FeedbackError.PANEL_DELETE_FAIL),
-					null);
+			return new BaseVO<>(FeedbackError.PANEL_DELETE_FAIL, null);
 		}
 	}
 }

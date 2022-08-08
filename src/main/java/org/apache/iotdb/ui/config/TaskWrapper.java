@@ -36,7 +36,7 @@ public class TaskWrapper {
 				return importStarter.finishedRowNum();
 			}
 		}
-		return 0L;
+		return null;
 	}
 
 	public boolean shutdown(Long id) {

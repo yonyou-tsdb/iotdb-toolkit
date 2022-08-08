@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class File4ComplierUtils {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(File4ComplierUtils.class);
 
 	public static List<File> getSourceFiles(String sourceFilePath) {
@@ -98,11 +98,11 @@ public class File4ComplierUtils {
 				if (file.isDirectory()) {
 					getJarFiles(file, jars);
 				} else {
-					jars = String.format("%s%s%s", jars, file.getPath(), delimiter);
+					jars = new StringBuilder(jars).append(file.getPath()).append(delimiter).toString();
 				}
 			}
 		} else {
-			jars = String.format("%s%s%s", jars, sourceFile.getPath(), delimiter);
+			jars = new StringBuilder(jars).append(sourceFile.getPath()).append(delimiter).toString();
 		}
 		return jars;
 	}

@@ -301,13 +301,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.iotdb</groupId>
-			<artifactId>iotdb-jdbc</artifactId>
-			<version>0.12.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.iotdb</groupId>
 			<artifactId>iotdb-session</artifactId>
-			<version>0.12.2</version>
+			<version>0.13.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -355,14 +350,54 @@
 			<artifactId>httpclient</artifactId>
 			<version>4.3.2</version>
 		</dependency>
-		<!-- <dependency> <groupId>com.yonyou.iotdb</groupId> <artifactId>utils-core</artifactId> 
-			<version>0.13.1.12-SNAPSHOT</version> <scope>system</scope> <systemPath>${project.basedir}/lib/utils-core-0.13.1.12-SNAPSHOT.jar</systemPath> 
-			</dependency> -->
 		<dependency>
 			<groupId>com.yonyou.iotdb</groupId>
 			<artifactId>utils-core</artifactId>
-			<version>0.13.1.12-SNAPSHOT</version>
+			<version>0.13.1.18-SNAPSHOT</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/utils-core-0.13.1.18-SNAPSHOT.jar</systemPath>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.iotdb</groupId>
+					<artifactId>iotdb-session</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-slf4j-impl</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
+		<!-- <dependency>
+			<groupId>com.yonyou.iotdb</groupId>
+			<artifactId>utils-core</artifactId>
+			<version>0.13.1.18-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.iotdb</groupId>
+					<artifactId>iotdb-session</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-slf4j-impl</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency> -->
 		<dependency>
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-core</artifactId>

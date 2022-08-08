@@ -18,6 +18,8 @@
  */
 package org.apache.iotdb.ui.model;
 
+import org.apache.iotdb.ui.util.MessageUtil;
+
 public class BaseVO<T> {
 
 	/**
@@ -41,6 +43,12 @@ public class BaseVO<T> {
 	public BaseVO(String code, String message, T data) {
 		this.code = code;
 		this.message = message;
+		this.data = data;
+	}
+
+	public BaseVO(String code, T data) {
+		this.code = code;
+		this.message = MessageUtil.get(code);
 		this.data = data;
 	}
 

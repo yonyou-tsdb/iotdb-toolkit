@@ -2,6 +2,7 @@ package org.apache.iotdb.ui;
 
 import org.apache.iotdb.ui.entity.Task;
 import org.apache.iotdb.ui.mapper.TaskDao;
+import org.apache.iotdb.ui.model.TaskFlag;
 import org.apache.iotdb.ui.model.TaskStatus;
 import org.apache.iotdb.ui.model.TaskType;
 import org.junit.Assert;
@@ -46,6 +47,11 @@ public class TaskTest {
 		Assert.assertEquals(TaskStatus.NOT_START, task.getStatus());
 		Assert.assertEquals("1", task.getSetting().get("setting"));
 		Assert.assertEquals(123, task.getResultRows().intValue());
+		Assert.assertEquals("asd", task.getName());
+		Assert.assertEquals(1001, task.getTimeCost().intValue());
+		Assert.assertEquals(TaskFlag.LONG_TERM, task.getFlag());
+		Assert.assertEquals("0/1 * * * * *", task.getExpression());
+		Assert.assertEquals(234, task.getLongTermTaskId().intValue());
 		task.setStatus(TaskStatus.NORMAL_END);
 		task.getSetting().put("setting", "3");
 		taskDao.update(task);

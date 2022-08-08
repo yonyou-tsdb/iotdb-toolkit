@@ -40,12 +40,12 @@ public class BuildRmiService {
 	@Autowired
 	private MonitorRmiConfig monitorRmiConfig;
 
-//	String basePath = String.format("E:%sworkspace1%sDynamicTrigger", File.separator, File.separator);
+//	String basePath = new StringBuilder("E:").append(File.separator).append("workspace1").append(File.separator).append("DynamicTrigger").toString();
 //	String basePath = "E:\\workspace1\\world";
 	// 需要编译的源文件路径
 //	String[] srcFiles = {
-//			String.format("%ssrc%scn%spoet%sbean%s", File.separator, File.separator, File.separator, File.separator,
-//					File.separator),
+//			new StringBuilder(File.separator).append("src").append(File.separator).append("cn").append(File.separator)
+//					.append("poet").append(File.separator).append("bean").append(File.separator).toString(),
 //			File.separator + "src" + File.separator + "poem" + File.separator + "cn" + File.separator + "poet"
 //					+ File.separator };
 //	String[] srcFiles = { "/src/world/", };

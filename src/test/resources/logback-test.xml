@@ -19,7 +19,7 @@
     under the License.
 
 -->
-<configuration debug="true" scan="true" scanPeriod="30 seconds">
+<configuration debug="true" scan="false" scanPeriod="30 seconds">
     <springProperty scope="context" name="logPath" source="./"/>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>

@@ -20,7 +20,6 @@ package org.apache.iotdb.ui.controller;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.Calendar;
 import java.util.List;
 
 import org.apache.iotdb.session.Session;
@@ -36,9 +35,9 @@ import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.UserDao;
 import org.apache.iotdb.ui.model.BaseVO;
 import org.apache.iotdb.ui.service.TransactionService;
-import org.apache.iotdb.ui.util.MessageUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -104,7 +103,7 @@ public class ConnectionController {
 		c.setId(id);
 		Connect connect = connectDao.selectOne(c);
 		if (connect == null) {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, null);
 		}
 		Connect connect2 = new Connect();
 		if (password == null) {
@@ -123,23 +122,21 @@ public class ConnectionController {
 		try (Socket socket = new Socket();) {
 			socket.connect(new InetSocketAddress(conn.getHost(), conn.getPort()), 5000);
 		} catch (Exception e) {
-			return new BaseVO<>(FeedbackError.TEST_CONN_FAIL, MessageUtil.get(FeedbackError.TEST_CONN_FAIL), null);
+			return new BaseVO<>(FeedbackError.TEST_CONN_FAIL, null);
 		}
 		Session session = null;
 		try {
 			session = new Session(conn.getHost(), conn.getPort(), conn.getUsername(), conn.getPassword());
 			session.open();
 		} catch (Exception e) {
-			return new BaseVO<>(FeedbackError.TEST_CONN_FAIL_PWD, MessageUtil.get(FeedbackError.TEST_CONN_FAIL_PWD),
-					null);
+			return new BaseVO<>(FeedbackError.TEST_CONN_FAIL_PWD, null);
 		} finally {
 			try {
 				if (session != null) {
 					session.close();
 				}
 			} catch (Exception e) {
-				return new BaseVO<>(FeedbackError.TEST_CONN_FAIL_PWD, MessageUtil.get(FeedbackError.TEST_CONN_FAIL_PWD),
-						null);
+				return new BaseVO<>(FeedbackError.TEST_CONN_FAIL_PWD, null);
 			}
 		}
 		return BaseVO.success("Test Success", null);
@@ -158,7 +155,7 @@ public class ConnectionController {
 		c.setUserId(user.getId());
 		Connect connect = connectDao.selectOneWithSetting(c);
 		if (connect == null) {
-			return new BaseVO<>(FeedbackError.NO_CONN, MessageUtil.get(FeedbackError.NO_CONN), null);
+			return new BaseVO<>(FeedbackError.NO_CONN, null);
 		}
 		if (connect.getSetting() == null) {
 			connect.setSetting(new JSONObject());
@@ -171,8 +168,7 @@ public class ConnectionController {
 		if (i == 1) {
 			return BaseVO.success(null);
 		}
-		return new BaseVO<>(FeedbackError.UPDATE_CONN_SERVER_FAIL,
-				MessageUtil.get(FeedbackError.UPDATE_CONN_SERVER_FAIL), null);
+		return new BaseVO<>(FeedbackError.UPDATE_CONN_SERVER_FAIL, null);
 	}
 
 	@ApiOperation(value = "/api/connection/addThenReturnLess", notes = "/api/connection/addThenReturnLess")
@@ -193,7 +189,7 @@ public class ConnectionController {
 		connect.setPassword(password);
 		connect.setHost(ip);
 		connect.setPort(port);
-		connect.setCreateTime(Calendar.getInstance().getTime());
+		connect.setCreateTime(LocalDateTime.now().toDate());
 		JSONObject setting = new JSONObject();
 		setting.put("serverUsername", serverUsername);
 		setting.put("serverPassword", serverPassword);
@@ -219,7 +215,7 @@ public class ConnectionController {
 			Page<Connect> page = new Page<>(list, cc.getLimiter());
 			return BaseVO.success("Add Connection Success", page);
 		} else {
-			return new BaseVO<>(FeedbackError.INSERT_CONN_FAIL, MessageUtil.get(FeedbackError.INSERT_CONN_FAIL), null);
+			return new BaseVO<>(FeedbackError.INSERT_CONN_FAIL, null);
 		}
 	}
 
@@ -260,15 +256,14 @@ public class ConnectionController {
 	public BaseVO<Object> connectionDelete(@RequestParam("id") Long id) {
 		Connect connect = connectDao.select(id);
 		if (connect == null) {
-			return new BaseVO<>(FeedbackError.NO_CONN, MessageUtil.get(FeedbackError.NO_CONN), null);
+			return new BaseVO<>(FeedbackError.NO_CONN, null);
 		}
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
 		if (connect.getUser() != null && user.getId().equals(connect.getUser().getId())) {
 			int i = connectDao.delete(connect);
 			if (i == 0) {
-				return new BaseVO<>(FeedbackError.DELETE_CONN_FAIL, MessageUtil.get(FeedbackError.DELETE_CONN_FAIL),
-						null);
+				return new BaseVO<>(FeedbackError.DELETE_CONN_FAIL, null);
 			} else {
 				SessionPool sp = dynamicSessionPool.getSessionPool(connect.getId());
 				dynamicSessionPool.removeSessionPool(connect.getId());
@@ -277,7 +272,7 @@ public class ConnectionController {
 				return BaseVO.success("Delete Connection Success", null);
 			}
 		} else {
-			return new BaseVO<>(FeedbackError.USER_AUTH_FAIL, MessageUtil.get(FeedbackError.USER_AUTH_FAIL), null);
+			return new BaseVO<>(FeedbackError.USER_AUTH_FAIL, null);
 		}
 	}
 
@@ -289,7 +284,7 @@ public class ConnectionController {
 			@RequestParam("connectionName") String connectionName) {
 		Connect connect = connectDao.select(id);
 		if (connect == null) {
-			return new BaseVO<>(FeedbackError.NO_CONN, MessageUtil.get(FeedbackError.NO_CONN), null);
+			return new BaseVO<>(FeedbackError.NO_CONN, null);
 		}
 		Subject subject = SecurityUtils.getSubject();
 		User user = (User) subject.getSession().getAttribute(UserController.USER);
@@ -311,11 +306,10 @@ public class ConnectionController {
 
 				return BaseVO.success(null);
 			} else {
-				return new BaseVO<>(FeedbackError.INSERT_CONN_FAIL, MessageUtil.get(FeedbackError.INSERT_CONN_FAIL),
-						null);
+				return new BaseVO<>(FeedbackError.INSERT_CONN_FAIL, null);
 			}
 		} else {
-			return new BaseVO<>(FeedbackError.USER_AUTH_FAIL, MessageUtil.get(FeedbackError.USER_AUTH_FAIL), null);
+			return new BaseVO<>(FeedbackError.USER_AUTH_FAIL, null);
 		}
 	}
 
@@ -329,7 +323,7 @@ public class ConnectionController {
 		c.setId(id);
 		Connect connect = connectDao.selectOneWithSetting(c);
 		if (connect == null) {
-			return new BaseVO<>(FeedbackError.CHECK_FAIL, MessageUtil.get(FeedbackError.CHECK_FAIL), null);
+			return new BaseVO<>(FeedbackError.CHECK_FAIL, null);
 		} else {
 			if (connect.getSetting() == null) {
 				connect.setSetting(new JSONObject());

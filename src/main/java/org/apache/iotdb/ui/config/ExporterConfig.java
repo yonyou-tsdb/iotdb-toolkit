@@ -21,7 +21,6 @@ package org.apache.iotdb.ui.config;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Calendar;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -32,6 +31,7 @@ import org.apache.iotdb.ui.model.exporter.ExporterHeader;
 import org.apache.iotdb.ui.model.exporter.ExporterInsert;
 import org.apache.iotdb.ui.model.exporter.ExporterMessageType;
 import org.apache.iotdb.ui.util.ExporterParsingUtil;
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -54,7 +54,7 @@ public class ExporterConfig {
 		HttpGet http = new HttpGet(uri);
 		Session session = new Session(monitorServerConfig.getHost(), 6667, user, user);
 		session.open();
-		Long timestamp = Calendar.getInstance().getTime().getTime();
+		Long timestamp = LocalDateTime.now().toDate().getTime();
 		// 发送请求，获取服务器返回的httpResponse对象
 		try (CloseableHttpResponse httpResponse = HttpClientBean.execute(http);
 				// 用输入流获取，字节读取
@@ -86,10 +86,10 @@ public class ExporterConfig {
 	}
 
 	public void readMetrics(String exporterEndPoint, String exporterCode) throws Exception {
-		HttpGet http = new HttpGet(String.format("http://%s", exporterEndPoint));
+		HttpGet http = new HttpGet(new StringBuilder("http://").append(exporterEndPoint).toString());
 		Session session = new Session(monitorServerConfig.getHost(), 6667, user, user);
 		session.open();
-		Long timestamp = Calendar.getInstance().getTime().getTime();
+		Long timestamp = LocalDateTime.now().toDate().getTime();
 		// 发送请求，获取服务器返回的httpResponse对象
 		try (CloseableHttpResponse httpResponse = HttpClientBean.execute(http);
 				// 用输入流获取，字节读取
@@ -102,7 +102,7 @@ public class ExporterConfig {
 			String line = null;
 			ExporterMessageType lastMetricType = ExporterMessageType.UNTYPE;
 			ExporterInsert ei = new ExporterInsert();
-			ei.setPath(String.format("root._monitor.\"%s\"", exporterCode));
+			ei.setPath(new StringBuilder("root._monitor.\"").append(exporterCode).append("\"").toString());
 			while ((line = br.readLine()) != null) {
 				if (line.startsWith(ExporterParsingUtil.COMMENT_SIGN)) {
 					ExporterHeader eh = ExporterParsingUtil.read(line, null, null, null);

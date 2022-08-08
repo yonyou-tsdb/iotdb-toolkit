@@ -19,8 +19,6 @@
 package org.apache.iotdb.ui.config;
 
 import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.iotdb.ui.condition.TaskCondition;
@@ -33,6 +31,7 @@ import org.apache.iotdb.ui.entity.Task;
 import org.apache.iotdb.ui.mapper.ConnectDao;
 import org.apache.iotdb.ui.mapper.ExporterDao;
 import org.apache.iotdb.ui.mapper.TaskDao;
+import org.apache.iotdb.ui.model.TaskFlag;
 import org.apache.iotdb.ui.model.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,10 +130,10 @@ public class DynamicSessionPoolConfig {
 	}
 
 	private void loadTaskTimerBucket(TaskTimerBucket taskTimerBucket) throws Exception {
+		// 处理一次性任务
 		TaskCondition e = new TaskCondition();
-		Date now = Calendar.getInstance().getTime();
-		e.setStartWindowToGreaterOrEqual(now);
 		e.setStatus(TaskStatus.NOT_START);
+		e.setFlag(TaskFlag.ONE_TIME);
 		List<Task> list = taskDao.selectAllPure(e);
 		for (Task t : list) {
 			taskTimerBucket.getTaskTimerMap().put(t.key(), t);

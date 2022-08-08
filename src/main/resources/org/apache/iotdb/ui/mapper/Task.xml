@@ -26,12 +26,18 @@
         <result property="type" column="type" typeHandler="org.apache.iotdb.ui.handler.TaskTypeHandler"/>
         <result property="setting" column="setting"/>
         <result property="startWindowFrom" column="start_window_from"/>
-        <result property="startWindowTo" column="start_window_to"/>
         <result property="priority" column="priority"/>
         <result property="status" column="status" typeHandler="org.apache.iotdb.ui.handler.TaskStatusHandler"/>
         <result property="resultRows" column="result_rows"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
+        <result property="name" column="name"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="timeCost" column="time_cost"/>
+        <result property="flag" column="flag" typeHandler="org.apache.iotdb.ui.handler.TaskFlagHandler"/>
+        <result property="expression" column="expression"/>
+        <result property="longTermTaskId" column="long_term_task_id"/>
         <association property="user" resultMap="org.apache.iotdb.ui.mapper.UserDao.result" columnPrefix="u__"/>
     </resultMap>
 </mapper>

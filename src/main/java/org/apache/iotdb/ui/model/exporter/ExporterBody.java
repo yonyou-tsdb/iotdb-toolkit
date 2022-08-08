@@ -65,7 +65,7 @@ public class ExporterBody {
 
 	public String buildPath() {
 		if (label.isEmpty()) {
-			return String.format("\"%s\"", metricName);
+			return new StringBuilder("\"").append(metricName).append("\"").toString();
 		} else {
 			StringBuilder sb = new StringBuilder("\"").append(metricName).append("\"");
 			for (Map.Entry<String, String> e : label.entrySet()) {

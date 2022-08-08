@@ -24,8 +24,10 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.iotdb.ui.entity.helper.PojoSupport;
 import org.apache.iotdb.ui.face.TaskFace;
 import org.apache.iotdb.ui.face.UserFace;
+import org.apache.iotdb.ui.handler.TaskFlagHandler;
 import org.apache.iotdb.ui.handler.TaskStatusHandler;
 import org.apache.iotdb.ui.handler.TaskTypeHandler;
+import org.apache.iotdb.ui.model.TaskFlag;
 import org.apache.iotdb.ui.model.TaskStatus;
 import org.apache.iotdb.ui.model.TaskType;
 import org.apache.iotdb.ui.util.CommonUtils;
@@ -38,6 +40,18 @@ import indi.mybatis.flying.annotations.TableMapperAnnotation;
 
 @TableMapperAnnotation(tableName = "tb_task")
 public class Task extends PojoSupport implements TaskFace {
+
+	public static final String SETTING_MEASUREMENTLIST = "measurementList";
+
+	public static final String SETTING_WHERECLAUSE = "whereClause";
+
+	public static final String SETTING_COMPRESS = "compress";
+
+	public static final String SETTING_CONNECTID = "connectId";
+
+	public static final String SETTING_DEVICE = "device";
+
+	public static final String SETTING_FILEFOLDER = "fileFolder";
 
 	/**
 	 * 主键
@@ -68,13 +82,6 @@ public class Task extends PojoSupport implements TaskFace {
 	private Date startWindowFrom;
 
 	/**
-	 * 时间窗口结束时间
-	 * 
-	 */
-	@FieldMapperAnnotation(dbFieldName = "start_window_to", jdbcType = JdbcType.TIMESTAMP)
-	private Date startWindowTo;
-
-	/**
 	 * 优先级
 	 * 
 	 */
@@ -93,13 +100,62 @@ public class Task extends PojoSupport implements TaskFace {
 	 * 
 	 */
 	@FieldMapperAnnotation(dbFieldName = "result_rows", jdbcType = JdbcType.BIGINT)
-	public Long resultRows;
+	private Long resultRows;
 
 	@FieldMapperAnnotation(dbFieldName = "create_time", jdbcType = JdbcType.TIMESTAMP)
 	private Date createTime;
 
 	@FieldMapperAnnotation(dbFieldName = "update_time", jdbcType = JdbcType.TIMESTAMP)
 	private Date updateTime;
+
+	/**
+	 * 名称
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "name", jdbcType = JdbcType.VARCHAR)
+	private String name;
+
+	/**
+	 * 任务开始时间
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "start_time", jdbcType = JdbcType.TIMESTAMP)
+	private Date startTime;
+
+	/**
+	 * 任务结束时间
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "end_time", jdbcType = JdbcType.TIMESTAMP)
+	private Date endTime;
+
+	/**
+	 * 任务用时（秒）
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "time_cost", jdbcType = JdbcType.INTEGER)
+	private Integer timeCost;
+
+	/**
+	 * 长期（l）或一次性（o）
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "flag", jdbcType = JdbcType.CHAR, customTypeHandler = TaskFlagHandler.class)
+	private TaskFlag flag;
+
+	/**
+	 * 长期任务使用的cron表达式
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "expression", jdbcType = JdbcType.VARCHAR)
+	private String expression;
+
+	/**
+	 * 当长期任务触发条件生成一次性任务时，记录长期任务的主键
+	 * 
+	 */
+	@FieldMapperAnnotation(dbFieldName = "long_term_task_id", jdbcType = JdbcType.VARCHAR)
+	private Long longTermTaskId;
 
 	@FieldMapperAnnotation(dbFieldName = "user_id", jdbcType = JdbcType.BIGINT, dbAssociationUniqueKey = "id")
 	private User user;
@@ -154,14 +210,6 @@ public class Task extends PojoSupport implements TaskFace {
 		this.startWindowFrom = startWindowFrom;
 	}
 
-	public Date getStartWindowTo() {
-		return startWindowTo;
-	}
-
-	public void setStartWindowTo(Date startWindowTo) {
-		this.startWindowTo = startWindowTo;
-	}
-
 	public Integer getPriority() {
 		return priority;
 	}
@@ -200,6 +248,62 @@ public class Task extends PojoSupport implements TaskFace {
 
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	public Integer getTimeCost() {
+		return timeCost;
+	}
+
+	public void setTimeCost(Integer timeCost) {
+		this.timeCost = timeCost;
+	}
+
+	public TaskFlag getFlag() {
+		return flag;
+	}
+
+	public void setFlag(TaskFlag flag) {
+		this.flag = flag;
+	}
+
+	public String getExpression() {
+		return expression;
+	}
+
+	public void setExpression(String expression) {
+		this.expression = expression;
+	}
+
+	public Long getLongTermTaskId() {
+		return longTermTaskId;
+	}
+
+	public void setLongTermTaskId(Long longTermTaskId) {
+		this.longTermTaskId = longTermTaskId;
 	}
 
 	public void setId(Long id) {
